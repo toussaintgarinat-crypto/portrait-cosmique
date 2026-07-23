@@ -17,7 +17,24 @@ Celtic, Native American, and Maya (Tzolkin) traditions**. Free, instant, self-ho
 - [Docker](https://docs.docker.com/get-docker/) + Docker Compose (bundled with Docker Desktop).
 - `git`.
 
-### Steps
+### One-liner
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/toussaintgarinat-crypto/portrait-cosmique/main/install.sh | bash
+```
+
+Clones the repo into `./portrait-cosmique`, builds the image, and starts the service —
+nothing else (no `sudo`, no writes outside that folder). Running the same command later
+**updates** (`git pull` + rebuild) instead of re-cloning. The script is short and
+readable; if you'd rather inspect it first:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/toussaintgarinat-crypto/portrait-cosmique/main/install.sh -o install.sh
+less install.sh   # read it
+bash install.sh
+```
+
+### Or manually
 
 ```bash
 git clone https://github.com/toussaintgarinat-crypto/portrait-cosmique.git
@@ -25,7 +42,7 @@ cd portrait-cosmique
 docker compose up -d --build
 ```
 
-The first run, `--build` builds the image (a few dozen seconds). Check it's up:
+Either way, check it's up:
 
 ```bash
 curl http://localhost:8410/sante

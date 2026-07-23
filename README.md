@@ -18,7 +18,24 @@ auto-hébergeable.
 - [Docker](https://docs.docker.com/get-docker/) + Docker Compose (inclus dans Docker Desktop).
 - `git`.
 
-### Étapes
+### En une commande
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/toussaintgarinat-crypto/portrait-cosmique/main/install.sh | bash
+```
+
+Ça clone le dépôt dans `./portrait-cosmique`, construit l'image et lance le service —
+rien de plus (pas de `sudo`, pas d'écriture hors de ce dossier). Relancer la même
+commande plus tard **met à jour** (`git pull` + rebuild) au lieu de re-cloner. Le script
+est court et lisible ; si tu préfères l'inspecter avant de l'exécuter :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/toussaintgarinat-crypto/portrait-cosmique/main/install.sh -o install.sh
+less install.sh   # relis-le
+bash install.sh
+```
+
+### Ou manuellement
 
 ```bash
 git clone https://github.com/toussaintgarinat-crypto/portrait-cosmique.git
@@ -26,8 +43,7 @@ cd portrait-cosmique
 docker compose up -d --build
 ```
 
-La première fois, `--build` construit l'image (quelques dizaines de secondes). Vérifie que
-ça tourne :
+Dans les deux cas, vérifie que ça tourne :
 
 ```bash
 curl http://localhost:8410/sante
