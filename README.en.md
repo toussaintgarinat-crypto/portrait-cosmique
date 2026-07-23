@@ -10,15 +10,44 @@ Celtic, Native American, and Maya (Tzolkin) traditions**. Free, instant, self-ho
 > positions, numerology paths, calendar correspondences) is exact; what it draws from it
 > (archetype, strengths/weakness, narrative) is an interpretation.
 
-## 30-second start
+## Installation
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) + Docker Compose (bundled with Docker Desktop).
+- `git`.
+
+### Steps
 
 ```bash
-git clone <this-repo> portrait-cosmique && cd portrait-cosmique
+git clone https://github.com/toussaintgarinat-crypto/portrait-cosmique.git
+cd portrait-cosmique
 docker compose up -d --build
 ```
 
-Open http://localhost:8410 — fill in the form, get your portrait. No key, no account, no
-data retained: everything is computed on the fly and nothing is stored.
+The first run, `--build` builds the image (a few dozen seconds). Check it's up:
+
+```bash
+curl http://localhost:8410/sante
+# {"statut":"ok","service":"portrait-cosmique","version":"0.1.0","lecture_approfondie_configuree":false}
+```
+
+Then open **http://localhost:8410** in your browser: fill in the form (at minimum a date
+of birth), click "Calculate my portrait".
+
+No key, no account required, no data retained: every computation happens on the fly,
+nothing is written to disk (no database).
+
+**Stop / update**:
+
+```bash
+docker compose down                        # stop
+git pull && docker compose up -d --build   # update then restart
+```
+
+**Without Docker** (local dev): `pip install -r requirements.txt` then
+`uvicorn main:app --reload --port 8410` from the repo root (`main.py` auto-detects the
+`engine/` subfolder locally).
 
 ## What you get
 
@@ -30,30 +59,69 @@ data retained: everything is computed on the fly and nothing is stored.
   Egyptian deity, Celtic tree, Native American totem, Maya glyph, life path, name
   expression — every value explained in keywords.
 - **A symbolic narrative** weaving it all into a coherent reading.
-- **French or English** — same engine, same data, your choice of language.
+- **French or English** — same engine, same data, your choice of language (FR/EN button).
 
 ## Real cost: zero
 
-The portrait is computed by a **100% Python** engine (numerology, celestial mechanics,
-calendars), no database, no network call, no API key, no LLM. Zero cost, zero external
-dependency for the core feature.
+All of the above is computed by a **100% Python** engine (numerology, celestial
+mechanics, calendars), no database, no network call, no API key, no LLM. Zero cost,
+zero external dependency for the core feature.
 
-## Optional bonus: AI-deepened reading
+## Enabling the in-depth reading (optional AI bonus)
 
-A literary rewrite of the narrative is available as an option, if:
-- you set a free **OpenRouter** key (`OPENROUTER_API_KEY` in `.env`, see `.env.example`)
-  with a free model (`OPENROUTER_MODEL`, e.g. `google/gemma-3-27b-it:free`) — enables the
-  bonus for **every visitor** of your instance;
-- or each visitor supplies **their own key** from the form ("Advanced options") — any
-  OpenAI-compatible endpoint, zero cost on your side.
+By default the narrative is already written (deterministic, see above) — the in-depth
+reading is a purely optional **AI literary rewrite** of that same content. Two ways to
+enable it:
 
-⚠️ **If you expose this instance publicly** and set a default key, any visitor consumes
-it (even at $0, you're still subject to the free model's rate limits). Keep this setting
-for private/family use, or leave it blank so only visitors who bring their own key get the
-bonus.
+### Option A — one key for the whole instance (handy for family/personal use)
 
-Without any configuration, the (already rich) deterministic narrative stands — an honest
-fallback, never an error shown to the user.
+1. Create a free account on [openrouter.ai](https://openrouter.ai) and generate an API
+   key (Settings → Keys). It's free as long as you use a model tagged **`:free`**.
+2. Pick a free model on [openrouter.ai/models](https://openrouter.ai/models) (filter by
+   "Free") — this repo defaults to `google/gemma-3-27b-it:free`, but any `:free` model
+   works (function-calling is not required here).
+3. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+4. Edit `.env`:
+   ```bash
+   OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   OPENROUTER_MODEL=google/gemma-3-27b-it:free
+   ```
+5. Restart:
+   ```bash
+   docker compose up -d --build
+   ```
+6. Verify: `curl http://localhost:8410/sante` should return
+   `"lecture_approfondie_configuree":true`. The "✨ Deepen with AI" button (under the
+   portrait, "Deepen with AI" section) now works for **every visitor** of this instance,
+   with nothing for them to fill in.
+
+⚠️ **If this instance is exposed publicly** (not just on your local network), any visitor
+consumes this key — even at $0, you're still subject to the free model's rate limits, and
+a bad actor could exhaust them for everyone. Reserve option A for private/family use; for
+public use, prefer option B below (or both: a visitor's BYOK key, when supplied, always
+takes priority over the instance's default key).
+
+### Option B — each visitor supplies their own key (BYOK, suited for public use)
+
+Nothing to configure server-side. Each visitor:
+1. Opens "Advanced options" in the form.
+2. Fills in their own endpoint (any OpenAI-compatible chat service):
+   - **Base URL** (e.g. `https://openrouter.ai/api/v1`, another provider's endpoint, or a
+     local model like Ollama/LM Studio);
+   - **API key**;
+   - **Model** (e.g. `openai/gpt-4o-mini`, `anthropic/claude-3-5-haiku`…).
+3. Computes their portrait, then clicks "✨ Deepen with AI": the call goes out under
+   THEIR key, zero cost for the instance's host.
+
+### Either way
+
+- With nothing configured (neither A nor B), the button still tries the call, fails
+  cleanly, and **falls back to the deterministic narrative** (`"source":"repli"` on the
+  API side) — never an error shown, never a blocked experience.
+- The rewrite's language follows the interface's chosen language (FR/EN).
 
 ## Export
 
