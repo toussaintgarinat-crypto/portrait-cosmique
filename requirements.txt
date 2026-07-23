@@ -1,0 +1,5 @@
+# Portrait Cosmique — dépendances minces et épinglées. Le moteur (engine/) est du
+# Python pur (stdlib), seul l'appel LLM optionnel et le géocodage sortent en réseau.
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+httpx==0.28.1

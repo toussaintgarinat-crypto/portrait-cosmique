@@ -1,0 +1,9 @@
+services:
+  portrait-cosmique:
+    build: .
+    image: portrait-cosmique
+    ports: ["8410:8410"]
+    environment:
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-google/gemma-3-27b-it:free}

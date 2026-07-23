@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portrait Cosmique</title>
+<style>
+  :root {
+    --bg: #0f1220; --panel: #171b2e; --panel2: #1e2338; --border: #2b3050;
+    --text: #eef0fb; --muted: #9aa1c4; --accent: #b98cf7; --accent2: #6ee7c3;
+    --danger: #ff8a8a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, var(--bg), #0a0c17 60%); color: var(--text);
+    min-height: 100vh;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 28px 18px 80px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 12px; }
+  h1 { font-size: 1.5rem; margin: 0; }
+  h1 span.emoji { margin-right: .4rem; }
+  .langs { display: flex; gap: 6px; }
+  .langs button {
+    background: var(--panel2); border: 1px solid var(--border); color: var(--muted);
+    padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: .85rem;
+  }
+  .langs button.on { color: var(--text); border-color: var(--accent); background: #2a2350; }
+  p.pitch { color: var(--muted); margin-top: -8px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 18px; }
+  label { display: block; font-size: .82rem; color: var(--muted); margin: 12px 0 4px; }
+  input, select {
+    width: 100%; background: var(--panel2); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 12px; border-radius: 8px; font-size: .95rem;
+  }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  .ville-row { display: flex; gap: 8px; align-items: end; }
+  .ville-row input { flex: 1; }
+  button.btn {
+    background: linear-gradient(135deg, var(--accent), #7c5cf0); border: none; color: white;
+    padding: 11px 16px; border-radius: 10px; font-size: .95rem; font-weight: 600; cursor: pointer;
+    margin-top: 6px;
+  }
+  button.btn.secondary {
+    background: var(--panel2); border: 1px solid var(--border); color: var(--text); font-weight: 500;
+  }
+  button.btn.ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--muted); font-weight: 500;
+    padding: 8px 12px; font-size: .85rem;
+  }
+  button.btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  details.avance { margin-top: 14px; }
+  details.avance summary { cursor: pointer; color: var(--muted); font-size: .85rem; }
+  .stat-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+  .stat-row .lab { width: 120px; font-size: .82rem; color: var(--muted); }
+  .stat-row .bar-bg { flex: 1; background: var(--panel2); border-radius: 6px; height: 10px; overflow: hidden; }
+  .stat-row .bar-fg { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+  .stat-row .val { width: 34px; text-align: right; font-size: .8rem; color: var(--muted); }
+  .archetype { font-size: 1.25rem; margin: 4px 0 2px; }
+  .sous { color: var(--muted); font-size: .9rem; }
+  .empreinte-item { border-top: 1px solid var(--border); padding: 10px 0; }
+  .empreinte-item .cle { font-size: .78rem; color: var(--accent2); text-transform: uppercase; letter-spacing: .04em; }
+  .empreinte-item .valeur { font-weight: 600; }
+  .empreinte-item .sens { color: var(--muted); font-size: .88rem; }
+  .recit { line-height: 1.65; }
+  .recit p { margin: 0 0 12px; }
+  .recit em { color: var(--muted); }
+  .badge { display: inline-block; font-size: .72rem; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; margin-left: 8px; }
+  .erreur { color: var(--danger); font-size: .9rem; margin-top: 8px; }
+  footer.mentions { color: var(--muted); font-size: .78rem; text-align: center; margin-top: 30px; }
+  #resultat { display: none; }
+
+  @media print {
+    header .langs, form, details.avance, .btns, footer.mentions { display: none !important; }
+    body { background: white; color: black; }
+    .panel { border: none; padding: 0; }
+    .stat-row .bar-bg { border: 1px solid #999; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="emoji">🔮</span><span data-t="titre">Portrait Cosmique</span></h1>
+    <div class="langs">
+      <button id="btn-fr" class="on" onclick="setLangue('fr')">FR</button>
+      <button id="btn-en" onclick="setLangue('en')">EN</button>
+    </div>
+  </header>
+  <p class="pitch" data-t="pitch">Numérologie, astrologie occidentale/chinoise/védique, égyptien, celte, amérindien, maya… un portrait complet, gratuit et instantané.</p>
+
+  <div class="panel">
+    <form id="form-fiche">
+      <div class="row">
+        <div>
+          <label data-t="l_prenoms">Prénoms</label>
+          <input id="prenoms" type="text">
+        </div>
+        <div>
+          <label data-t="l_nom">Nom</label>
+          <input id="nom" type="text">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label data-t="l_date">Date de naissance *</label>
+          <input id="date_naissance" type="date" required>
+        </div>
+        <div>
+          <label data-t="l_heure">Heure de naissance</label>
+          <input id="heure_naissance" type="time">
+        </div>
+      </div>
+      <label data-t="l_ville">Ville de naissance</label>
+      <div class="ville-row">
+        <input id="ville" type="text" placeholder="Toulouse">
+        <button type="button" class="btn secondary" onclick="localiser()" data-t="b_localiser">📍 Localiser</button>
+      </div>
+      <div id="coords-info" class="sous" style="margin-top:6px;"></div>
+      <input type="hidden" id="latitude">
+      <input type="hidden" id="longitude">
+      <input type="hidden" id="utc_offset">
+
+      <details class="avance">
+        <summary data-t="l_options">Options avancées</summary>
+        <label data-t="l_systeme">Système de numérologie</label>
+        <select id="systeme_numerologie">
+          <option value="classique" data-t="o_classique">Classique (A=1…Z=26)</option>
+          <option value="pythagoricien" data-t="o_pythagoricien">Pythagoricien</option>
+        </select>
+        <label style="margin-top:16px;" data-t="l_byok">Clé IA personnelle (optionnel — pour la lecture approfondie)</label>
+        <input id="llm_base_url" type="text" placeholder="https://api.exemple.com/v1">
+        <input id="llm_cle" type="text" placeholder="clé API" style="margin-top:6px;">
+        <input id="llm_modele" type="text" placeholder="nom du modèle" style="margin-top:6px;">
+      </details>
+
+      <div class="btns">
+        <button type="submit" class="btn" data-t="b_calculer">✨ Calculer mon portrait</button>
+        <button type="button" class="btn ghost" onclick="aleatoire()" data-t="b_alea">🎲 Aléatoire</button>
+      </div>
+      <div id="erreur" class="erreur"></div>
+    </form>
+  </div>
+
+  <div id="resultat" class="panel">
+    <div class="archetype" id="r-archetype"></div>
+    <div class="sous" id="r-souscritre"></div>
+
+    <div id="r-stats" style="margin-top:16px;"></div>
+
+    <div id="r-empreinte" style="margin-top:18px;"></div>
+
+    <div class="recit" id="r-recit" style="margin-top:18px;"></div>
+
+    <details class="avance" style="margin-top:14px;">
+      <summary data-t="l_approfondir_section"><span data-t="l_approfondir_section_txt">Approfondir avec l'IA</span></summary>
+      <p class="sous" data-t="l_approfondir_note">Optionnel : réécriture littéraire par une IA, à partir des mêmes données. Nécessite une clé (voir « Options avancées » du formulaire) ou une configuration par défaut sur cette instance.</p>
+      <button type="button" class="btn secondary" onclick="approfondir()" data-t="b_approfondir">✨ Approfondir avec l'IA</button>
+    </details>
+
+    <div class="btns" style="margin-top:18px;">
+      <button type="button" class="btn secondary" onclick="telechargerHTML()" data-t="b_html">⬇️ Télécharger en HTML</button>
+      <button type="button" class="btn secondary" onclick="window.print()" data-t="b_pdf">🖨️ Imprimer / Enregistrer en PDF</button>
+    </div>
+  </div>
+
+  <footer class="mentions" data-t="mentions">Lecture symbolique — divertissement, pas un fait. Aucune donnée n'est conservée par ce service.</footer>
+</div>
+
+<script>
+const I18N = {
+  fr: {
+    titre: "Portrait Cosmique",
+    pitch: "Numérologie, astrologie occidentale/chinoise/védique, égyptien, celte, amérindien, maya… un portrait complet, gratuit et instantané.",
+    l_prenoms: "Prénoms", l_nom: "Nom", l_date: "Date de naissance *", l_heure: "Heure de naissance",
+    l_ville: "Ville de naissance", b_localiser: "📍 Localiser",
+    l_options: "Options avancées", l_systeme: "Système de numérologie",
+    o_classique: "Classique (A=1…Z=26)", o_pythagoricien: "Pythagoricien",
+    l_byok: "Clé IA personnelle (optionnel — pour la lecture approfondie)",
+    b_calculer: "✨ Calculer mon portrait", b_alea: "🎲 Aléatoire",
+    l_approfondir_section_txt: "Approfondir avec l'IA",
+    l_approfondir_note: "Optionnel : réécriture littéraire par une IA, à partir des mêmes données. Nécessite une clé (voir « Options avancées » du formulaire) ou une configuration par défaut sur cette instance.",
+    b_approfondir: "✨ Approfondir avec l'IA",
+    b_html: "⬇️ Télécharger en HTML", b_pdf: "🖨️ Imprimer / Enregistrer en PDF",
+    mentions: "Lecture symbolique — divertissement, pas un fait. Aucune donnée n'est conservée par ce service.",
+    forces_titre: "Forces dominantes", faiblesse_titre: "Point à travailler", pierre_titre: "Pierre d'équilibrage",
+    erreur_date: "Indique au moins une date de naissance valide.",
+    erreur_generique: "Une erreur est survenue.",
+    source_ia: "réécrit par l'IA", source_repli: "récit déterministe (IA non configurée ou indisponible)",
+    llm_langue: "français",
+  },
+  en: {
+    titre: "Portrait Cosmique",
+    pitch: "Numerology, Western/Chinese/Vedic astrology, Egyptian, Celtic, Native American, Maya… a full portrait, free and instant.",
+    l_prenoms: "First name(s)", l_nom: "Last name", l_date: "Date of birth *", l_heure: "Time of birth",
+    l_ville: "City of birth", b_localiser: "📍 Look up",
+    l_options: "Advanced options", l_systeme: "Numerology system",
+    o_classique: "Classic (A=1…Z=26)", o_pythagoricien: "Pythagorean",
+    l_byok: "Personal AI key (optional — for the in-depth reading)",
+    b_calculer: "✨ Calculate my portrait", b_alea: "🎲 Random",
+    l_approfondir_section_txt: "Deepen with AI",
+    l_approfondir_note: "Optional: literary rewrite by an AI, from the same data. Requires a key (see the form's « Advanced options ») or a default configuration on this instance.",
+    b_approfondir: "✨ Deepen with AI",
+    b_html: "⬇️ Download as HTML", b_pdf: "🖨️ Print / Save as PDF",
+    mentions: "Symbolic reading — entertainment, not fact. No data is kept by this service.",
+    forces_titre: "Dominant strengths", faiblesse_titre: "Point to work on", pierre_titre: "Balancing stone",
+    erreur_date: "Please provide at least a valid date of birth.",
+    erreur_generique: "Something went wrong.",
+    source_ia: "rewritten by AI", source_repli: "deterministic reading (AI not configured or unavailable)",
+    llm_langue: "english",
+  },
+};
+
+let LANGUE = "fr";
+let DERNIER_RESULTAT = null;
+
+function setLangue(l) {
+  LANGUE = l;
+  document.getElementById("btn-fr").classList.toggle("on", l === "fr");
+  document.getElementById("btn-en").classList.toggle("on", l === "en");
+  document.documentElement.lang = l;
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const cle = el.getAttribute("data-t");
+    if (I18N[l][cle]) el.textContent = I18N[l][cle];
+  });
+  // Un résultat déjà affiché a été calculé dans l'ANCIENNE langue (stats/archétype/
+  // récit) : le rafraîchir plutôt que de ré-afficher des données périmées.
+  if (DERNIER_RESULTAT) calculerPortrait();
+}
+
+async function localiser() {
+  const ville = document.getElementById("ville").value.trim();
+  if (!ville) return;
+  try {
+    const r = await fetch("/geo?ville=" + encodeURIComponent(ville));
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    document.getElementById("latitude").value = d.latitude;
+    document.getElementById("longitude").value = d.longitude;
+    document.getElementById("utc_offset").value = document.getElementById("utc_offset").value || 0;
+    document.getElementById("coords-info").textContent = `${d.ville} (${d.latitude.toFixed(2)}, ${d.longitude.toFixed(2)})`;
+  } catch (e) {
+    document.getElementById("coords-info").textContent = LANGUE === "fr" ? "Ville introuvable." : "City not found.";
+  }
+}
+
+function aleatoire() {
+  const an = 1960 + Math.floor(Math.random() * 60);
+  const mois = 1 + Math.floor(Math.random() * 12);
+  const jour = 1 + Math.floor(Math.random() * 28);
+  const heure = Math.floor(Math.random() * 24);
+  const minute = Math.floor(Math.random() * 60);
+  document.getElementById("date_naissance").value =
+    `${an}-${String(mois).padStart(2,"0")}-${String(jour).padStart(2,"0")}`;
+  document.getElementById("heure_naissance").value =
+    `${String(heure).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
+  const noms = ["Aria","Kalen","Sora","Ilian","Noa","Vesna","Rin","Malo"];
+  document.getElementById("prenoms").value = noms[Math.floor(Math.random()*noms.length)];
+}
+
+function md(txt) {
+  const esc = (txt || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  return esc
+    .split("\n\n")
+    .map(p => "<p>" + p
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/_(.+?)_/g, "<em>$1</em>") + "</p>")
+    .join("");
+}
+
+function afficherResultat(d) {
+  const t = I18N[LANGUE];
+  const p = d.portrait;
+  document.getElementById("r-archetype").textContent = p.archetype;
+  const stats = p.stats;
+  const max = Math.max(...Object.values(stats));
+  document.getElementById("r-stats").innerHTML = Object.entries(stats)
+    .sort((a,b) => b[1]-a[1])
+    .map(([k,v]) => `<div class="stat-row"><div class="lab">${k}</div>
+      <div class="bar-bg"><div class="bar-fg" style="width:${v}%"></div></div>
+      <div class="val">${v}</div></div>`).join("");
+  document.getElementById("r-souscritre").innerHTML =
+    `${t.forces_titre} : ${p.forces.join(", ")} · ${t.faiblesse_titre} : ${p.faiblesse}
+     <span class="badge">${t.pierre_titre} : ${p.pierre_equilibrage.pierre}</span>`;
+  document.getElementById("r-empreinte").innerHTML = d.empreinte.map(e => `
+    <div class="empreinte-item">
+      <div class="cle">${e.cle}${e.role ? " · " + e.role : ""}</div>
+      <div class="valeur">${e.valeur}</div>
+      <div class="sens">${e.sens}</div>
+    </div>`).join("");
+  document.getElementById("r-recit").innerHTML = md(d._recit_affiche || p.recit);
+  document.getElementById("resultat").style.display = "block";
+}
+
+async function calculerPortrait() {
+  const err = document.getElementById("erreur");
+  err.textContent = "";
+  const body = {
+    prenoms: document.getElementById("prenoms").value,
+    nom: document.getElementById("nom").value,
+    date_naissance: document.getElementById("date_naissance").value,
+    heure_naissance: document.getElementById("heure_naissance").value || null,
+    latitude: document.getElementById("latitude").value ? parseFloat(document.getElementById("latitude").value) : null,
+    longitude: document.getElementById("longitude").value ? parseFloat(document.getElementById("longitude").value) : null,
+    utc_offset: document.getElementById("utc_offset").value ? parseFloat(document.getElementById("utc_offset").value) : null,
+    systeme_numerologie: document.getElementById("systeme_numerologie").value,
+    langue: LANGUE,
+  };
+  try {
+    const r = await fetch("/portrait", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.detail || I18N[LANGUE].erreur_generique);
+    }
+    const d = await r.json();
+    DERNIER_RESULTAT = d;
+    afficherResultat(d);
+  } catch (e) {
+    err.textContent = e.message || I18N[LANGUE].erreur_generique;
+  }
+}
+
+document.getElementById("form-fiche").addEventListener("submit", (ev) => {
+  ev.preventDefault();
+  calculerPortrait();
+});
+
+async function approfondir() {
+  if (!DERNIER_RESULTAT) return;
+  const base_url = document.getElementById("llm_base_url").value.trim();
+  const cle = document.getElementById("llm_cle").value.trim();
+  const modele = document.getElementById("llm_modele").value.trim();
+  const llmBody = base_url ? { base_url, cle, modele } : null;
+  const body = {
+    portrait: DERNIER_RESULTAT.portrait,
+    empreinte: DERNIER_RESULTAT.empreinte,
+    langue: I18N[LANGUE].llm_langue,
+    llm: llmBody,
+  };
+  try {
+    const r = await fetch("/lecture-approfondie", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+    const d = await r.json();
+    DERNIER_RESULTAT._recit_affiche = d.lecture;
+    document.getElementById("r-recit").innerHTML = md(d.lecture) +
+      `<div class="badge">${d.source === "llm" ? I18N[LANGUE].source_ia : I18N[LANGUE].source_repli}</div>`;
+  } catch (e) { /* repli silencieux : le récit déterministe reste affiché */ }
+}
+
+function telechargerHTML() {
+  const panneau = document.getElementById("resultat").outerHTML;
+  const styles = document.querySelector("style").outerHTML;
+  const html = `<!DOCTYPE html><html lang="${LANGUE}"><head><meta charset="utf-8">
+    <title>Portrait Cosmique</title>${styles}</head><body><div class="wrap">${panneau}</div></body></html>`;
+  const blob = new Blob([html], { type: "text/html" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "portrait-cosmique.html";
+  a.click();
+}
+</script>
+</body>
+</html>
