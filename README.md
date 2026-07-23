@@ -17,6 +17,13 @@ auto-hébergeable.
 
 - [Docker](https://docs.docker.com/get-docker/) + Docker Compose (inclus dans Docker Desktop).
 - `git`.
+- `curl` (pour la commande en une ligne ci-dessous, et pour la vérification de démarrage
+  du script — déjà présent par défaut sur macOS et la plupart des distributions Linux).
+- Le port **8410** libre sur ta machine (changeable dans `docker-compose.yml` si besoin,
+  ex. `"8420:8410"`).
+- Sous **Windows** : le script d'installation est en bash — utilise **WSL** ou **Git
+  Bash** (Docker Desktop pour Windows fonctionne avec les deux). L'installation manuelle
+  ci-dessous, elle, marche partout où Docker tourne (PowerShell/CMD inclus).
 
 ### En une commande
 

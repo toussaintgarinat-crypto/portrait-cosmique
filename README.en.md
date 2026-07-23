@@ -16,6 +16,13 @@ Celtic, Native American, and Maya (Tzolkin) traditions**. Free, instant, self-ho
 
 - [Docker](https://docs.docker.com/get-docker/) + Docker Compose (bundled with Docker Desktop).
 - `git`.
+- `curl` (for the one-liner below, and for the script's own startup check — already
+  present by default on macOS and most Linux distributions).
+- Port **8410** free on your machine (changeable in `docker-compose.yml` if needed, e.g.
+  `"8420:8410"`).
+- On **Windows**: the install script is bash — use **WSL** or **Git Bash** (Docker
+  Desktop for Windows works with both). The manual install below works anywhere Docker
+  runs (PowerShell/CMD included).
 
 ### One-liner
 
