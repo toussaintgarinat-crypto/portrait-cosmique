@@ -71,6 +71,8 @@
   .erreur { color: var(--danger); font-size: .9rem; margin-top: 8px; }
   footer.mentions { color: var(--muted); font-size: .78rem; text-align: center; margin-top: 30px; }
   #resultat { display: none; }
+  #llm_base_url[readonly] { opacity: .7; }
+  #btn-voir-cle:hover { color: var(--text); }
 
   @media print {
     header .langs, form, details.avance, .btns, footer.mentions { display: none !important; }
@@ -130,10 +132,37 @@
           <option value="classique" data-t="o_classique">Classique (A=1…Z=26)</option>
           <option value="pythagoricien" data-t="o_pythagoricien">Pythagoricien</option>
         </select>
-        <label style="margin-top:16px;" data-t="l_byok">Clé IA personnelle (optionnel — pour la lecture approfondie)</label>
-        <input id="llm_base_url" type="text" placeholder="https://api.exemple.com/v1">
-        <input id="llm_cle" type="text" placeholder="clé API" style="margin-top:6px;">
-        <input id="llm_modele" type="text" placeholder="nom du modèle" style="margin-top:6px;">
+        <label style="margin-top:16px;" data-t="l_byok">Configuration IA personnelle</label>
+        <p class="sous" style="margin:4px 0 8px;" data-t="l_byok_desc">Votre clé est sauvegardée localement dans votre navigateur. Elle n'est transmise au serveur que lors d'une demande de lecture approfondie.</p>
+        <label data-t="l_fournisseur">Fournisseur</label>
+        <select id="llm_fournisseur">
+          <option value="openrouter">OpenRouter</option>
+          <option value="opencodego">OpenCode Go</option>
+          <option value="openai">OpenAI</option>
+          <option value="custom" data-t="o_custom">Personnalisé</option>
+        </select>
+        <div id="llm_base_url_group">
+          <label style="margin-top:6px;" data-t="l_base_url">URL de l'API</label>
+          <input id="llm_base_url" type="text" placeholder="https://api.openai.com/v1" readonly>
+        </div>
+        <label style="margin-top:6px;" data-t="l_cle">Clé API</label>
+        <div id="llm_cle_wrapper" style="position:relative;">
+          <input id="llm_cle" type="password" placeholder="sk-..." style="padding-right:46px;">
+          <button type="button" onclick="basculerVisibiliteCle()" id="btn-voir-cle" style="position:absolute; right:2px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1.1rem; padding:6px 10px; color:var(--muted); line-height:1;">👁️</button>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
+          <label data-t="l_modele" style="margin:0;">Modèle</label>
+          <button type="button" class="btn ghost" onclick="chargerModeles()" data-t="b_charger_modeles" style="font-size:.78rem; padding:4px 10px;">🔄 Charger les modèles</button>
+          <span id="llm-modeles-status" style="font-size:.75rem; color:var(--muted);"></span>
+        </div>
+        <select id="llm_modele_select" style="margin-top:4px; display:none;">
+          <option value="">--</option>
+        </select>
+        <input id="llm_modele" type="text" placeholder="gpt-4o-mini">
+        <div style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+          <span id="llm-status" style="font-size:.78rem; color:var(--accent2);" data-t="l_llm_vide">Aucune config sauvegardée</span>
+          <button type="button" class="btn ghost" onclick="effacerConfigLLM()" data-t="b_effacer_llm" style="margin-left:auto;">🗑️ Effacer</button>
+        </div>
       </details>
 
       <div class="btns">
@@ -178,7 +207,20 @@ const I18N = {
     l_ville: "Ville de naissance", b_localiser: "📍 Localiser",
     l_options: "Options avancées", l_systeme: "Système de numérologie",
     o_classique: "Classique (A=1…Z=26)", o_pythagoricien: "Pythagoricien",
-    l_byok: "Clé IA personnelle (optionnel — pour la lecture approfondie)",
+    l_byok: "Configuration IA personnelle",
+    l_byok_desc: "Votre clé est sauvegardée localement dans votre navigateur. Elle n'est transmise au serveur que lors d'une demande de lecture approfondie.",
+    l_fournisseur: "Fournisseur",
+    l_base_url: "URL de l'API",
+    l_cle: "Clé API",
+    l_modele: "Modèle",
+    o_custom: "Personnalisé",
+    l_llm_sauvegarde: "✓ Config sauvegardée",
+    l_llm_vide: "Aucune config sauvegardée",
+    b_effacer_llm: "🗑️ Effacer",
+    b_charger_modeles: "🔄 Charger les modèles",
+    modeles_charge: "{n} modèles chargés",
+    modeles_erreur: "Erreur lors du chargement",
+    modeles_chargement: "Chargement...",
     b_calculer: "✨ Calculer mon portrait", b_alea: "🎲 Aléatoire",
     l_approfondir_section_txt: "Approfondir avec l'IA",
     l_approfondir_note: "Optionnel : réécriture littéraire par une IA, à partir des mêmes données. Nécessite une clé (voir « Options avancées » du formulaire) ou une configuration par défaut sur cette instance.",
@@ -198,7 +240,20 @@ const I18N = {
     l_ville: "City of birth", b_localiser: "📍 Look up",
     l_options: "Advanced options", l_systeme: "Numerology system",
     o_classique: "Classic (A=1…Z=26)", o_pythagoricien: "Pythagorean",
-    l_byok: "Personal AI key (optional — for the in-depth reading)",
+    l_byok: "Personal AI configuration",
+    l_byok_desc: "Your key is saved locally in your browser. It is only sent to the server during an in-depth reading request.",
+    l_fournisseur: "Provider",
+    l_base_url: "API URL",
+    l_cle: "API key",
+    l_modele: "Model",
+    o_custom: "Custom",
+    l_llm_sauvegarde: "✓ Config saved",
+    l_llm_vide: "No saved config",
+    b_effacer_llm: "🗑️ Clear",
+    b_charger_modeles: "🔄 Load models",
+    modeles_charge: "{n} models loaded",
+    modeles_erreur: "Error loading models",
+    modeles_chargement: "Loading...",
     b_calculer: "✨ Calculate my portrait", b_alea: "🎲 Random",
     l_approfondir_section_txt: "Deepen with AI",
     l_approfondir_note: "Optional: literary rewrite by an AI, from the same data. Requires a key (see the form's « Advanced options ») or a default configuration on this instance.",
@@ -216,6 +271,139 @@ const I18N = {
 let LANGUE = "fr";
 let DERNIER_RESULTAT = null;
 
+const LLM_STORAGE_KEY = "portrait-cosmique-llm";
+
+const FOURNISSEURS = {
+  openrouter: { base_url: "https://openrouter.ai/api/v1", label: "OpenRouter" },
+  opencodego:  { base_url: "https://opencode.ai/zen/go/v1", label: "OpenCode Go" },
+  openai:     { base_url: "https://api.openai.com/v1", label: "OpenAI" },
+  custom:     { base_url: "", label: "Personnalisé" },
+};
+
+function changerFournisseur() {
+  const f = document.getElementById("llm_fournisseur").value;
+  const baseInput = document.getElementById("llm_base_url");
+  const baseGroup = document.getElementById("llm_base_url_group");
+  if (f === "custom") {
+    baseInput.readOnly = false;
+    baseInput.placeholder = "https://api.exemple.com/v1";
+    baseGroup.style.display = "";
+  } else {
+    baseInput.value = FOURNISSEURS[f].base_url;
+    baseInput.readOnly = true;
+    baseGroup.style.display = "";
+  }
+  document.getElementById("llm_modele_select").style.display = "none";
+  document.getElementById("llm_modele").style.display = "";
+  document.getElementById("llm-modeles-status").textContent = "";
+  sauvegarderConfigLLM();
+}
+
+function updateModeleDisplay() {
+  const select = document.getElementById("llm_modele_select");
+  const input = document.getElementById("llm_modele");
+  if (select.style.display !== "none") {
+    input.value = select.value;
+  }
+}
+
+async function chargerModeles() {
+  const base_url = document.getElementById("llm_base_url").value.trim();
+  const cle = document.getElementById("llm_cle").value.trim();
+  const statusEl = document.getElementById("llm-modeles-status");
+  if (!base_url || !cle) {
+    statusEl.textContent = I18N[LANGUE].modeles_erreur;
+    return;
+  }
+  statusEl.textContent = I18N[LANGUE].modeles_chargement;
+  try {
+    const r = await fetch(`/modeles?base_url=${encodeURIComponent(base_url)}&cle=${encodeURIComponent(cle)}`);
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    const select = document.getElementById("llm_modele_select");
+    const input = document.getElementById("llm_modele");
+    select.innerHTML = '<option value="">--</option>';
+    d.modeles.forEach(m => { const o = document.createElement("option"); o.value = m; o.textContent = m; select.appendChild(o); });
+    select.style.display = "";
+    input.style.display = "none";
+    select.value = input.value || "";
+    statusEl.textContent = I18N[LANGUE].modeles_charge.replace("{n}", d.modeles.length);
+  } catch (e) {
+    statusEl.textContent = I18N[LANGUE].modeles_erreur;
+    document.getElementById("llm_modele_select").style.display = "none";
+    document.getElementById("llm_modele").style.display = "";
+  }
+}
+
+function chargerConfigLLM() {
+  const raw = localStorage.getItem(LLM_STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const cfg = JSON.parse(raw);
+    if (cfg.fournisseur) document.getElementById("llm_fournisseur").value = cfg.fournisseur;
+    changerFournisseur();
+    if (cfg.base_url) document.getElementById("llm_base_url").value = cfg.base_url;
+    if (cfg.cle) document.getElementById("llm_cle").value = cfg.cle;
+    if (cfg.modele) {
+      document.getElementById("llm_modele").value = cfg.modele;
+      document.getElementById("llm_modele_select").value = cfg.modele;
+    }
+    document.getElementById("llm-status").textContent = I18N[LANGUE].l_llm_sauvegarde;
+  } catch (e) { /* ignore */ }
+}
+
+function sauvegarderConfigLLM() {
+  const fournisseur = document.getElementById("llm_fournisseur").value;
+  let base_url = document.getElementById("llm_base_url").value.trim();
+  if (fournisseur !== "custom") base_url = FOURNISSEURS[fournisseur].base_url;
+  const cle = document.getElementById("llm_cle").value.trim();
+  const modeleSelect = document.getElementById("llm_modele_select");
+  const modele = modeleSelect.style.display !== "none" ? modeleSelect.value : document.getElementById("llm_modele").value.trim();
+  if (!cle && !modele) {
+    localStorage.removeItem(LLM_STORAGE_KEY);
+    document.getElementById("llm-status").textContent = I18N[LANGUE].l_llm_vide;
+    return;
+  }
+  localStorage.setItem(LLM_STORAGE_KEY, JSON.stringify({ fournisseur, base_url, cle, modele }));
+  document.getElementById("llm-status").textContent = I18N[LANGUE].l_llm_sauvegarde;
+}
+
+function effacerConfigLLM() {
+  localStorage.removeItem(LLM_STORAGE_KEY);
+  document.getElementById("llm_fournisseur").value = "openrouter";
+  changerFournisseur();
+  document.getElementById("llm_base_url").value = FOURNISSEURS.openrouter.base_url;
+  document.getElementById("llm_cle").value = "";
+  document.getElementById("llm_modele").value = "";
+  document.getElementById("llm_modele_select").innerHTML = '<option value="">--</option>';
+  document.getElementById("llm_modele_select").style.display = "none";
+  document.getElementById("llm_modele").style.display = "";
+  document.getElementById("llm-modeles-status").textContent = "";
+  document.getElementById("llm-status").textContent = I18N[LANGUE].l_llm_vide;
+}
+
+function basculerVisibiliteCle() {
+  const input = document.getElementById("llm_cle");
+  const btn = document.getElementById("btn-voir-cle");
+  if (input.type === "password") { input.type = "text"; btn.textContent = "🙈"; }
+  else { input.type = "password"; btn.textContent = "👁️"; }
+}
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+const sauvegarderConfigDebounced = debounce(sauvegarderConfigLLM, 500);
+
+document.getElementById("llm_fournisseur").addEventListener("change", changerFournisseur);
+document.getElementById("llm_base_url").addEventListener("input", sauvegarderConfigDebounced);
+document.getElementById("llm_cle").addEventListener("input", sauvegarderConfigDebounced);
+document.getElementById("llm_modele").addEventListener("input", sauvegarderConfigDebounced);
+document.getElementById("llm_modele_select").addEventListener("change", () => { updateModeleDisplay(); sauvegarderConfigLLM(); });
+
+changerFournisseur();
+chargerConfigLLM();
+
 function setLangue(l) {
   LANGUE = l;
   document.getElementById("btn-fr").classList.toggle("on", l === "fr");
@@ -225,6 +413,10 @@ function setLangue(l) {
     const cle = el.getAttribute("data-t");
     if (I18N[l][cle]) el.textContent = I18N[l][cle];
   });
+  const hasConfig = !!localStorage.getItem(LLM_STORAGE_KEY);
+  document.getElementById("llm-status").textContent = hasConfig ? I18N[l].l_llm_sauvegarde : I18N[l].l_llm_vide;
+  const nbModeles = document.getElementById("llm_modele_select").options.length - 1;
+  if (nbModeles > 0) document.getElementById("llm-modeles-status").textContent = I18N[l].modeles_charge.replace("{n}", nbModeles);
   // Un résultat déjà affiché a été calculé dans l'ANCIENNE langue (stats/archétype/
   // récit) : le rafraîchir plutôt que de ré-afficher des données périmées.
   if (DERNIER_RESULTAT) calculerPortrait();
@@ -329,10 +521,13 @@ document.getElementById("form-fiche").addEventListener("submit", (ev) => {
 
 async function approfondir() {
   if (!DERNIER_RESULTAT) return;
-  const base_url = document.getElementById("llm_base_url").value.trim();
+  let base_url = document.getElementById("llm_base_url").value.trim();
+  const fournisseur = document.getElementById("llm_fournisseur").value;
+  if (fournisseur !== "custom") base_url = FOURNISSEURS[fournisseur].base_url;
   const cle = document.getElementById("llm_cle").value.trim();
-  const modele = document.getElementById("llm_modele").value.trim();
-  const llmBody = base_url ? { base_url, cle, modele } : null;
+  const modeleSelect = document.getElementById("llm_modele_select");
+  const modele = modeleSelect.style.display !== "none" ? modeleSelect.value : document.getElementById("llm_modele").value.trim();
+  const llmBody = cle ? { base_url, cle, modele } : null;
   const body = {
     portrait: DERNIER_RESULTAT.portrait,
     empreinte: DERNIER_RESULTAT.empreinte,

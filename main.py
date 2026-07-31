@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Optional
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
@@ -66,7 +66,8 @@ def accueil():
 @app.get("/sante", tags=["système"])
 def sante():
     return {"statut": "ok", "service": "portrait-cosmique", "version": app.version,
-            "lecture_approfondie_configuree": bool(llm.OPENROUTER_API_KEY)}
+            "lecture_approfondie_configuree": bool(llm.OPENROUTER_API_KEY or llm.OPENCODE_GO_API_KEY or llm.OPENAI_API_KEY),
+            "fournisseur_actif": "openrouter" if llm.OPENROUTER_API_KEY else ("opencode-go" if llm.OPENCODE_GO_API_KEY else ("openai" if llm.OPENAI_API_KEY else None))}
 
 
 @app.get("/geo", tags=["portrait"])
@@ -93,6 +94,19 @@ async def geo(ville: str):
             "latitude": float(top["lat"]), "longitude": float(top["lon"])}
 
 
+@app.get("/modeles", tags=["portrait"])
+async def modeles(cle: str = Query(...), base_url: str = Query("")):
+    """Liste les modèles disponibles pour une API OpenAI-compatible (BYO)."""
+    cle = cle.strip()
+    if not cle:
+        raise HTTPException(422, "Une clé API est nécessaire.")
+    base = (base_url or "").strip()
+    if not base:
+        raise HTTPException(422, "Une URL de base est nécessaire.")
+    try:
+        return {"modeles": await llm.lister_modeles(base, cle)}
+    except Exception as e:
+        raise HTTPException(502, f"Impossible de récupérer les modèles : {str(e)[:150]}")
 @app.post("/portrait", tags=["portrait"])
 def portrait(body: Fiche):
     """Fiche → traditions calculées → portrait (stats/archétype/forces/faiblesse/pierre/

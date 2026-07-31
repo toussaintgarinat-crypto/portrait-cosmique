@@ -2,16 +2,17 @@
 
 Le portrait déterministe (stats/archétype/récit) ne dépend JAMAIS de ceci : il est
 calculé en Python pur, gratuit et instantané (voir engine/). Ce module ne sert qu'à
-réécrire ce récit en version littéraire, via un modèle de langage, si l'un des deux
-est configuré :
+réécrire ce récit en version littéraire, via un modèle de langage, si l'un de ces
+fournisseurs est configuré sur l'instance :
 
-  • un OPENROUTER_API_KEY par défaut (variable d'env de cette instance — un modèle
-    GRATUIT OpenRouter, $0 réel) — actif pour TOUS les visiteurs de cette instance ;
-  • ou un BYOK par requête (champ `llm: {base_url, cle, modele}`, n'importe quel
-    endpoint OpenAI-compatible) — aucun coût porté par cette instance.
+  • OPENROUTER_API_KEY — modèle gratuit OpenRouter ($0 réel), prioritaire ;
+  • OPENAI_API_KEY (+ OPENAI_BASE_URL optionnel) — tout endpoint OpenAI-compatible
+    (OpenAI, OpenCode, Azure, etc.), utilisé si OpenRouter est absent ;
+  • ou un BYOK par requête (champ `llm: {base_url, cle, modele}`) — aucun coût
+    porté par cette instance.
 
-Sans l'un ou l'autre, la fonctionnalité est simplement absente (repli honnête sur le
-récit déterministe, déjà géré par l'appelant)."""
+Sans aucun de ces fournisseurs, la fonctionnalité est simplement absente (repli
+honnête sur le récit déterministe, déjà géré par l'appelant)."""
 from __future__ import annotations
 
 import os
@@ -21,6 +22,14 @@ import httpx
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemma-3-27b-it:free")
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+OPENCODE_GO_API_KEY = os.getenv("OPENCODE_GO_API_KEY", "")
+OPENCODE_GO_BASE_URL = os.getenv("OPENCODE_GO_BASE_URL", "https://opencode.ai/zen/go/v1")
+OPENCODE_GO_MODEL = os.getenv("OPENCODE_GO_MODEL", "deepseek-v4-pro")
 
 PROMPT_LECTURE = (
     "Tu es un INTERPRÈTE SYMBOLIQUE. On te donne le profil DÉJÀ CALCULÉ d'une personne : "
@@ -33,12 +42,20 @@ PROMPT_LECTURE = (
 
 
 def _config(llm: dict | None) -> tuple[str, str, str]:
-    """(base_url, cle, modele) : BYO si fourni et complet, sinon le défaut de l'instance."""
+    """(base_url, cle, modele) : BYO si fourni et complet, sinon OpenRouter en priorité,
+    puis OpenCode Go, puis OpenAI comme fournisseurs par défaut de l'instance."""
     llm = llm or {}
     base = (llm.get("base_url") or "").strip()
     if base:   # mode BYO
         return base.rstrip("/"), (llm.get("cle") or "").strip(), (llm.get("modele") or "").strip()
-    return OPENROUTER_BASE, OPENROUTER_API_KEY, (llm.get("modele") or OPENROUTER_MODEL)
+    model = (llm.get("modele") or "").strip()
+    if OPENROUTER_API_KEY:
+        return OPENROUTER_BASE, OPENROUTER_API_KEY, model or OPENROUTER_MODEL
+    if OPENCODE_GO_API_KEY:
+        return OPENCODE_GO_BASE_URL, OPENCODE_GO_API_KEY, model or OPENCODE_GO_MODEL
+    if OPENAI_API_KEY:
+        return OPENAI_BASE_URL, OPENAI_API_KEY, model or OPENAI_MODEL
+    return "", "", ""
 
 
 async def approfondir_lecture(portrait: dict, empreinte: list,
@@ -71,3 +88,15 @@ async def approfondir_lecture(portrait: dict, empreinte: list,
         r = await c.post(f"{base}/chat/completions", json=payload, headers=headers)
         r.raise_for_status()
         return (r.json()["choices"][0]["message"]["content"] or "").strip()
+
+
+async def lister_modeles(base_url: str, cle: str) -> list[str]:
+    """Liste les modèles disponibles chez un fournisseur OpenAI-compatible."""
+    headers = {"Authorization": f"Bearer {cle}"}
+    async with httpx.AsyncClient(timeout=15) as c:
+        r = await c.get(f"{base_url.rstrip('/')}/models", headers=headers)
+        r.raise_for_status()
+        data = r.json()
+    return sorted(
+        [m["id"] for m in data.get("data", []) if m.get("id")],
+        key=lambda x: x.lower())
