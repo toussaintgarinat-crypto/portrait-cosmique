@@ -67,6 +67,8 @@
   .recit { line-height: 1.65; }
   .recit p { margin: 0 0 12px; }
   .recit em { color: var(--muted); }
+  .recit .sep-approfondi { border: none; border-top: 1px dashed var(--border); margin: 24px 0 16px; }
+  .recit .titre-approfondi { font-weight: 600; color: var(--accent, #b8a46a); margin: 0 0 12px; }
   .badge { display: inline-block; font-size: .72rem; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; margin-left: 8px; }
   .erreur { color: var(--danger); font-size: .9rem; margin-top: 8px; }
   footer.mentions { color: var(--muted); font-size: .78rem; text-align: center; margin-top: 30px; }
@@ -79,6 +81,47 @@
     body { background: white; color: black; }
     .panel { border: none; padding: 0; }
     .stat-row .bar-bg { border: 1px solid #999; }
+  }
+
+  /* Tooltip glossaire (écran uniquement) */
+  .glossaire-ic {
+    display: inline-block; margin-left: .3rem; cursor: help; font-size: .72rem;
+    color: var(--accent); opacity: .7; vertical-align: middle; user-select: none;
+    border: 1px solid var(--border); border-radius: 999px; padding: 0 .32rem;
+    line-height: 1.5; transition: opacity .12s, background .12s;
+  }
+  .glossaire-ic:hover, .glossaire-ic:focus-visible, .glossaire-ic.on {
+    opacity: 1; background: #2a2350; outline: none;
+  }
+  .glossaire-pop {
+    position: fixed; z-index: 999; max-width: 320px; min-width: 200px;
+    background: var(--panel2); border: 1px solid var(--accent); color: var(--text);
+    padding: 12px 14px; border-radius: 10px; font-size: .84rem; line-height: 1.5;
+    box-shadow: 0 8px 24px #0008; opacity: 0; transform: translateY(4px);
+    transition: opacity .12s, transform .12s; pointer-events: none;
+  }
+  .glossaire-pop.open { opacity: 1; transform: translateY(0); }
+  .glossaire-pop::before {
+    content: ""; position: absolute; top: -5px; left: 16px; width: 10px; height: 10px;
+    background: var(--panel2); border-left: 1px solid var(--accent);
+    border-top: 1px solid var(--accent); transform: rotate(45deg);
+  }
+  .glossaire-pop .g-titre { font-weight: 600; color: var(--accent2);
+    display: block; margin-bottom: 4px; }
+
+  /* Légende : cachée à l'écran, révélée à l'impression */
+  .legende { display: none; }
+  .legende h3 { margin: 18px 0 6px; font-size: .98rem; color: var(--accent2);
+    border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .legende dl { margin: 4px 0 10px; }
+  .legende dt { font-weight: 600; margin-top: 8px; }
+  .legende dd { margin: 2px 0 8px 0; color: var(--muted); font-size: .86rem;
+    line-height: 1.5; }
+
+  @media print {
+    .glossaire-ic, .glossaire-pop { display: none !important; }
+    .legende { display: block; }
+    .legende dd { color: #333; }
   }
 </style>
 </head>
@@ -196,6 +239,7 @@
   </div>
 
   <footer class="mentions" data-t="mentions">Lecture symbolique — divertissement, pas un fait. Aucune donnée n'est conservée par ce service.</footer>
+  <div id="glossaire-pop" class="glossaire-pop" role="tooltip" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -231,6 +275,7 @@ const I18N = {
     erreur_date: "Indique au moins une date de naissance valide.",
     erreur_generique: "Une erreur est survenue.",
     source_ia: "réécrit par l'IA", source_repli: "récit déterministe (IA non configurée ou indisponible)",
+    approfondi_titre: "✨ Lecture approfondie",
     llm_langue: "français",
   },
   en: {
@@ -264,12 +309,45 @@ const I18N = {
     erreur_date: "Please provide at least a valid date of birth.",
     erreur_generique: "Something went wrong.",
     source_ia: "rewritten by AI", source_repli: "deterministic reading (AI not configured or unavailable)",
+    approfondi_titre: "✨ Deep reading",
     llm_langue: "english",
   },
 };
 
 let LANGUE = "fr";
 let DERNIER_RESULTAT = null;
+
+let GLOSSAIRE = {};          // { id: definition } — aplati, alimenté par /portrait
+let GLOSSAIRE_LABELS = {};   // { id: label } — utilisé par la légende et le tooltip titre
+
+function chargerGlossaire(groups) {
+  GLOSSAIRE = {};
+  GLOSSAIRE_LABELS = {};
+  if (!Array.isArray(groups)) return;
+  for (const grp of groups) {
+    for (const it of (grp.items || [])) {
+      GLOSSAIRE[it.id] = it.definition;
+      GLOSSAIRE_LABELS[it.id] = it.label;
+    }
+  }
+}
+
+function icGlossaire(id) {
+  if (!id || !GLOSSAIRE[id]) return "";
+  return ` <span class="glossaire-ic" data-glossaire="${id}" role="button"
+    tabindex="0" aria-label="Définition : ${GLOSSAIRE_LABELS[id] || id}">ℹ️</span>`;
+}
+
+const STAT_VERS_ID = {
+  "Charisme": "stat_charisme", "Combativité": "stat_combativite",
+  "Sagesse": "stat_sagesse", "Créativité": "stat_creativite",
+  "Discrétion": "stat_discretion", "Stabilité": "stat_stabilite",
+  "Émotivité": "stat_emotivite", "Énergie": "stat_energie",
+  "Charisma": "stat_charisme", "Combativeness": "stat_combativite",
+  "Wisdom": "stat_sagesse", "Creativity": "stat_creativite",
+  "Discretion": "stat_discretion", "Stability": "stat_stabilite",
+  "Emotionality": "stat_emotivite", "Energy": "stat_energie",
+};
 
 const LLM_STORAGE_KEY = "portrait-cosmique-llm";
 
@@ -465,25 +543,52 @@ function md(txt) {
 function afficherResultat(d) {
   const t = I18N[LANGUE];
   const p = d.portrait;
-  document.getElementById("r-archetype").textContent = p.archetype;
+  chargerGlossaire(d.glossaire);
+  document.getElementById("r-archetype").innerHTML =
+    `${p.archetype}${icGlossaire("archetype")}`;
   const stats = p.stats;
   const max = Math.max(...Object.values(stats));
   document.getElementById("r-stats").innerHTML = Object.entries(stats)
     .sort((a,b) => b[1]-a[1])
-    .map(([k,v]) => `<div class="stat-row"><div class="lab">${k}</div>
+    .map(([k,v]) => `<div class="stat-row"><div class="lab">${k}${icGlossaire(STAT_VERS_ID[k] || "")}</div>
       <div class="bar-bg"><div class="bar-fg" style="width:${v}%"></div></div>
       <div class="val">${v}</div></div>`).join("");
   document.getElementById("r-souscritre").innerHTML =
-    `${t.forces_titre} : ${p.forces.join(", ")} · ${t.faiblesse_titre} : ${p.faiblesse}
-     <span class="badge">${t.pierre_titre} : ${p.pierre_equilibrage.pierre}</span>`;
+    `${t.forces_titre} : ${p.forces.join(", ")}${icGlossaire("forces")}` +
+    ` · ${t.faiblesse_titre} : ${p.faiblesse}${icGlossaire("faiblesse")}` +
+    ` <span class="badge">${t.pierre_titre} : ${p.pierre_equilibrage.pierre}${icGlossaire("pierre")}</span>`;
   document.getElementById("r-empreinte").innerHTML = d.empreinte.map(e => `
     <div class="empreinte-item">
-      <div class="cle">${e.cle}${e.role ? " · " + e.role : ""}</div>
+      <div class="cle">${e.cle}${e.role ? " · " + e.role : ""}${icGlossaire(e.id)}</div>
       <div class="valeur">${e.valeur}</div>
       <div class="sens">${e.sens}</div>
     </div>`).join("");
-  document.getElementById("r-recit").innerHTML = md(d._recit_affiche || p.recit);
+  rendreRecit(d);
   document.getElementById("resultat").style.display = "block";
+
+  // Légende PDF (cachée à l'écran, révélée à l'impression)
+  let leg = document.getElementById("r-legende");
+  if (!leg) {
+    leg = document.createElement("section");
+    leg.id = "r-legende";
+    leg.className = "legende";
+    document.getElementById("resultat").appendChild(leg);
+  }
+  leg.innerHTML = (d.glossaire || []).map(g => `
+    <h3>${g.theme}</h3>
+    <dl>${(g.items || []).map(it => `<dt>${it.label}</dt><dd>${it.definition}</dd>`).join("")}</dl>
+  `).join("");
+}
+function rendreRecit(d) {
+  const t = I18N[LANGUE];
+  const p = d.portrait;
+  let html = md(d._recit_base || p.recit);
+  if (d._recit_approfondi) {
+    html += `<hr class="sep-approfondi"><p class="titre-approfondi">${t.approfondi_titre}</p>` +
+      md(d._recit_approfondi.texte) +
+      `<div class="badge">${d._recit_approfondi.source === "llm" ? t.source_ia : t.source_repli}</div>`;
+  }
+  document.getElementById("r-recit").innerHTML = html;
 }
 
 async function calculerPortrait() {
@@ -537,23 +642,120 @@ async function approfondir() {
   try {
     const r = await fetch("/lecture-approfondie", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
     const d = await r.json();
-    DERNIER_RESULTAT._recit_affiche = d.lecture;
-    document.getElementById("r-recit").innerHTML = md(d.lecture) +
-      `<div class="badge">${d.source === "llm" ? I18N[LANGUE].source_ia : I18N[LANGUE].source_repli}</div>`;
+    if (!DERNIER_RESULTAT._recit_base) DERNIER_RESULTAT._recit_base = DERNIER_RESULTAT.portrait.recit;
+    DERNIER_RESULTAT._recit_approfondi = { texte: d.lecture, source: d.source };
+    rendreRecit(DERNIER_RESULTAT);
   } catch (e) { /* repli silencieux : le récit déterministe reste affiché */ }
 }
 
 function telechargerHTML() {
   const panneau = document.getElementById("resultat").outerHTML;
   const styles = document.querySelector("style").outerHTML;
+  const ttScript = `
+<script>
+'use strict';
+let GLOSSAIRE = ${JSON.stringify(GLOSSAIRE)};
+let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
+(function () {
+  const pop = document.getElementById("glossaire-pop");
+  let courant = null;
+  function ouvrir(ic) {
+    const id = ic.getAttribute("data-glossaire");
+    if (!id || !GLOSSAIRE[id]) return;
+    if (courant && courant !== ic) courant.classList.remove('on');
+    pop.innerHTML = '<span class="g-titre">' + (GLOSSAIRE_LABELS[id] || id) + '</span>' + GLOSSAIRE[id];
+    pop.classList.add('open'); pop.setAttribute('aria-hidden','false');
+    const r = ic.getBoundingClientRect();
+    const x = Math.min(r.left, window.innerWidth - pop.offsetWidth - 12);
+    let y = r.bottom + 8;
+    if (y + pop.offsetHeight > window.innerHeight - 12) y = r.top - pop.offsetHeight - 8;
+    pop.style.left = Math.max(12, x) + 'px';
+    pop.style.top = Math.max(12, y) + 'px';
+    courant = ic; ic.classList.add('on');
+  }
+  function fermer() {
+    pop.classList.remove('open'); pop.setAttribute('aria-hidden','true');
+    if (courant) { courant.classList.remove('on'); courant = null; }
+  }
+  function ic(node){ return node && node.closest && node.closest('.glossaire-ic'); }
+  document.addEventListener('mouseover', e => { const x=ic(e.target); if(x) ouvrir(x); });
+  document.addEventListener('mouseout', e => { if(!ic(e.relatedTarget) && ic(e.target)===courant) fermer(); });
+  document.addEventListener('click', e => { const x=ic(e.target); if(x){ if(courant===x) fermer(); else { fermer(); ouvrir(x);} e.stopPropagation(); } else if(courant) fermer(); });
+  document.addEventListener('keydown', e => { const x=ic(e.target); if(x && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); if(courant===x) fermer(); else { fermer(); ouvrir(x);} } if(e.key==='Escape'&&courant) fermer(); });
+  document.addEventListener('focusin', e => { const x=ic(e.target); if(x) ouvrir(x); });
+  document.addEventListener('focusout', e => { if(ic(e.relatedTarget)) return; fermer(); });
+  window.addEventListener('scroll', fermer, {passive:true});
+  window.addEventListener('resize', fermer, {passive:true});
+})();
+<\/script>`;
   const html = `<!DOCTYPE html><html lang="${LANGUE}"><head><meta charset="utf-8">
-    <title>Portrait Cosmique</title>${styles}</head><body><div class="wrap">${panneau}</div></body></html>`;
+    <title>Portrait Cosmique</title>${styles}</head><body><div class="wrap">
+    <div id="glossaire-pop" class="glossaire-pop" role="tooltip" aria-hidden="true"></div>
+    ${panneau}${ttScript}</div></body></html>`;
   const blob = new Blob([html], { type: "text/html" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "portrait-cosmique.html";
   a.click();
 }
+
+// ── Tooltip glossaire universel (délégation) ────────────────────────
+(function () {
+  const pop = document.getElementById("glossaire-pop");
+  let courant = null;
+
+  function ouvrir(ic) {
+    if (!ic) return;
+    const id = ic.getAttribute("data-glossaire");
+    if (!id || !GLOSSAIRE[id]) return;
+    if (courant && courant !== ic) courant.classList.remove("on");
+    pop.innerHTML = `<span class="g-titre">${GLOSSAIRE_LABELS[id] || id}</span>${GLOSSAIRE[id]}`;
+    pop.classList.add("open");
+    pop.setAttribute("aria-hidden", "false");
+    const r = ic.getBoundingClientRect();
+    const x = Math.min(r.left, window.innerWidth - pop.offsetWidth - 12);
+    let y = r.bottom + 8;
+    if (y + pop.offsetHeight > window.innerHeight - 12) y = r.top - pop.offsetHeight - 8;
+    pop.style.left = `${Math.max(12, x)}px`;
+    pop.style.top = `${Math.max(12, y)}px`;
+    courant = ic;
+    ic.classList.add("on");
+  }
+
+  function fermer() {
+    pop.classList.remove("open");
+    pop.setAttribute("aria-hidden", "true");
+    if (courant) { courant.classList.remove("on"); courant = null; }
+  }
+
+  function isIc(node) {
+    return node && node.closest && node.closest(".glossaire-ic");
+  }
+
+  document.addEventListener("mouseover", (e) => { if (isIc(e.target)) ouvrir(isIc(e.target)); });
+  document.addEventListener("mouseout", (e) => {
+    const from = isIc(e.relatedTarget);
+    if (!from && isIc(e.target) === courant) fermer();
+  });
+  document.addEventListener("click", (e) => {
+    const ic = isIc(e.target);
+    if (ic) { if (courant === ic) fermer(); else { fermer(); ouvrir(ic); } e.stopPropagation(); }
+    else if (courant) fermer();
+  });
+  document.addEventListener("keydown", (e) => {
+    const ic = isIc(e.target);
+    if (ic && (e.key === "Enter" || e.key === " ")) { e.preventDefault();
+      if (courant === ic) fermer(); else { fermer(); ouvrir(ic); } }
+    if (e.key === "Escape" && courant) fermer();
+  });
+  document.addEventListener("focusin", (e) => { const ic = isIc(e.target); if (ic) ouvrir(ic); });
+  document.addEventListener("focusout", (e) => {
+    if (isIc(e.relatedTarget)) return;
+    fermer();
+  });
+  window.addEventListener("scroll", fermer, { passive: true });
+  window.addEventListener("resize", fermer, { passive: true });
+})();
 </script>
 </body>
 </html>
