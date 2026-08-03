@@ -116,7 +116,8 @@ def portrait(body: Fiche):
         raise HTTPException(422, "Indique au moins une date de naissance valide.")
     p = synthese.portrait(trad, nom=body.prenoms or body.nom, langue=body.langue)
     return {"traditions": trad, "portrait": p,
-            "empreinte": significations.expliquer(trad, body.langue)}
+            "empreinte": significations.expliquer(trad, body.langue),
+            "glossaire": significations.glossaire(body.langue)}
 
 
 @app.post("/lecture-approfondie", tags=["portrait"])
