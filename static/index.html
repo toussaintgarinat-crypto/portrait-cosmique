@@ -563,7 +563,7 @@ function afficherResultat(d) {
       <div class="valeur">${e.valeur}</div>
       <div class="sens">${e.sens}</div>
     </div>`).join("");
-  document.getElementById("r-recit").innerHTML = md(d._recit_affiche || p.recit);
+  rendreRecit(d);
   document.getElementById("resultat").style.display = "block";
 
   // Légende PDF (cachée à l'écran, révélée à l'impression)
@@ -662,6 +662,7 @@ let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
   function ouvrir(ic) {
     const id = ic.getAttribute("data-glossaire");
     if (!id || !GLOSSAIRE[id]) return;
+    if (courant && courant !== ic) courant.classList.remove('on');
     pop.innerHTML = '<span class="g-titre">' + (GLOSSAIRE_LABELS[id] || id) + '</span>' + GLOSSAIRE[id];
     pop.classList.add('open'); pop.setAttribute('aria-hidden','false');
     const r = ic.getBoundingClientRect();
@@ -707,6 +708,7 @@ let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
     if (!ic) return;
     const id = ic.getAttribute("data-glossaire");
     if (!id || !GLOSSAIRE[id]) return;
+    if (courant && courant !== ic) courant.classList.remove("on");
     pop.innerHTML = `<span class="g-titre">${GLOSSAIRE_LABELS[id] || id}</span>${GLOSSAIRE[id]}`;
     pop.classList.add("open");
     pop.setAttribute("aria-hidden", "false");
