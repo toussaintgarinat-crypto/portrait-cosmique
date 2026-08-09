@@ -144,13 +144,14 @@
       <div class="row">
         <div>
           <label data-t="l_prenoms">Prénoms</label>
-          <input id="prenoms" type="text">
+          <input id="prenoms" type="text" placeholder="Jean Paul">
         </div>
         <div>
           <label data-t="l_nom">Nom</label>
-          <input id="nom" type="text">
+          <input id="nom" type="text" placeholder="Dupont">
         </div>
       </div>
+      <p class="sous" style="margin:4px 0 8px;" data-t="l_prenoms_aide">Plusieurs prénoms ? Sépare-les par un espace (ex. « Jean Paul ») — la ponctuation n'a aucun effet sur le calcul.</p>
       <div class="row">
         <div>
           <label data-t="l_date">Date de naissance *</label>
@@ -252,6 +253,7 @@ const I18N = {
     titre: "Portrait Cosmique",
     pitch: "Numérologie, astrologie occidentale/chinoise/védique, égyptien, celte, amérindien, maya… un portrait complet, gratuit et instantané.",
     l_prenoms: "Prénoms", l_nom: "Nom", l_date: "Date de naissance *", l_heure: "Heure de naissance",
+    l_prenoms_aide: "Plusieurs prénoms ? Sépare-les par un espace (ex. « Jean Paul ») — la ponctuation n'a aucun effet sur le calcul.",
     l_ville: "Ville de naissance", b_localiser: "📍 Localiser",
     l_options: "Options avancées", l_systeme: "Système de numérologie",
     o_classique: "Classique (A=1…Z=26)", o_pythagoricien: "Pythagoricien",
@@ -287,6 +289,7 @@ const I18N = {
     titre: "Portrait Cosmique",
     pitch: "Numerology, Western/Chinese/Vedic astrology, Egyptian, Celtic, Native American, Maya… a full portrait, free and instant.",
     l_prenoms: "First name(s)", l_nom: "Last name", l_date: "Date of birth *", l_heure: "Time of birth",
+    l_prenoms_aide: "More than one first name? Separate them with a space (e.g. \"Jean Paul\") — punctuation has no effect on the calculation.",
     l_ville: "City of birth", b_localiser: "📍 Look up",
     l_options: "Advanced options", l_systeme: "Numerology system",
     o_classique: "Classic (A=1…Z=26)", o_pythagoricien: "Pythagorean",
