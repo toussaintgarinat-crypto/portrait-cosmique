@@ -58,6 +58,9 @@
   .stat-row .bar-bg { flex: 1; background: var(--panel2); border-radius: 6px; height: 10px; overflow: hidden; }
   .stat-row .bar-fg { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
   .stat-row .val { width: 34px; text-align: right; font-size: .8rem; color: var(--muted); }
+  .identite { border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 14px; }
+  .identite .nom { font-size: 1.05rem; font-weight: 700; }
+  .identite .details { color: var(--muted); font-size: .85rem; margin-top: 2px; }
   .archetype { font-size: 1.25rem; margin: 4px 0 2px; }
   .sous { color: var(--muted); font-size: .9rem; }
   .empreinte-item { border-top: 1px solid var(--border); padding: 10px 0; }
@@ -217,6 +220,7 @@
   </div>
 
   <div id="resultat" class="panel">
+    <div id="r-identite" class="identite"></div>
     <div class="archetype" id="r-archetype"></div>
     <div class="sous" id="r-souscritre"></div>
 
@@ -277,6 +281,7 @@ const I18N = {
     source_ia: "réécrit par l'IA", source_repli: "récit déterministe (IA non configurée ou indisponible)",
     approfondi_titre: "✨ Lecture approfondie",
     llm_langue: "français",
+    identite_ne: "né(e) le", identite_a: "à", identite_anonyme: "Portrait cosmique",
   },
   en: {
     titre: "Portrait Cosmique",
@@ -311,6 +316,7 @@ const I18N = {
     source_ia: "rewritten by AI", source_repli: "deterministic reading (AI not configured or unavailable)",
     approfondi_titre: "✨ Deep reading",
     llm_langue: "english",
+    identite_ne: "born", identite_a: "at", identite_anonyme: "Cosmic portrait",
   },
 };
 
@@ -544,6 +550,20 @@ function afficherResultat(d) {
   const t = I18N[LANGUE];
   const p = d.portrait;
   chargerGlossaire(d.glossaire);
+  const id = d._identite || {};
+  const nomComplet = [id.prenoms, id.nom].map(s => (s || "").trim()).filter(Boolean).join(" ");
+  let dateTxt = "";
+  if (id.date_naissance) {
+    const dt = new Date(id.date_naissance + "T00:00:00");
+    if (!isNaN(dt)) dateTxt = dt.toLocaleDateString(LANGUE === "fr" ? "fr-FR" : "en-US", { year: "numeric", month: "long", day: "numeric" });
+  }
+  const detailParts = [];
+  if (dateTxt) detailParts.push(`${t.identite_ne} ${dateTxt}`);
+  if (id.heure_naissance) detailParts.push(`${t.identite_a} ${id.heure_naissance}`);
+  if (id.ville) detailParts.push(id.ville);
+  document.getElementById("r-identite").innerHTML =
+    `<div class="nom">${nomComplet || t.identite_anonyme}</div>` +
+    (detailParts.length ? `<div class="details">${detailParts.join(" · ")}</div>` : "");
   document.getElementById("r-archetype").innerHTML =
     `${p.archetype}${icGlossaire("archetype")}`;
   const stats = p.stats;
@@ -612,6 +632,11 @@ async function calculerPortrait() {
       throw new Error(d.detail || I18N[LANGUE].erreur_generique);
     }
     const d = await r.json();
+    d._identite = {
+      prenoms: body.prenoms, nom: body.nom,
+      date_naissance: body.date_naissance, heure_naissance: body.heure_naissance,
+      ville: document.getElementById("ville").value.trim(),
+    };
     DERNIER_RESULTAT = d;
     afficherResultat(d);
   } catch (e) {
