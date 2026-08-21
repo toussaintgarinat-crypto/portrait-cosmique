@@ -21,7 +21,7 @@ CORPS = ["Soleil", "Lune", "Mercure", "Vénus", "Mars", "Jupiter",
          "Nœud Nord"]
 
 _PLANETES_KEPLER = {"Mercure", "Vénus", "Mars", "Jupiter", "Saturne",
-                    "Uranus", "Neptune"}
+                    "Uranus", "Neptune", "Pluton", "Chiron"}
 
 # ── Éléments osculateurs J2000 + variations séculaires (Meeus ch.32-36) ──
 # Format : (a, e, i, Ω, ϖ, L0, Δa, Δe, Δi, ΔΩ, Δϖ, ΔL0)
@@ -43,6 +43,12 @@ _ELEMENTS = {
                 0.0, 0.0000270, -0.0024, 0.0462, 0.0324, 428.466),
     "Neptune": (30.10957, 0.009456, 1.770, 131.784, 48.123, 304.349,
                 0.0, 0.0000058, 0.0006, -0.0105, -0.0189, 218.466),
+    # Pluton : éléments osculateurs J2000 (précision ~1-2°, orbite perturbée)
+    "Pluton":  (39.482, 0.2488, 17.16, 110.303, 224.066, 238.93,
+                0.0, 0.000051, -0.003, -0.009, -0.015, 145.08),
+    # Chiron : éléments osculateurs approximatifs J2000 (précision ~1-3°)
+    "Chiron":  (17.0, 0.38, 6.95, 207.0, 22.0, 212.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 7.42),
 }
 
 
@@ -142,16 +148,38 @@ def _longitude_planete(corps: str, ctx: _Contexte) -> float:
     return math.degrees(math.atan2(gy, gx)) % 360
 
 
+# ── Lilith (apogée lunaire moyen) + Nœud Nord (nœud lunaire moyen) ─
+def _omega_mean_lune(ctx: _Contexte) -> float:
+    """Longitude du nœud ascendant moyen de la Lune (deg) — Meeus ch.47."""
+    t = ctx.t
+    return (125.04452 - 1934.136261 * t + 0.0020708 * t * t
+            + t ** 3 / 467411.0 - t ** 4 / 60616000.0) % 360
+
+
+def _lilith_longitude(ctx: _Contexte) -> float:
+    """Lilith = apogée lunaire moyen = Ω_mean + 180° (convention astrologique)."""
+    return (_omega_mean_lune(ctx) + 180.0) % 360
+
+
+def _noeud_nord_longitude(ctx: _Contexte) -> float:
+    """Nœud Nord lunaire moyen = Ω_mean (Meeus ch.47)."""
+    return _omega_mean_lune(ctx)
+
+
 def _longitude_brute(corps: str, dt: datetime, utc_offset_h: float) -> float:
     """Longitude écliptique brute (deg) — dispatch interne."""
     if corps == "Soleil":
         return T.soleil_longitude(dt, utc_offset_h)
     if corps == "Lune":
         return T.lune_longitude(dt, utc_offset_h)
+    ctx = _contexte(dt, utc_offset_h)
     if corps in _PLANETES_KEPLER:
-        ctx = _contexte(dt, utc_offset_h)
         return _longitude_planete(corps, ctx)
-    raise NotImplementedError(f"Corps {corps!r} non encore implémenté")
+    if corps == "Lilith":
+        return _lilith_longitude(ctx)
+    if corps == "Nœud Nord":
+        return _noeud_nord_longitude(ctx)
+    raise NotImplementedError(f"Corps {corps!r} non implémenté")
 
 
 def longitude(corps: str, dt: datetime, utc_offset_h: float,
@@ -166,7 +194,9 @@ def longitude(corps: str, dt: datetime, utc_offset_h: float,
                 "Mercure": "meeus_kepler", "Vénus": "meeus_kepler",
                 "Mars": "meeus_kepler", "Jupiter": "meeus_kepler",
                 "Saturne": "meeus_kepler", "Uranus": "meeus_kepler",
-                "Neptune": "meeus_kepler"}
+                "Neptune": "meeus_kepler", "Pluton": "meeus_kepler",
+                "Chiron": "meeus_kepler", "Lilith": "lilith_moyenne",
+                "Nœud Nord": "noeud_lunaire_moyen"}
     return {
         "corps": corps,
         "longitude": round(lon % 360, 6),
@@ -176,3 +206,10 @@ def longitude(corps: str, dt: datetime, utc_offset_h: float,
         "retrograde": retro,
         "methode": methodes.get(corps, "inconnu"),
     }
+
+
+def positions(dt: datetime, utc_offset_h: float,
+              latitude: float, longitude_geo: float) -> dict[str, dict]:
+    """Tous les CORPS d'un coup (réutilise le contexte calculé une fois)."""
+    return {corps: longitude(corps, dt, utc_offset_h, latitude, longitude_geo)
+            for corps in CORPS}

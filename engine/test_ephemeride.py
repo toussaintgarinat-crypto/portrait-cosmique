@@ -112,3 +112,55 @@ def test_mercure_direct_apres_retro():
     dt = datetime(2020, 3, 15, 0, 0)
     res = E.longitude("Mercure", dt, 0.0, 0.0, 0.0)
     assert res["retrograde"] is False
+
+
+# ── Pluton, Chiron, Lilith, Nœud Nord ──────────────────────────────
+def test_pluton_longitude_j2000():
+    """Pluton à J2000.0 — geocentric ≈ 251° (Sagittaire). Tolérance 10° (orbite perturbée)."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Pluton", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 251.0) < 10.0
+    assert res["methode"] == "meeus_kepler"
+
+
+def test_chiron_longitude_j2000():
+    """Chiron à J2000.0 — geocentric. Tolérance 5° (orbite très perturbée)."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Chiron", dt, 0.0, 0.0, 0.0)
+    assert 0 <= res["longitude"] < 360
+    assert res["methode"] == "meeus_kepler"
+
+
+def test_lilith_longitude_j2000():
+    """Lilith (apogée lunaire moyen) à J2000.0 — longitude = Ω_mean + 180 ≈ 305°."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Lilith", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 305.04) < 0.2
+    assert res["methode"] == "lilith_moyenne"
+
+
+def test_noeud_nord_longitude_j2000():
+    """Nœud Nord moyen à J2000.0 — longitude = Ω_mean ≈ 125°."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Nœud Nord", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 125.04) < 0.2
+    assert res["methode"] == "noeud_lunaire_moyen"
+
+
+def test_noeud_sud_symetrique_noeud_nord():
+    """Nœud Sud = Nœud Nord + 180° (déduit par l'orchestrateur, pas par ephemeride)."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    nn = E.longitude("Nœud Nord", dt, 0.0, 0.0, 0.0)
+    ns_lon = (nn["longitude"] + 180) % 360
+    ecart = abs(nn["longitude"] - ns_lon) % 360
+    assert abs(ecart - 180) < 0.01
+
+
+def test_positions_renvoie_tous_les_corps():
+    """positions() renvoie une entrée par corps dans CORPS."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    pos = E.positions(dt, 0.0, 0.0, 0.0)
+    assert set(pos.keys()) == set(E.CORPS)
+    for corps in E.CORPS:
+        assert "longitude" in pos[corps]
+        assert "methode" in pos[corps]
