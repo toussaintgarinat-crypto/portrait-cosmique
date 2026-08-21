@@ -44,10 +44,71 @@ def test_longitude_lune_reutilise_traditions():
     assert res["methode"] == "elp_abrege"
 
 
-def test_longitude_corps_non_implante_leve_notreparable():
+# ── Mercure→Neptune via formules Meeus simplifiées (Kepler + éléments osculateurs) ──
+# Références J2000 : positions géocentriques calculées vérifiées contre
+# éphémérides connues (Sun à 280° Capricorn, Jupiter en Bélier, Saturne en
+# Taureau, Uranus en Verseau, Neptune en Verseau/Capricorne — jan. 2000).
+# Tolérance 3° : formule simplifiée sans termes de perturbation.
+
+def test_mercure_longitude_j2000():
+    """Mercure à J2000.0 — geocentric ≈ 272° (Capricorne, près du Soleil)."""
     dt = datetime(2000, 1, 1, 12, 0)
-    try:
-        E.longitude("Mercure", dt, 0.0, 0.0, 0.0)
-        assert False, "doit lever NotImplementedError"
-    except NotImplementedError:
-        pass
+    res = E.longitude("Mercure", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 272.0) < 3.0
+    assert res["methode"] == "meeus_kepler"
+
+
+def test_venus_longitude_j2000():
+    """Vénus à J2000.0 — geocentric ≈ 242° (Sagittaire)."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Vénus", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 242.0) < 3.0
+
+
+def test_mars_longitude_j2000():
+    """Mars à J2000.0 — geocentric ≈ 328° (Verseau)."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Mars", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 328.0) < 3.0
+
+
+def test_jupiter_longitude_j2000():
+    """Jupiter à J2000.0 — geocentric ≈ 25° (Bélier)."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Jupiter", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 25.0) < 3.0
+
+
+def test_saturne_longitude_j2000():
+    """Saturne à J2000.0 — geocentric ≈ 40° (Taureau), rétrograde."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Saturne", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 40.0) < 3.0
+
+
+def test_uranus_longitude_j2000():
+    """Uranus à J2000.0 — geocentric ≈ 316° (Verseau)."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Uranus", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 316.0) < 3.0
+
+
+def test_neptune_longitude_j2000():
+    """Neptune à J2000.0 — geocentric ≈ 303° (Verseau/Capricorne)."""
+    dt = datetime(2000, 1, 1, 12, 0)
+    res = E.longitude("Neptune", dt, 0.0, 0.0, 0.0)
+    assert abs(res["longitude"] - 303.0) < 3.0
+
+
+def test_mercure_retrogradation_detectee():
+    """Mercure est rétrograde autour du 23/02/2020 (station rétro connue)."""
+    dt = datetime(2020, 2, 25, 0, 0)
+    res = E.longitude("Mercure", dt, 0.0, 0.0, 0.0)
+    assert res["retrograde"] is True
+
+
+def test_mercure_direct_apres_retro():
+    """Mercure redevient direct vers le 10/03/2020."""
+    dt = datetime(2020, 3, 15, 0, 0)
+    res = E.longitude("Mercure", dt, 0.0, 0.0, 0.0)
+    assert res["retrograde"] is False

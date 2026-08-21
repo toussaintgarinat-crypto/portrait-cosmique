@@ -1,11 +1,11 @@
 """Éphéméride géocentrique — longitudes écliptiques tropicales de la date.
 
 Stdlib only. Soleil/Lune réutilisent traditions (Meeus/ELP abrégé).
-Mercure→Neptune via VSOP87 tronqué (task 2). Pluton/Chiron/Lilith/Nœud Nord
-via formules approchées Meeus (task 3).
+Mercure→Neptune via éléments osculateurs + Kepler (Meeus ch.32-36, ~0.5-2°).
+Pluton/Chiron/Lilith/Nœud Nord via formules approchées Meeus (task 3).
 
 Référentiel : longitude géocentrique écliptique tropicale de la date (vraie
-équinoxe), en degrés. UT1→TT via ΔT (Espenak-Meeus) pour VSOP87.
+équinoxe), en degrés. UT1→TT via ΔT (Espenak-Meeus) pour les planètes.
 """
 from __future__ import annotations
 
@@ -19,6 +19,31 @@ import traditions as T
 CORPS = ["Soleil", "Lune", "Mercure", "Vénus", "Mars", "Jupiter",
          "Saturne", "Uranus", "Neptune", "Pluton", "Chiron", "Lilith",
          "Nœud Nord"]
+
+_PLANETES_KEPLER = {"Mercure", "Vénus", "Mars", "Jupiter", "Saturne",
+                    "Uranus", "Neptune"}
+
+# ── Éléments osculateurs J2000 + variations séculaires (Meeus ch.32-36) ──
+# Format : (a, e, i, Ω, ϖ, L0, Δa, Δe, Δi, ΔΩ, Δϖ, ΔL0)
+# Angles en degrés, a en AU, taux par siècle julien.
+_ELEMENTS = {
+    "Mercure": (0.387099, 0.205646, 7.005, 48.331, 77.456, 252.251,
+                0.0, 0.0000213, -0.006, -0.1254, 0.1606, 149472.674),
+    "Vénus":   (0.723332, 0.006773, 3.395, 76.680, 131.564, 181.980,
+                0.0, -0.0000495, 0.001, -0.2784, 0.0523, 58517.815),
+    "Terre":   (1.000001, 0.016709, 0.0, 0.0, 102.937, 100.466,
+                0.0, -0.0000420, 0.0, 0.0, 0.3232, 35999.373),
+    "Mars":    (1.523688, 0.093405, 1.850, 49.558, 336.041, 355.433,
+                0.0, 0.0000910, -0.0072, -0.2933, 0.4441, 19140.299),
+    "Jupiter": (5.202561, 0.048495, 1.303, 100.464, 14.331, 34.351,
+                -0.0000248, 0.0001633, -0.0065, 0.1767, 0.2156, 3034.906),
+    "Saturne": (9.554747, 0.055546, 2.489, 113.665, 93.057, 50.078,
+                0.0, -0.0003467, 0.0039, -0.2567, 0.5636, 1222.114),
+    "Uranus":  (19.21814, 0.046381, 0.773, 74.006, 173.005, 314.055,
+                0.0, 0.0000270, -0.0024, 0.0462, 0.0324, 428.466),
+    "Neptune": (30.10957, 0.009456, 1.770, 131.784, 48.123, 304.349,
+                0.0, 0.0000058, 0.0006, -0.0105, -0.0189, 218.466),
+}
 
 
 @dataclass
@@ -61,12 +86,71 @@ def _vitesse_et_retro(corps: str, dt: datetime, utc_offset_h: float,
     return vitesse, vitesse < 0
 
 
+# ── Mercure→Neptune : éléments osculateurs + Kepler (Meeus) ────────
+def _elements_a_t(corps: str, t: float) -> tuple:
+    """Éléments osculateurs au temps t (siècles juliens TT depuis J2000)."""
+    a0, e0, i0, O0, w0, L0, da, de, di, dO, dw, dL = _ELEMENTS[corps]
+    return (a0 + da * t, e0 + de * t, i0 + di * t,
+            O0 + dO * t, w0 + dw * t, L0 + dL * t)
+
+
+def _kepler(M: float, e: float, iterations: int = 12) -> float:
+    """Résout E - e*sin(E) = M (équation de Kepler). M, E en radians."""
+    E = M if e < 0.8 else math.pi
+    for _ in range(iterations):
+        dE = (E - e * math.sin(E) - M) / (1 - e * math.cos(E))
+        E -= dE
+        if abs(dE) < 1e-10:
+            break
+    return E
+
+
+def _position_heliocentrique(corps: str, t_tt: float) -> tuple[float, float, float]:
+    """Position héliocentrique (x, y, z) en AU dans l'écliptique de la date."""
+    a, e, i, O, w, L = _elements_a_t(corps, t_tt)
+    M = math.radians(L - w) % (2 * math.pi)
+    E = _kepler(M, e)
+    # Anomalie vraie
+    nu = 2 * math.atan2(math.sqrt(1 + e) * math.sin(E / 2),
+                        math.sqrt(1 - e) * math.cos(E / 2))
+    r = a * (1 - e * math.cos(E))
+    # Position dans le plan orbital
+    x_orb = r * math.cos(nu)
+    y_orb = r * math.sin(nu)
+    # Rotation vers écliptique : argument du périhélie depuis le nœud
+    w_rel = math.radians(w - O)
+    O_r = math.radians(O)
+    i_r = math.radians(i)
+    x1 = math.cos(w_rel) * x_orb - math.sin(w_rel) * y_orb
+    y1 = math.sin(w_rel) * x_orb + math.cos(w_rel) * y_orb
+    x = math.cos(O_r) * x1 - math.sin(O_r) * math.cos(i_r) * y1
+    y = math.sin(O_r) * x1 + math.cos(O_r) * math.cos(i_r) * y1
+    z = math.sin(i_r) * y1
+    return x, y, z
+
+
+def _longitude_planete(corps: str, ctx: _Contexte) -> float:
+    """Longitude géocentrique écliptique d'une planète (deg) via Meeus simplifié."""
+    t_tt = (ctx.jj + ctx.delta_t / 86400.0 - 2451545.0) / 36525.0
+    # Position héliocentrique de la planète
+    px, py, _ = _position_heliocentrique(corps, t_tt)
+    # Position héliocentrique de la Terre
+    ex, ey, _ = _position_heliocentrique("Terre", t_tt)
+    # Géocentrique = planète - Terre
+    gx = px - ex
+    gy = py - ey
+    return math.degrees(math.atan2(gy, gx)) % 360
+
+
 def _longitude_brute(corps: str, dt: datetime, utc_offset_h: float) -> float:
     """Longitude écliptique brute (deg) — dispatch interne."""
     if corps == "Soleil":
         return T.soleil_longitude(dt, utc_offset_h)
     if corps == "Lune":
         return T.lune_longitude(dt, utc_offset_h)
+    if corps in _PLANETES_KEPLER:
+        ctx = _contexte(dt, utc_offset_h)
+        return _longitude_planete(corps, ctx)
     raise NotImplementedError(f"Corps {corps!r} non encore implémenté")
 
 
@@ -78,7 +162,11 @@ def longitude(corps: str, dt: datetime, utc_offset_h: float,
         raise ValueError(f"Corps inconnu : {corps!r}")
     lon = _longitude_brute(corps, dt, utc_offset_h)
     vitesse, retro = _vitesse_et_retro(corps, dt, utc_offset_h, lon)
-    methodes = {"Soleil": "meeus_soleil", "Lune": "elp_abrege"}
+    methodes = {"Soleil": "meeus_soleil", "Lune": "elp_abrege",
+                "Mercure": "meeus_kepler", "Vénus": "meeus_kepler",
+                "Mars": "meeus_kepler", "Jupiter": "meeus_kepler",
+                "Saturne": "meeus_kepler", "Uranus": "meeus_kepler",
+                "Neptune": "meeus_kepler"}
     return {
         "corps": corps,
         "longitude": round(lon % 360, 6),
