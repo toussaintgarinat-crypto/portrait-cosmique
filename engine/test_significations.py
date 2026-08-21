@@ -118,6 +118,7 @@ def test_glossaire_fr_structure():
         "Astrologie occidentale", "Astrologie chinoise", "Astrologie védique",
         "Autres traditions", "Numérologie",
         "Statistiques de personnalité", "Synthèse du portrait",
+        "Carte astro complète",
     ]
     ids = {it["id"] for t in g for it in t["items"]}
     assert {"soleil", "lune", "ascendant", "chinoise", "animal_heure",

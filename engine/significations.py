@@ -394,6 +394,128 @@ GLOSSAIRE_FR = {
         "le Cheval, le Sagittaire, Imix. À lire comme ton carburant "
         "motivationnel."
     ),
+    # ── Carte astro complète (theme_complet) ───────────────────────
+    "theme_fondation_soleil": (
+        "Soleil — essence consciente, identité, ce que tu rayonnes. Dans la carte "
+        "complète, il est le pilier central : tout s'organise autour de lui."
+    ),
+    "theme_fondation_lune": (
+        "Lune — émotions, jardin secret, instincts. Pilier de ta vie intime, "
+        "comment tu réagis au monde avant de penser."
+    ),
+    "theme_fondation_ascendant": (
+        "Ascendant — masque social, première impression. Comment on te perçoit "
+        "avant de te connaître. Pilier de ta vitrine extérieure."
+    ),
+    "theme_fondation_descendant": (
+        "Descendant — axe relationnel opposé à l'Ascendant. Ce que tu cherches "
+        "chez l'autre, comment tu te projettes dans le partenariat."
+    ),
+    "theme_fondation_milieu_du_ciel": (
+        "Milieu du Ciel (MC) — vocation, destin public, axe de réalisation "
+        "sociale. Ce que tu projettes dans le monde professionnel."
+    ),
+    "theme_fondation_fond_du_ciel": (
+        "Fond du Ciel (IC) — racines, foyer intérieur, fondation privée. "
+        "D'où tu viens, ton ancrage émotionnel le plus profond."
+    ),
+    "theme_corps_soleil": (
+        "Soleil — identité consciente, vitalité. Le noyau de ta personnalité."
+    ),
+    "theme_corps_lune": (
+        "Lune — émotions, instincts, besoins de sécurité. Ton jardin secret."
+    ),
+    "theme_corps_mercure": (
+        "Mercure — communication, raisonnement, échanges. Comment tu penses et "
+        "transmets tes idées."
+    ),
+    "theme_corps_vénus": (
+        "Vénus — amour, valeurs, séduction. Ce que tu aimes et comment tu aimes."
+    ),
+    "theme_corps_mars": (
+        "Mars — action, désir, combativité. Comment tu passes à l'acte."
+    ),
+    "theme_corps_jupiter": (
+        "Jupiter — expansion, vision, confiance. Où tu grandis et prends du recul."
+    ),
+    "theme_corps_saturne": (
+        "Saturne — structure, limite, responsabilité. Ce qui te cadre et te freine."
+    ),
+    "theme_corps_uranus": (
+        "Uranus — liberté, rupture, innovation. Où tu sors du cadre et surprends."
+    ),
+    "theme_corps_neptune": (
+        "Neptune — rêve, compassion, dissolution. Ce qui te fascine et t'efface."
+    ),
+    "theme_corps_pluton": (
+        "Pluton — transformation, pouvoir, régénération. Ce qui meurt et renaît en toi."
+    ),
+    "theme_point_noeud_nord": (
+        "Nœud Nord — direction de vie, évolution à intégrer. L'axe de croissance "
+        "qui te demande un effort conscient."
+    ),
+    "theme_point_noeud_sud": (
+        "Nœud Sud — acquis karmique, zone de confort. Ce que tu maîtrises déjà "
+        "mais dois quitter pour grandir."
+    ),
+    "theme_point_chiron": (
+        "Chiron — blessure et guérison. La vulnérabilité qui t'enseigne et "
+        "t'ouvre à la compassion."
+    ),
+    "theme_point_lilith": (
+        "Lilith — ombre, désir refoulé, intuition sauvage. La part libre et "
+        "incontrôlable de ton psychisme."
+    ),
+    "theme_maisons": (
+        "Maisons — douze secteurs de l'expérience de vie. Chaque maison indique "
+        "où se jouent les énergies planétaires : maison 1 = identité, "
+        "maison 7 = relations, maison 10 = carrière, maison 4 = foyer."
+    ),
+    "theme_aspects": (
+        "Aspects — angles entre les planètes. Un aspect relie deux énergies : "
+        "harmonie (trigone, sextile), tension (carré, opposition), fusion "
+        "(conjonction). Plus l'orbe est petit, plus l'aspect est exact et puissant."
+    ),
+    "theme_aspect_conjonction": (
+        "Conjonction (0°) — fusion des énergies. Les deux planètes agissent "
+        "ensemble, se renforcent ou se confondent."
+    ),
+    "theme_aspect_opposition": (
+        "Opposition (180°) — tension polarisée. Deux forces contraires "
+        "qu'il faut équilibrer par la conscience."
+    ),
+    "theme_aspect_trigone": (
+        "Trigone (120°) — harmonie naturelle. Flux d'énergie fluide, "
+        "talent inné, aisance."
+    ),
+    "theme_aspect_carre": (
+        "Carré (90°) — tension constructive. Conflit interne qui pousse "
+        "à l'action et forge le caractère."
+    ),
+    "theme_aspect_sextile": (
+        "Sextile (60°) — opportunité, coopération. Une facilité à activer "
+        "consciemment."
+    ),
+    "theme_dominante_element": (
+        "Élément dominant (Feu, Terre, Air, Eau) — tempérament global. "
+        "Feu = passion, Terre = pragmatisme, Air = mental, Eau = sensibilité."
+    ),
+    "theme_dominante_mode": (
+        "Mode dominant (Cardinal, Fixe, Mutable) — style d'action. "
+        "Cardinal = initier, Fixe = persévérer, Mutable = s'adapter."
+    ),
+    "theme_dominante_planete": (
+        "Planète dominante — l'énergie qui colore tout le thème. "
+        "Déterminée par sa position, sa dignité, sa vitesse et ses aspects."
+    ),
+    "theme_dominante_signe": (
+        "Signe dominant — la teinte qui imprègne la personnalité. "
+        "Souvent lié au signe de la planète dominante."
+    ),
+    "theme_dominante_maison": (
+        "Maison dominante — le domaine de vie le plus actif. "
+        "Là où l'énergie du thème se concentre et se manifeste."
+    ),
 }
 
 GLOSSAIRE_EN = {
@@ -535,6 +657,127 @@ GLOSSAIRE_EN = {
         "Energy — vitality, capacity for action, physical drive. Fed by Mars, "
         "Horse, Sagittarius, Imix. Read as your motivational fuel."
     ),
+    # ── Complete astro chart (theme_complet) ───────────────────────
+    "theme_fondation_soleil": (
+        "Sun — conscious essence, identity, what you radiate. In the complete "
+        "chart, it is the central pillar: everything organizes around it."
+    ),
+    "theme_fondation_lune": (
+        "Moon — emotions, secret garden, instincts. Pillar of your inner life, "
+        "how you react to the world before thinking."
+    ),
+    "theme_fondation_ascendant": (
+        "Ascendant — social mask, first impression. How others perceive you "
+        "before knowing you. Pillar of your outer display."
+    ),
+    "theme_fondation_descendant": (
+        "Descendant — relational axis opposite the Ascendant. What you seek "
+        "in others, how you project into partnership."
+    ),
+    "theme_fondation_milieu_du_ciel": (
+        "Midheaven (MC) — vocation, public destiny, social achievement axis. "
+        "What you project into the professional world."
+    ),
+    "theme_fondation_fond_du_ciel": (
+        "Imum Coeli (IC) — roots, inner home, private foundation. Where you "
+        "come from, your deepest emotional anchor."
+    ),
+    "theme_corps_soleil": (
+        "Sun — conscious identity, vitality. The core of your personality."
+    ),
+    "theme_corps_lune": (
+        "Moon — emotions, instincts, security needs. Your secret garden."
+    ),
+    "theme_corps_mercure": (
+        "Mercury — communication, reasoning, exchanges. How you think and "
+        "convey your ideas."
+    ),
+    "theme_corps_vénus": (
+        "Venus — love, values, attraction. What you love and how you love."
+    ),
+    "theme_corps_mars": (
+        "Mars — action, desire, drive. How you spring into action."
+    ),
+    "theme_corps_jupiter": (
+        "Jupiter — expansion, vision, confidence. Where you grow and gain perspective."
+    ),
+    "theme_corps_saturne": (
+        "Saturn — structure, limit, responsibility. What frames and restrains you."
+    ),
+    "theme_corps_uranus": (
+        "Uranus — freedom, disruption, innovation. Where you break the mold and surprise."
+    ),
+    "theme_corps_neptune": (
+        "Neptune — dream, compassion, dissolution. What fascinates and dissolves you."
+    ),
+    "theme_corps_pluton": (
+        "Pluto — transformation, power, regeneration. What dies and is reborn in you."
+    ),
+    "theme_point_noeud_nord": (
+        "North Node — life direction, evolution to integrate. The growth axis "
+        "that asks for conscious effort."
+    ),
+    "theme_point_noeud_sud": (
+        "South Node — karmic background, comfort zone. What you already master "
+        "but must leave behind to grow."
+    ),
+    "theme_point_chiron": (
+        "Chiron — wound and healing. The vulnerability that teaches you "
+        "and opens you to compassion."
+    ),
+    "theme_point_lilith": (
+        "Lilith — shadow, repressed desire, wild intuition. The free and "
+        "uncontrollable part of your psyche."
+    ),
+    "theme_maisons": (
+        "Houses — twelve sectors of life experience. Each house indicates where "
+        "planetary energies play out: house 1 = identity, house 7 = relationships, "
+        "house 10 = career, house 4 = home."
+    ),
+    "theme_aspects": (
+        "Aspects — angles between planets. An aspect links two energies: "
+        "harmony (trine, sextile), tension (square, opposition), fusion "
+        "(conjunction). The smaller the orb, the more exact and powerful the aspect."
+    ),
+    "theme_aspect_conjonction": (
+        "Conjunction (0°) — fusion of energies. The two planets act together, "
+        "reinforce or merge."
+    ),
+    "theme_aspect_opposition": (
+        "Opposition (180°) — polarized tension. Two opposing forces "
+        "to be balanced through awareness."
+    ),
+    "theme_aspect_trigone": (
+        "Trine (120°) — natural harmony. Smooth energy flow, innate talent, ease."
+    ),
+    "theme_aspect_carre": (
+        "Square (90°) — constructive tension. Inner conflict that drives "
+        "action and forges character."
+    ),
+    "theme_aspect_sextile": (
+        "Sextile (60°) — opportunity, cooperation. A facilitation to "
+        "activate consciously."
+    ),
+    "theme_dominante_element": (
+        "Dominant element (Fire, Earth, Air, Water) — overall temperament. "
+        "Fire = passion, Earth = pragmatism, Air = mental, Water = sensitivity."
+    ),
+    "theme_dominante_mode": (
+        "Dominant mode (Cardinal, Fixed, Mutable) — action style. "
+        "Cardinal = initiate, Fixed = persist, Mutable = adapt."
+    ),
+    "theme_dominante_planete": (
+        "Dominant planet — the energy that colors the whole chart. "
+        "Determined by its position, dignity, speed and aspects."
+    ),
+    "theme_dominante_signe": (
+        "Dominant sign — the tint permeating the personality. "
+        "Often linked to the dominant planet's sign."
+    ),
+    "theme_dominante_maison": (
+        "Dominant house — the most active life domain. "
+        "Where the chart's energy concentrates and manifests."
+    ),
 }
 
 # Libellés (labels) FR/EN par id — ce que le front affiche comme titre court.
@@ -550,6 +793,23 @@ _GLOSSAIRE_LABELS = {
     "stat_sagesse": "Sagesse", "stat_creativite": "Créativité",
     "stat_discretion": "Discrétion", "stat_stabilite": "Stabilité",
     "stat_emotivite": "Émotivité", "stat_energie": "Énergie",
+    # Carte astro complète
+    "theme_fondation_soleil": "Soleil (fondation)", "theme_fondation_lune": "Lune (fondation)",
+    "theme_fondation_ascendant": "Ascendant (fondation)", "theme_fondation_descendant": "Descendant (fondation)",
+    "theme_fondation_milieu_du_ciel": "MC (fondation)", "theme_fondation_fond_du_ciel": "IC (fondation)",
+    "theme_corps_soleil": "Soleil", "theme_corps_lune": "Lune", "theme_corps_mercure": "Mercure",
+    "theme_corps_vénus": "Vénus", "theme_corps_mars": "Mars", "theme_corps_jupiter": "Jupiter",
+    "theme_corps_saturne": "Saturne", "theme_corps_uranus": "Uranus", "theme_corps_neptune": "Neptune",
+    "theme_corps_pluton": "Pluton",
+    "theme_point_noeud_nord": "Nœud Nord", "theme_point_noeud_sud": "Nœud Sud",
+    "theme_point_chiron": "Chiron", "theme_point_lilith": "Lilith",
+    "theme_maisons": "Maisons", "theme_aspects": "Aspects",
+    "theme_aspect_conjonction": "Conjonction", "theme_aspect_opposition": "Opposition",
+    "theme_aspect_trigone": "Trigone", "theme_aspect_carre": "Carré",
+    "theme_aspect_sextile": "Sextile",
+    "theme_dominante_element": "Élément dominant", "theme_dominante_mode": "Mode dominant",
+    "theme_dominante_planete": "Planète dominante", "theme_dominante_signe": "Signe dominant",
+    "theme_dominante_maison": "Maison dominante",
 }
 _GLOSSAIRE_LABELS_EN = {
     "soleil": "Sun", "lune": "Moon", "ascendant": "Ascendant",
@@ -563,6 +823,23 @@ _GLOSSAIRE_LABELS_EN = {
     "stat_sagesse": "Wisdom", "stat_creativite": "Creativity",
     "stat_discretion": "Discretion", "stat_stabilite": "Stability",
     "stat_emotivite": "Emotionality", "stat_energie": "Energy",
+    # Complete astro chart
+    "theme_fondation_soleil": "Sun (foundation)", "theme_fondation_lune": "Moon (foundation)",
+    "theme_fondation_ascendant": "Ascendant (foundation)", "theme_fondation_descendant": "Descendant (foundation)",
+    "theme_fondation_milieu_du_ciel": "MC (foundation)", "theme_fondation_fond_du_ciel": "IC (foundation)",
+    "theme_corps_soleil": "Sun", "theme_corps_lune": "Moon", "theme_corps_mercure": "Mercury",
+    "theme_corps_vénus": "Venus", "theme_corps_mars": "Mars", "theme_corps_jupiter": "Jupiter",
+    "theme_corps_saturne": "Saturn", "theme_corps_uranus": "Uranus", "theme_corps_neptune": "Neptune",
+    "theme_corps_pluton": "Pluto",
+    "theme_point_noeud_nord": "North Node", "theme_point_noeud_sud": "South Node",
+    "theme_point_chiron": "Chiron", "theme_point_lilith": "Lilith",
+    "theme_maisons": "Houses", "theme_aspects": "Aspects",
+    "theme_aspect_conjonction": "Conjunction", "theme_aspect_opposition": "Opposition",
+    "theme_aspect_trigone": "Trine", "theme_aspect_carre": "Square",
+    "theme_aspect_sextile": "Sextile",
+    "theme_dominante_element": "Dominant Element", "theme_dominante_mode": "Dominant Mode",
+    "theme_dominante_planete": "Dominant Planet", "theme_dominante_signe": "Dominant Sign",
+    "theme_dominante_maison": "Dominant House",
 }
 
 # Thèmes (ordre de la légende) — couples (label_fr, label_en, [ids]).
@@ -582,6 +859,18 @@ _GLOSSAIRE_THEMES = [
          "stat_discretion", "stat_stabilite", "stat_emotivite", "stat_energie"]),
     ("Synthèse du portrait", "Portrait Synthesis",
         ["archetype", "forces", "faiblesse", "pierre"]),
+    ("Carte astro complète", "Complete Astro Chart",
+        ["theme_fondation_soleil", "theme_fondation_lune", "theme_fondation_ascendant",
+         "theme_fondation_descendant", "theme_fondation_milieu_du_ciel", "theme_fondation_fond_du_ciel",
+         "theme_corps_soleil", "theme_corps_lune", "theme_corps_mercure", "theme_corps_vénus",
+         "theme_corps_mars", "theme_corps_jupiter", "theme_corps_saturne", "theme_corps_uranus",
+         "theme_corps_neptune", "theme_corps_pluton",
+         "theme_point_noeud_nord", "theme_point_noeud_sud", "theme_point_chiron", "theme_point_lilith",
+         "theme_maisons", "theme_aspects",
+         "theme_aspect_conjonction", "theme_aspect_opposition", "theme_aspect_trigone",
+         "theme_aspect_carre", "theme_aspect_sextile",
+         "theme_dominante_element", "theme_dominante_mode", "theme_dominante_planete",
+         "theme_dominante_signe", "theme_dominante_maison"]),
 ]
 _GLOSSAIRE_THEMES_IDS = [i for *_, lst in _GLOSSAIRE_THEMES for i in lst]
 
