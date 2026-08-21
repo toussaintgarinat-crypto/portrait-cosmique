@@ -96,6 +96,13 @@
   .glossaire-ic:hover, .glossaire-ic:focus-visible, .glossaire-ic.on {
     opacity: 1; background: #2a2350; outline: none;
   }
+  .theme-section {
+    font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 .5rem;
+    padding-bottom: .3rem; border-bottom: 2px solid var(--accent);
+    display: flex; align-items: center; gap: .4rem;
+  }
+  .theme-section:first-child { margin-top: 0; }
+  .theme-section .glossaire-ic { margin-left: .15rem; }
   .glossaire-pop {
     position: fixed; z-index: 999; max-width: 320px; min-width: 200px;
     background: var(--panel2); border: 1px solid var(--accent); color: var(--text);
@@ -402,6 +409,9 @@ const I18N = {
     caveat_precis: "Précision : VSOP87 (Soleil→Neptune <1″), Pluton/Chiron formule approchée (~0,1-1°). Sans Swiss Ephemeris.",
     t_fondations: "Fondations (Soleil, Lune, angles)", t_dix: "10 corps", t_pe: "Points évolutifs",
     t_maisons: "Maisons", t_aspects: "Aspects", t_dominantes: "Dominantes",
+    ts_fondations: "1. Les fondations", ts_corps: "2. Les 10 corps principaux",
+    ts_points: "3. Les points évolutifs", ts_maisons: "4. Les 12 maisons",
+    ts_aspects: "5. Les aspects", ts_dominantes: "6. Les dominantes",
     th_point: "Point", th_signe: "Signe", th_degre: "Degré", th_maison: "Maison",
     th_corps: "Corps", th_symbole: "Symbole", th_vitesse: "Vitesse", th_retro: "R",
     th_n: "N°", th_cuspe: "Cuspe", th_aspect: "Aspect", th_type: "Type",
@@ -453,6 +463,9 @@ const I18N = {
     caveat_precis: "Accuracy: VSOP87 (Sun→Neptune <1″), Pluto/Chiron approximated (~0.1-1°). No Swiss Ephemeris.",
     t_fondations: "Foundations (Sun, Moon, angles)", t_dix: "10 bodies", t_pe: "Evolutionary points",
     t_maisons: "Houses", t_aspects: "Aspects", t_dominantes: "Dominants",
+    ts_fondations: "1. Foundations", ts_corps: "2. The 10 main bodies",
+    ts_points: "3. Evolutionary points", ts_maisons: "4. The 12 houses",
+    ts_aspects: "5. Aspects", ts_dominantes: "6. Dominants",
     th_point: "Point", th_signe: "Sign", th_degre: "Degree", th_maison: "House",
     th_corps: "Body", th_symbole: "Symbol", th_vitesse: "Speed", th_retro: "R",
     th_n: "No.", th_cuspe: "Cusp", th_aspect: "Aspect", th_type: "Type",
@@ -946,11 +959,35 @@ const LEGENDE_FILTRES = [
 ];
 
 const _FONDATIONS_ORDRE = [
-  { key: "soleil", nom: "Soleil" }, { key: "lune", nom: "Lune" },
-  { key: "ascendant", nom: "Ascendant" }, { key: "milieu_du_ciel", nom: "Milieu du Ciel" },
-  { key: "descendant", nom: "Descendant" }, { key: "fond_du_ciel", nom: "Fond du Ciel" },
+  { key: "soleil", nom: "Soleil", gid: "theme_fondation_soleil" },
+  { key: "lune", nom: "Lune", gid: "theme_fondation_lune" },
+  { key: "ascendant", nom: "Ascendant", gid: "theme_fondation_ascendant" },
+  { key: "descendant", nom: "Descendant", gid: "theme_fondation_descendant" },
+  { key: "milieu_du_ciel", nom: "Milieu du Ciel", gid: "theme_fondation_milieu_du_ciel" },
+  { key: "fond_du_ciel", nom: "Fond du Ciel", gid: "theme_fondation_fond_du_ciel" },
 ];
 const _FONDATIONS_MAISON = { "ascendant": 1, "descendant": 7, "milieu_du_ciel": 10, "fond_du_ciel": 4 };
+const _CORPS_GLOSS = {
+  "Soleil": "theme_corps_soleil", "Lune": "theme_corps_lune",
+  "Mercure": "theme_corps_mercure", "Vénus": "theme_corps_vénus",
+  "Mars": "theme_corps_mars", "Jupiter": "theme_corps_jupiter",
+  "Saturne": "theme_corps_saturne", "Uranus": "theme_corps_uranus",
+  "Neptune": "theme_corps_neptune", "Pluton": "theme_corps_pluton",
+};
+const _POINTS_GLOSS = {
+  "noeud_nord": "theme_point_noeud_nord", "noeud_sud": "theme_point_noeud_sud",
+  "chiron": "theme_point_chiron", "lilith": "theme_point_lilith",
+};
+const _ASPECT_GLOSS = {
+  "conjonction": "theme_aspect_conjonction", "opposition": "theme_aspect_opposition",
+  "trigone": "theme_aspect_trigone", "carre": "theme_aspect_carre",
+  "sextile": "theme_aspect_sextile",
+};
+const _DOMINANTE_GLOSS = {
+  "dom_element": "theme_dominante_element", "dom_mode": "theme_dominante_mode",
+  "dom_planete": "theme_dominante_planete", "dom_signe": "theme_dominante_signe",
+  "dom_maison": "theme_dominante_maison",
+};
 
 function viderTheme() {
   _THEME_CACHE = null;
@@ -1136,6 +1173,10 @@ function renderTableaux(tc) {
   const c = document.getElementById("tableaux-theme");
   c.innerHTML = "";
   const t = I18N[LANGUE];
+  const sectionH = (titre, gid) => {
+    const ic = gid ? icGlossaire(gid) : "";
+    return `<h3 class="theme-section"><span>${titre}</span>${ic}</h3>`;
+  };
 
   // 1. Fondations
   const fond = tc.fondations || {};
@@ -1147,35 +1188,39 @@ function renderTableaux(tc) {
       const src = o.key === "soleil" ? dixMap["Soleil"] : (o.key === "lune" ? dixMap["Lune"] : null);
       maison = src ? src.maison : "—";
     }
-    return { point: o.nom, symbole: f.symbole || "—", signe: f.signe || "—", degre: f.degre, maison };
+    return { point: o.nom, gid: o.gid, symbole: f.symbole || "—", signe: f.signe || "—", degre: f.degre, maison };
   });
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_fondations));
   c.insertAdjacentHTML("beforeend", tableHTML(t.t_fondations,
     [t.th_point, t.th_signe, t.th_degre, t.th_maison],
-    rows.map(r => `<tr><td>${r.point}</td><td>${r.symbole}</td><td>${r.signe}</td><td class="num">${fmtDeg(r.degre)}</td><td class="num">${r.maison ?? "—"}</td></tr>`),
+    rows.map(r => `<tr><td>${r.point}${icGlossaire(r.gid)}</td><td>${r.symbole}</td><td>${r.signe}</td><td class="num">${fmtDeg(r.degre)}</td><td class="num">${r.maison ?? "—"}</td></tr>`),
     true));
 
   // 2. 10 corps
   const dix = Object.entries(dixMap).map(([nom, p]) => ({
-    corps: nom, symbole: SYMBOLES_POINTS[nom] || "", signe: p.signe, degre: p.degre,
+    corps: nom, gid: _CORPS_GLOSS[nom], symbole: SYMBOLES_POINTS[nom] || "", signe: p.signe, degre: p.degre,
     maison: p.maison, vitesse: p.vitesse_deg_j, retro: p.retrograde,
   }));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_corps));
   c.insertAdjacentHTML("beforeend", tableHTML(t.t_dix,
     [t.th_corps, t.th_symbole, t.th_signe, t.th_degre, t.th_maison, t.th_vitesse, t.th_retro],
-    dix.map(r => `<tr><td>${r.corps}</td><td>${r.symbole}</td><td>${r.signe}</td><td class="num">${fmtDeg(r.degre)}</td><td class="num">${r.maison ?? "—"}</td><td class="num">${r.vitesse != null ? r.vitesse.toFixed(3) : "—"}</td><td>${r.retro ? "℞" : ""}</td></tr>`),
+    dix.map(r => `<tr><td>${r.corps}${icGlossaire(r.gid)}</td><td>${r.symbole}</td><td>${r.signe}</td><td class="num">${fmtDeg(r.degre)}</td><td class="num">${r.maison ?? "—"}</td><td class="num">${r.vitesse != null ? r.vitesse.toFixed(3) : "—"}</td><td>${r.retro ? "℞" : ""}</td></tr>`),
     false));
 
   // 3. Points évolutifs
   const pe = Object.entries(tc.points_evolutifs || {}).map(([nom, p]) => ({
-    point: p.corps || nom, symbole: SYMBOLES_POINTS[p.corps || nom] || "", signe: p.signe, degre: p.degre,
+    point: p.corps || nom, gid: _POINTS_GLOSS[nom], symbole: SYMBOLES_POINTS[p.corps || nom] || "", signe: p.signe, degre: p.degre,
     maison: p.maison, vitesse: p.vitesse_deg_j, retro: p.retrograde,
   }));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_points));
   c.insertAdjacentHTML("beforeend", tableHTML(t.t_pe,
     [t.th_point, t.th_symbole, t.th_signe, t.th_degre, t.th_maison, t.th_vitesse, t.th_retro],
-    pe.map(r => `<tr><td>${r.point}</td><td>${r.symbole}</td><td>${r.signe}</td><td class="num">${fmtDeg(r.degre)}</td><td class="num">${r.maison ?? "—"}</td><td class="num">${r.vitesse != null ? r.vitesse.toFixed(3) : "—"}</td><td>${r.retro ? "℞" : ""}</td></tr>`),
+    pe.map(r => `<tr><td>${r.point}${icGlossaire(r.gid)}</td><td>${r.symbole}</td><td>${r.signe}</td><td class="num">${fmtDeg(r.degre)}</td><td class="num">${r.maison ?? "—"}</td><td class="num">${r.vitesse != null ? r.vitesse.toFixed(3) : "—"}</td><td>${r.retro ? "℞" : ""}</td></tr>`),
     false));
 
   // 4. Maisons
   const mais = (tc.maisons || []).map(m => ({ n: m.maison, cuspe: m.cuspe, signe: m.signe, symbole: m.symbole }));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_maisons, "theme_maisons"));
   c.insertAdjacentHTML("beforeend", tableHTML(t.t_maisons,
     [t.th_n, t.th_cuspe, t.th_signe, t.th_symbole],
     mais.map(r => `<tr><td class="num">${r.n}</td><td class="num">${fmtDeg(r.cuspe)}</td><td>${r.signe}</td><td>${r.symbole || ""}</td></tr>`),
@@ -1185,6 +1230,7 @@ function renderTableaux(tc) {
   const fCfg2 = LEGENDE_FILTRES.find(f => f.val === _ASPECT_FILTRE) || LEGENDE_FILTRES[0];
   let asps = (tc.aspects || []).filter(a => !fCfg2.types || a.type === fCfg2.types);
   asps = trierAspects(asps, _ASPECT_TRI);
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_aspects, "theme_aspects"));
   const aspContainer = document.createElement("div");
   aspContainer.className = "theme-asp";
   aspContainer.innerHTML = `<table><caption>${t.t_aspects}</caption><thead><tr>
@@ -1194,7 +1240,7 @@ function renderTableaux(tc) {
     <th class="num" data-col="orb">${t.th_orb}<span class="sort-ind">↕</span></th>
     <th class="num" data-col="exactitude">${t.th_exact}<span class="sort-ind">↕</span></th>
     </tr></thead><tbody>${asps.map(a => `<tr class="asp-row" data-type="${a.type}">
-      <td>${NOMS_ASPECTS_TR[a.aspect] || a.aspect}</td>
+      <td>${NOMS_ASPECTS_TR[a.aspect] || a.aspect}${icGlossaire(_ASPECT_GLOSS[a.aspect])}</td>
       <td>${a.type}</td>
       <td>${a.point_a}</td><td>${a.point_b}</td>
       <td class="num">${a.orb.toFixed(2)}°</td>
@@ -1212,14 +1258,15 @@ function renderTableaux(tc) {
 
   // 6. Dominantes (5 cartes)
   const dom = tc.dominantes || {};
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_dominantes));
   const domCont = document.createElement("div");
   domCont.className = "theme-dominantes";
   const cards = [
-    { titre: t.dom_element, d: dom.element, key: "dominant" },
-    { titre: t.dom_mode, d: dom.mode, key: "dominant" },
-    { titre: t.dom_planete, d: dom.planete, key: "dominante" },
-    { titre: t.dom_signe, d: dom.signe, key: "dominant" },
-    { titre: t.dom_maison, d: dom.maison, key: "dominante" },
+    { titre: t.dom_element, gid: _DOMINANTE_GLOSS.dom_element, d: dom.element, key: "dominant" },
+    { titre: t.dom_mode, gid: _DOMINANTE_GLOSS.dom_mode, d: dom.mode, key: "dominant" },
+    { titre: t.dom_planete, gid: _DOMINANTE_GLOSS.dom_planete, d: dom.planete, key: "dominante" },
+    { titre: t.dom_signe, gid: _DOMINANTE_GLOSS.dom_signe, d: dom.signe, key: "dominant" },
+    { titre: t.dom_maison, gid: _DOMINANTE_GLOSS.dom_maison, d: dom.maison, key: "dominante" },
   ];
   for (const c2 of cards) {
     if (!c2.d || !c2.d.scores) continue;
@@ -1229,7 +1276,7 @@ function renderTableaux(tc) {
     const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
     const card = document.createElement("div");
     card.className = "dominante-carte";
-    card.innerHTML = `<h4>${c2.titre}</h4><div class="dom-nom">${dominant}</div>` +
+    card.innerHTML = `<h4>${c2.titre}${icGlossaire(c2.gid)}</h4><div class="dom-nom">${dominant}</div>` +
       entries.map(([k, v]) => {
         const pct = maxVal > 0 ? (v / maxVal * 100) : 0;
         return `<div class="dominante-barre"><div class="dl">${k}</div><div class="bar-bg"><div class="bar-fg" style="width:${pct.toFixed(1)}%"></div></div><div class="dv">${typeof v === "number" ? v : ""}</div></div>`;
