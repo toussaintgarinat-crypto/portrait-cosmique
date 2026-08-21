@@ -164,3 +164,44 @@ def test_expliquer_empreinte_possede_ids_stables():
     assert cles_vers_ids["Soleil"] == "soleil"
     assert cles_vers_ids["Lune"] == "lune"
     assert cles_vers_ids["Ascendant"] == "ascendant"
+
+
+# ── Clefs theme_complet (task 10) ─────────────────────────────────
+def test_clefs_corps_10_entrees():
+    assert set(Z.CLEFS_CORPS.keys()) == {"Soleil", "Lune", "Mercure", "Vénus",
+                                         "Mars", "Jupiter", "Saturne", "Uranus",
+                                         "Neptune", "Pluton"}
+    for corps, clef in Z.CLEFS_CORPS.items():
+        assert "fr" in clef and "en" in clef
+
+
+def test_clefs_points_evolutifs_4():
+    assert set(Z.CLEFS_POINTS_EVOLUTIFS.keys()) == {"noeud_nord", "noeud_sud",
+                                                     "chiron", "lilith"}
+
+
+def test_clefs_aspects_presentes():
+    assert "trigone" in Z.CLEFS_ASPECTS
+    assert "carre" in Z.CLEFS_ASPECTS
+
+
+def test_clefs_dominantes_element():
+    assert "Feu" in Z.CLEFS_DOMINANTES.get("element", {})
+
+
+def test_expliquer_avec_theme_complet():
+    """expliquer() avec theme_complet ajoute une sous-section carte astro."""
+    trad = {"signe_solaire": {"nom": "Bélier"}}
+    tc = {"fondations": {"soleil": {"signe": "Bélier", "longitude": 0.0}},
+          "dix_corps": {"Soleil": {"signe": "Bélier"}},
+          "dominantes": {"element": {"dominant": "Feu"}}}
+    res = Z.expliquer(trad, "fr", theme_complet=tc)
+    assert any("carte" in e.get("id", "").lower() or "theme" in e.get("id", "").lower()
+               for e in res)
+
+
+def test_expliquer_sans_theme_complet_compatible():
+    """expliquer() sans theme_complet reste compatible (pas d'erreur)."""
+    trad = {"signe_solaire": {"nom": "Bélier"}}
+    res = Z.expliquer(trad, "fr")
+    assert isinstance(res, list)

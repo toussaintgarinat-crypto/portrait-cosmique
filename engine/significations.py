@@ -162,6 +162,71 @@ NAKSHATRA_SENS = {
     "Revati": "douceur, protection, achèvement",
 }
 
+# ── Clefs theme_complet (carte astro complète) ────────────────────
+# Mots-clés pour les 10 corps, points évolutifs, aspects et dominantes
+# de la carte astro complète (theme_complet). FR/EN dans la même table.
+CLEFS_CORPS = {
+    "Soleil":   {"fr": "identité, vitalité, essence consciente",
+                 "en": "identity, vitality, conscious essence"},
+    "Lune":     {"fr": "émotions, jardin secret, instincts",
+                 "en": "emotions, inner world, instincts"},
+    "Mercure":  {"fr": "communication, raisonnement, échanges",
+                 "en": "communication, reasoning, exchanges"},
+    "Vénus":    {"fr": "amour, valeurs, séduction",
+                 "en": "love, values, attraction"},
+    "Mars":     {"fr": "action, désir, combativité",
+                 "en": "action, desire, drive"},
+    "Jupiter":  {"fr": "expansion, vision, confiance",
+                 "en": "expansion, vision, confidence"},
+    "Saturne":  {"fr": "structure, limite, responsabilité",
+                 "en": "structure, limit, responsibility"},
+    "Uranus":   {"fr": "liberté, rupture, innovation",
+                 "en": "freedom, disruption, innovation"},
+    "Neptune":  {"fr": "rêve, compassion, dissolution",
+                 "en": "dream, compassion, dissolution"},
+    "Pluton":   {"fr": "transformation, pouvoir, régénération",
+                 "en": "transformation, power, regeneration"},
+}
+
+CLEFS_POINTS_EVOLUTIFS = {
+    "noeud_nord": {"fr": "direction de vie, évolution à intégrer",
+                   "en": "life direction, evolution to integrate"},
+    "noeud_sud":  {"fr": "acquis karmique, zone de confort à quitter",
+                   "en": "karmic background, comfort zone to leave"},
+    "chiron":     {"fr": "blessure et guérison, vulnérabilité enseignante",
+                   "en": "wound and healing, teaching vulnerability"},
+    "lilith":     {"fr": "ombre, désir refoulé, intuition sauvage",
+                   "en": "shadow, repressed desire, wild intuition"},
+}
+
+CLEFS_ASPECTS = {
+    "conjonction":  {"fr": "fusion des énergies", "en": "fusion of energies"},
+    "opposition":   {"fr": "tension polarisée, mise en balance", "en": "polarized tension, balancing"},
+    "trigone":      {"fr": "harmonie naturelle, flow", "en": "natural harmony, flow"},
+    "carre":        {"fr": "tension constructive, défi à résoudre", "en": "constructive tension, challenge"},
+    "sextile":      {"fr": "opportunité, coopération", "en": "opportunity, cooperation"},
+    "semi_sextile": {"fr": "ajustement subtil", "en": "subtle adjustment"},
+    "semi_carre":   {"fr": "friction mineure", "en": "minor friction"},
+    "quintile":     {"fr": "créativité, talent", "en": "creativity, talent"},
+    "sesquicarre":  {"fr": "tension créative", "en": "creative tension"},
+    "quinconce":    {"fr": "désajustement, adaptation", "en": "mismatch, adaptation"},
+}
+
+CLEFS_DOMINANTES = {
+    "element": {
+        "Feu":   {"fr": "sensible, passionné, instinctif", "en": "passionate, instinctive"},
+        "Terre": {"fr": "concret, pragmatique, stable", "en": "grounded, pragmatic, stable"},
+        "Air":   {"fr": "mental, social, communicant", "en": "mental, social, communicative"},
+        "Eau":   {"fr": "sensible, intuitif, empathique", "en": "sensitive, intuitive, empathic"},
+    },
+    "mode": {
+        "Cardinal": {"fr": "initiateur, lanceur de projets", "en": "initiator, project starter"},
+        "Fixe":     {"fr": "persévérant, constant", "en": "steadfast, persistent"},
+        "Mutable":  {"fr": "adaptable, flexible", "en": "adaptable, flexible"},
+    },
+}
+
+
 # ── Nombres (chemin de vie & expression) ─────────────────────────
 NOMBRE_SENS = {
     1: "indépendance, initiative, leadership",
@@ -757,7 +822,8 @@ def _entree(cle: str, valeur: str, sens: str, role: str = "", id: str = "") -> d
     return {"cle": cle, "valeur": valeur, "sens": sens, "role": role, "id": id}
 
 
-def expliquer(trad: dict, langue: str = "fr") -> list:
+def expliquer(trad: dict, langue: str = "fr",
+              theme_complet: dict | None = None) -> list:
     """Empreinte LISIBLE : pour chaque tradition calculée, {clé, valeur, sens, rôle}.
 
     Ordonnée comme on la lit (Soleil → Lune → Ascendant → … → numérologie). Une section
@@ -765,7 +831,10 @@ def expliquer(trad: dict, langue: str = "fr") -> list:
 
     `langue="fr"` (défaut) : comportement STRICTEMENT identique à avant l'i18n (S194).
     `langue="en"` : mêmes clés JSON, valeurs traduites (noms de signes/animaux/tables de
-    sens en anglais ; Maya et Nakshatra gardent leurs noms d'origine, comme en anglais)."""
+    sens en anglais ; Maya et Nakshatra gardent leurs noms d'origine, comme en anglais).
+
+    Si `theme_complet` est fourni, ajoute une sous-section « carte astro complète » avec
+    les clefs des 10 corps, points évolutifs, aspects majeurs, dominantes."""
     en = (langue or "fr").lower().startswith("en")
 
     def nom(v: str) -> str:
@@ -841,4 +910,82 @@ def expliquer(trad: dict, langue: str = "fr") -> list:
     if isinstance(expr, int):
         out.append(_entree(cle("Expression (nom)"), str(expr),
                             nombre_sens.get(expr, ""), role("talents, tempérament"), id="expression"))
+
+    if theme_complet:
+        out.extend(_expliquer_theme_complet(theme_complet, "en" if en else "fr"))
+
     return out
+
+
+def _expliquer_theme_complet(tc: dict, langue: str) -> list:
+    """Sous-section empreinte pour la carte astro complète (theme_complet).
+
+    Les entrées portent un `id` préfixé par `theme_` pour les distinguer des ids stables
+    du glossaire (elles ne sont pas traduites via le glossaire). Chaque entrée conserve
+    la structure `{cle, valeur, sens, role, id}` de `_entree`."""
+    lg = langue if langue in ("fr", "en") else "fr"
+    entries: list = []
+
+    # — Fondations (Soleil / Lune / Ascendant / Descendant / MC / IC) —
+    for nom_cle, nom_aff in (("soleil", "Soleil"), ("lune", "Lune"),
+                              ("ascendant", "Ascendant"), ("descendant", "Descendant"),
+                              ("milieu_du_ciel", "MC"), ("fond_du_ciel", "IC")):
+        fond = tc.get("fondations", {}).get(nom_cle) or {}
+        if fond:
+            mots = CLEFS_CORPS.get(nom_aff, {}).get(lg, "") if nom_aff in CLEFS_CORPS else ""
+            entries.append(_entree(
+                nom_aff,
+                f"{fond.get('signe', '?')} ({fond.get('degre', 0):.1f}°)",
+                mots, "fondation", id=f"theme_fondation_{nom_cle}"))
+
+    # — 10 corps célestes —
+    for corps, info in (tc.get("dix_corps") or {}).items():
+        info = info or {}
+        retro = " R" if info.get("retrograde") else ""
+        maison = info.get("maison", "?")
+        entries.append(_entree(
+            corps,
+            f"{info.get('signe', '?')} {info.get('degre', 0):.1f}°{retro} (M{maison})",
+            CLEFS_CORPS.get(corps, {}).get(lg, ""),
+            "corps céleste", id=f"theme_corps_{corps.lower()}"))
+
+    # — Points évolutifs (Nœud Nord/Sud, Chiron, Lilith) —
+    for nom_cle, info in (tc.get("points_evolutifs") or {}).items():
+        info = info or {}
+        label = nom_cle.replace("_", " ").title()
+        entries.append(_entree(
+            label,
+            f"{info.get('signe', '?')} {info.get('degre', 0):.1f}°",
+            CLEFS_POINTS_EVOLUTIFS.get(nom_cle, {}).get(lg, ""),
+            "point évolutif", id=f"theme_point_{nom_cle}"))
+
+    # — Aspects majeurs (top 5 par exactitude) —
+    aspects = tc.get("aspects") or []
+    majeurs = sorted([a for a in aspects if a.get("type") == "majeur"],
+                     key=lambda a: a.get("exactitude", 0), reverse=True)[:5]
+    for asp in majeurs:
+        a_type = asp.get("aspect", "?")
+        pa = asp.get("point_a", "?")
+        pb = asp.get("point_b", "?")
+        entries.append(_entree(
+            f"{a_type.title()} {pa}-{pb}",
+            f"orbe {asp.get('orb', 0):.1f}°",
+            CLEFS_ASPECTS.get(a_type, {}).get(lg, ""),
+            "aspect", id=f"theme_aspect_{pa}_{pb}_{a_type}"))
+
+    # — Dominantes (élément / mode / planète / signe / maison) —
+    dom = tc.get("dominantes") or {}
+    for categorie in ("element", "mode", "planete", "signe", "maison"):
+        d = dom.get(categorie, {}) or {}
+        cle_dom = d.get("dominant") or d.get("dominante")
+        if not cle_dom:
+            continue
+        mots = (CLEFS_DOMINANTES.get(categorie, {}).get(str(cle_dom), {}).get(lg, "")
+                if categorie in CLEFS_DOMINANTES else "")
+        label_cat = categorie.capitalize() if lg == "fr" else categorie.capitalize()
+        entries.append(_entree(
+            f"Dominante {label_cat}",
+            str(cle_dom), mots, "dominante",
+            id=f"theme_dominante_{categorie}"))
+
+    return entries
