@@ -96,13 +96,21 @@
   .glossaire-ic:hover, .glossaire-ic:focus-visible, .glossaire-ic.on {
     opacity: 1; background: #2a2350; outline: none;
   }
+  details.theme-section-acc { margin: 1.5rem 0 .5rem; }
+  details.theme-section-acc:first-of-type { margin-top: 0; }
   .theme-section {
-    font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 .5rem;
+    font-size: 1.1rem; font-weight: 700; margin: 0 0 .5rem;
     padding-bottom: .3rem; border-bottom: 2px solid var(--accent);
     display: flex; align-items: center; gap: .4rem;
+    cursor: pointer; list-style: none;
   }
-  .theme-section:first-child { margin-top: 0; }
+  .theme-section::-webkit-details-marker { display: none; }
   .theme-section .glossaire-ic { margin-left: .15rem; }
+  .theme-section .tsa-chevron {
+    margin-left: auto; font-size: .8rem; color: var(--muted);
+    transition: transform .15s;
+  }
+  details.theme-section-acc[open] > .theme-section .tsa-chevron { transform: rotate(90deg); }
   .glossaire-pop {
     position: fixed; z-index: 999; max-width: 320px; min-width: 200px;
     background: var(--panel2); border: 1px solid var(--accent); color: var(--text);
@@ -1064,10 +1072,12 @@ function afficherResultat(d) {
     `${t.forces_titre} : ${p.forces.join(", ")}${icGlossaire("forces")}` +
     ` · ${t.faiblesse_titre} : ${p.faiblesse}${icGlossaire("faiblesse")}` +
     ` <span class="badge">${t.pierre_titre} : ${p.pierre_equilibrage.pierre}${icGlossaire("pierre")}</span>`;
-  document.getElementById("r-empreinte").innerHTML = EMPREINTE_SECTIONS.map(sec => {
-    const items = d.empreinte.filter(e => sectionDeEntree(e) === sec.key);
-    if (!items.length) return "";
-    const header = `<h3 class="theme-section"><span>${t[sec.titleKey]}</span>${sec.gid ? icGlossaire(sec.gid) : ""}</h3>`;
+  const sectionsEmpreinte = EMPREINTE_SECTIONS
+    .map(sec => ({ sec, items: d.empreinte.filter(e => sectionDeEntree(e) === sec.key) }))
+    .filter(x => x.items.length);
+  document.getElementById("r-empreinte").innerHTML = sectionsEmpreinte.map(({ sec, items }, idx) => {
+    const ouverte = idx === 0 ? " open" : "";
+    const header = `<summary class="theme-section"><span>${t[sec.titleKey]}</span>${sec.gid ? icGlossaire(sec.gid) : ""}<span class="tsa-chevron">▶</span></summary>`;
     const intro = sec.gid ? sectionIntro(sec.gid) : "";
     const body = items.map(e => `
       <div class="empreinte-item">
@@ -1075,7 +1085,7 @@ function afficherResultat(d) {
         <div class="valeur">${e.valeur}</div>
         <div class="sens">${e.sens}</div>
       </div>`).join("");
-    return header + intro + body;
+    return `<details class="theme-section-acc" data-section="${sec.key}"${ouverte}>${header}${intro}${body}</details>`;
   }).join("");
   rendreRecit(d);
   document.getElementById("r-legende").innerHTML = (d.glossaire || []).map(g => `
