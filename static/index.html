@@ -491,6 +491,9 @@ const I18N = {
     ts_fondations: "1. Les fondations", ts_corps: "2. Les 10 corps principaux",
     ts_points: "3. Les points évolutifs", ts_maisons: "4. Les 12 maisons",
     ts_aspects: "5. Les aspects", ts_dominantes: "6. Les dominantes",
+    pt_traditions: "Traditions natales", pt_fondations: "Les fondations",
+    pt_corps: "Les 10 corps principaux", pt_points: "Les points évolutifs",
+    pt_aspects: "Aspects structurels", pt_dominantes: "Les dominantes",
     fil_rouge: "Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit",
     dans_ton_theme: "Dans ton thème",
     donc: "Donc",
@@ -564,6 +567,9 @@ const I18N = {
     ts_fondations: "1. Foundations", ts_corps: "2. The 10 main bodies",
     ts_points: "3. Evolutionary points", ts_maisons: "4. The 12 houses",
     ts_aspects: "5. Aspects", ts_dominantes: "6. Dominants",
+    pt_traditions: "Natal traditions", pt_fondations: "Foundations",
+    pt_corps: "The 10 main bodies", pt_points: "Evolutionary points",
+    pt_aspects: "Structural aspects", pt_dominantes: "Dominants",
     fil_rouge: "Planet = what · Sign = how · House = where · Aspect = how they interact",
     dans_ton_theme: "In your chart",
     donc: "So",
@@ -619,6 +625,24 @@ function icGlossaire(id) {
   if (!id || !GLOSSAIRE[id]) return "";
   return ` <span class="glossaire-ic" data-glossaire="${id}" role="button"
     tabindex="0" aria-label="Définition : ${GLOSSAIRE_LABELS[id] || id}">ℹ️</span>`;
+}
+
+// ── Découpage theme-section de l'empreinte (onglet Portrait) ──────
+const EMPREINTE_SECTIONS = [
+  { key: "traditions", titleKey: "pt_traditions", gid: null },
+  { key: "fondations", titleKey: "pt_fondations", gid: "theme_fondations" },
+  { key: "corps", titleKey: "pt_corps", gid: "theme_corps" },
+  { key: "points", titleKey: "pt_points", gid: "theme_points_evolutifs" },
+  { key: "aspects", titleKey: "pt_aspects", gid: "theme_aspects" },
+  { key: "dominantes", titleKey: "pt_dominantes", gid: "theme_dominantes" },
+];
+function sectionDeEntree(e) {
+  if (e.role === "aspect") return "aspects";
+  if (e.id.startsWith("theme_fondation_")) return "fondations";
+  if (e.id.startsWith("theme_corps_")) return "corps";
+  if (e.id.startsWith("theme_point_")) return "points";
+  if (e.id.startsWith("theme_dominante_")) return "dominantes";
+  return "traditions";
 }
 
 const STAT_VERS_ID = {
@@ -1040,12 +1064,19 @@ function afficherResultat(d) {
     `${t.forces_titre} : ${p.forces.join(", ")}${icGlossaire("forces")}` +
     ` · ${t.faiblesse_titre} : ${p.faiblesse}${icGlossaire("faiblesse")}` +
     ` <span class="badge">${t.pierre_titre} : ${p.pierre_equilibrage.pierre}${icGlossaire("pierre")}</span>`;
-  document.getElementById("r-empreinte").innerHTML = d.empreinte.map(e => `
-    <div class="empreinte-item">
-      <div class="cle">${e.cle}${e.role ? " · " + e.role : ""}${icGlossaire(e.id)}</div>
-      <div class="valeur">${e.valeur}</div>
-      <div class="sens">${e.sens}</div>
-    </div>`).join("");
+  document.getElementById("r-empreinte").innerHTML = EMPREINTE_SECTIONS.map(sec => {
+    const items = d.empreinte.filter(e => sectionDeEntree(e) === sec.key);
+    if (!items.length) return "";
+    const header = `<h3 class="theme-section"><span>${t[sec.titleKey]}</span>${sec.gid ? icGlossaire(sec.gid) : ""}</h3>`;
+    const intro = sec.gid ? sectionIntro(sec.gid) : "";
+    const body = items.map(e => `
+      <div class="empreinte-item">
+        <div class="cle">${e.cle}${e.role ? " · " + e.role : ""}${icGlossaire(e.id)}</div>
+        <div class="valeur">${e.valeur}</div>
+        <div class="sens">${e.sens}</div>
+      </div>`).join("");
+    return header + intro + body;
+  }).join("");
   rendreRecit(d);
   document.getElementById("r-legende").innerHTML = (d.glossaire || []).map(g => `
     <h3>${g.theme}</h3>
