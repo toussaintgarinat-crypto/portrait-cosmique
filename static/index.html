@@ -1526,7 +1526,7 @@ function sectionIntro(gid) {
   const d = DIDACTIQUE[gid] || {};
   if (!d.question && !d.conclusion) return "";
   const domaines = (d.domaines || []).join(" · ");
-  return `<div class="section-intro">${icGlossaire(gid)}
+  return `<div class="section-intro">
     ${d.question ? `<div class="si-q">« ${d.question} »</div>` : ""}
     ${domaines ? `<div class="si-domaines">${domaines}</div>` : ""}
     ${d.conclusion ? `<div class="si-conclusion">${d.conclusion}</div>` : ""}</div>`;
@@ -1606,7 +1606,7 @@ function renderTableaux(tc) {
   const mais = (tc.maisons || []).map(m => ({ n: m.maison, cuspe: m.cuspe, signe: m.signe, symbole: m.symbole }));
   c.insertAdjacentHTML("beforeend", tableHTML(t.t_maisons,
     [t.th_n, t.th_cuspe, t.th_signe, t.th_symbole],
-    mais.map(r => `<tr><td class="num">${r.n}</td><td class="num">${fmtDeg(r.cuspe)}</td><td>${r.signe}</td><td>${r.symbole || ""}</td></tr>`),
+    mais.map(r => `<tr><td class="num">${r.n}${icGlossaire("maison_" + r.n)}</td><td class="num">${fmtDeg(r.cuspe)}</td><td>${r.signe}</td><td>${r.symbole || ""}</td></tr>`),
     false));
   c.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_maison_num} · ${t.leg_degre}`));
@@ -1646,7 +1646,7 @@ function renderTableaux(tc) {
 
   // 6. Dominantes (5 cartes)
   const dom = tc.dominantes || {};
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_dominantes));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_dominantes, "theme_dominantes"));
   c.insertAdjacentHTML("beforeend", sectionIntro("theme_dominantes"));
   const domCont = document.createElement("div");
   domCont.className = "theme-dominantes";

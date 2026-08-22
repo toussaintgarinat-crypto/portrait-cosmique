@@ -482,6 +482,63 @@ GLOSSAIRE_FR = {
         "mathématiques (pas des corps physiques) qui marquent une trajectoire "
         "de transformation plutôt qu'un trait fixe."
     ),
+    "maison_1": (
+        "Maison 1 (Ascendant) — identité, apparence, façon d'aborder le monde. "
+        "Le moi visible, le premier réflexe face à une situation nouvelle. "
+        "À lire comme la porte d'entrée de toute la carte."
+    ),
+    "maison_2": (
+        "Maison 2 — ressources, valeurs, argent, estime de soi. Ce que tu "
+        "possèdes et ce que tu juges avoir de la valeur, y compris en toi-même. "
+        "À lire comme ton rapport à la sécurité matérielle."
+    ),
+    "maison_3": (
+        "Maison 3 — communication, apprentissage, entourage proche (fratrie, "
+        "voisinage), petits déplacements. À lire comme ton style d'échange avec "
+        "le monde immédiat."
+    ),
+    "maison_4": (
+        "Maison 4 (Fond du Ciel) — foyer, racines, famille, vie privée. La base "
+        "intime sur laquelle tout le reste s'appuie. À lire comme ton port "
+        "d'attache émotionnel."
+    ),
+    "maison_5": (
+        "Maison 5 — créativité, plaisir, romance, enfants, expression de soi. "
+        "À lire comme ton terrain de jeu, ce qui te fait rayonner sans calcul."
+    ),
+    "maison_6": (
+        "Maison 6 — travail quotidien, santé, service, habitudes. À lire comme "
+        "l'organisation concrète de ta vie de tous les jours."
+    ),
+    "maison_7": (
+        "Maison 7 (Descendant) — relations, partenariats, mariage. L'autre en "
+        "miroir : ce que tu cherches ou attires chez autrui. À lire comme l'axe "
+        "« moi face à l'autre », opposé à la maison 1."
+    ),
+    "maison_8": (
+        "Maison 8 — transformation, intimité profonde, ressources partagées, "
+        "crises et renaissances. À lire comme ce qui te change en profondeur, "
+        "rarement en douceur."
+    ),
+    "maison_9": (
+        "Maison 9 — expansion, voyages lointains, philosophie, sens, études "
+        "supérieures. À lire comme ta quête d'horizon, mentale ou géographique."
+    ),
+    "maison_10": (
+        "Maison 10 (Milieu du Ciel) — vocation, carrière, image publique, "
+        "réussite sociale. À lire comme ce que tu montres au monde et ce que le "
+        "monde retient de toi."
+    ),
+    "maison_11": (
+        "Maison 11 — amis, groupes, projets collectifs, idéaux. À lire comme "
+        "ton réseau et les causes plus grandes que toi auxquelles tu "
+        "participes."
+    ),
+    "maison_12": (
+        "Maison 12 — inconscient, retrait, spiritualité, épreuves cachées, "
+        "lâcher-prise. À lire comme la part la plus discrète de toi, souvent la "
+        "plus difficile à nommer."
+    ),
     "theme_maisons": (
         "Maisons — douze secteurs de l'expérience de vie. Chaque maison indique "
         "où se jouent les énergies planétaires : maison 1 = identité, "
@@ -1147,6 +1204,60 @@ GLOSSAIRE_EN = {
         "(not physical bodies) that mark a trajectory of transformation rather "
         "than a fixed trait."
     ),
+    "maison_1": (
+        "House 1 (Ascendant) — identity, appearance, how you approach the "
+        "world. The visible self, the first reflex facing a new situation. "
+        "Read as the entry door to the whole chart."
+    ),
+    "maison_2": (
+        "House 2 — resources, values, money, self-worth. What you own and "
+        "what you consider valuable, including in yourself. Read as your "
+        "relationship to material security."
+    ),
+    "maison_3": (
+        "House 3 — communication, learning, close circle (siblings, "
+        "neighborhood), short trips. Read as your style of exchange with the "
+        "immediate world."
+    ),
+    "maison_4": (
+        "House 4 (IC) — home, roots, family, private life. The intimate base "
+        "everything else rests on. Read as your emotional home port."
+    ),
+    "maison_5": (
+        "House 5 — creativity, pleasure, romance, children, self-expression. "
+        "Read as your playground, what makes you shine without calculation."
+    ),
+    "maison_6": (
+        "House 6 — daily work, health, service, habits. Read as the concrete "
+        "organization of your everyday life."
+    ),
+    "maison_7": (
+        "House 7 (Descendant) — relationships, partnerships, marriage. The "
+        "other as a mirror: what you seek or attract in others. Read as the "
+        "\"self facing other\" axis, opposite House 1."
+    ),
+    "maison_8": (
+        "House 8 — transformation, deep intimacy, shared resources, crises "
+        "and rebirths. Read as what changes you in depth, rarely gently."
+    ),
+    "maison_9": (
+        "House 9 — expansion, long journeys, philosophy, meaning, higher "
+        "education. Read as your quest for horizon, mental or geographic."
+    ),
+    "maison_10": (
+        "House 10 (Midheaven) — vocation, career, public image, social "
+        "achievement. Read as what you show the world and what the world "
+        "remembers of you."
+    ),
+    "maison_11": (
+        "House 11 — friends, groups, collective projects, ideals. Read as "
+        "your network and the causes bigger than yourself you take part in."
+    ),
+    "maison_12": (
+        "House 12 — the unconscious, withdrawal, spirituality, hidden trials, "
+        "letting go. Read as the most discreet part of you, often the hardest "
+        "to name."
+    ),
     "theme_maisons": (
         "Houses — twelve sectors of life experience. Each house indicates where "
         "planetary energies play out: house 1 = identity, house 7 = relationships, "
@@ -1249,6 +1360,10 @@ _GLOSSAIRE_LABELS = {
     "theme_point_chiron": "Chiron", "theme_point_lilith": "Lilith",
     "theme_fondations": "Fondations", "theme_corps": "Les 10 corps",
     "theme_points_evolutifs": "Points évolutifs",
+    "maison_1": "Maison 1", "maison_2": "Maison 2", "maison_3": "Maison 3",
+    "maison_4": "Maison 4", "maison_5": "Maison 5", "maison_6": "Maison 6",
+    "maison_7": "Maison 7", "maison_8": "Maison 8", "maison_9": "Maison 9",
+    "maison_10": "Maison 10", "maison_11": "Maison 11", "maison_12": "Maison 12",
     "theme_maisons": "Maisons", "theme_aspects": "Aspects",
     "theme_aspect_conjonction": "Conjonction", "theme_aspect_opposition": "Opposition",
     "theme_aspect_trigone": "Trigone", "theme_aspect_carre": "Carré",
@@ -1285,6 +1400,10 @@ _GLOSSAIRE_LABELS_EN = {
     "theme_point_chiron": "Chiron", "theme_point_lilith": "Lilith",
     "theme_fondations": "Foundations", "theme_corps": "The 10 bodies",
     "theme_points_evolutifs": "Evolutionary points",
+    "maison_1": "House 1", "maison_2": "House 2", "maison_3": "House 3",
+    "maison_4": "House 4", "maison_5": "House 5", "maison_6": "House 6",
+    "maison_7": "House 7", "maison_8": "House 8", "maison_9": "House 9",
+    "maison_10": "House 10", "maison_11": "House 11", "maison_12": "House 12",
     "theme_maisons": "Houses", "theme_aspects": "Aspects",
     "theme_aspect_conjonction": "Conjunction", "theme_aspect_opposition": "Opposition",
     "theme_aspect_trigone": "Trine", "theme_aspect_carre": "Square",
@@ -1324,7 +1443,10 @@ _GLOSSAIRE_THEMES = [
          "theme_corps_neptune", "theme_corps_pluton",
          "theme_points_evolutifs",
          "theme_point_noeud_nord", "theme_point_noeud_sud", "theme_point_chiron", "theme_point_lilith",
-         "theme_maisons", "theme_aspects",
+         "theme_maisons",
+         "maison_1", "maison_2", "maison_3", "maison_4", "maison_5", "maison_6",
+         "maison_7", "maison_8", "maison_9", "maison_10", "maison_11", "maison_12",
+         "theme_aspects",
          "theme_aspect_conjonction", "theme_aspect_opposition", "theme_aspect_trigone",
          "theme_aspect_carre", "theme_aspect_sextile",
          "theme_axe_noeuds", "theme_axe_horizon", "theme_axe_meridien",
