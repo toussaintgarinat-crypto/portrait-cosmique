@@ -683,6 +683,157 @@ DIDACTIQUE_FR = {
     },
 }
 
+DIDACTIQUE_EN = {
+    # ── §1 Foundations (pillar facet) ──
+    "theme_fondation_soleil": {
+        "question": "Who am I?",
+        "domaines": ["conscious identity", "will", "self-assertion",
+                     "what you strive to become", "how you shine"],
+        "conclusion": "Sun = your core",
+    },
+    "theme_fondation_lune": {
+        "question": "What do I need inwardly?",
+        "domaines": ["emotions", "affective needs", "security",
+                     "instinctive reactions", "inner world",
+                     "emotional habits"],
+        "conclusion": "Moon = your inner world",
+    },
+    "theme_fondation_ascendant": {
+        "question": "How do I enter the world?",
+        "domaines": ["first impression", "spontaneous behavior",
+                     "way of approaching life", "how you present yourself",
+                     "reflexes toward the world"],
+        "conclusion": "Ascendant = your gateway",
+    },
+    "theme_fondation_descendant": {
+        "question": "Who is the other?",
+        "domaines": ["couple", "partners", "associations",
+                     "significant relationships",
+                     "qualities sought in the other"],
+        "conclusion": "Ascendant = self, Descendant = the other",
+    },
+    "theme_fondation_milieu_du_ciel": {
+        "question": "Where am I going in the world?",
+        "domaines": ["vocation", "career", "ambition", "reputation",
+                     "social success", "contribution to the world"],
+        "conclusion": "MC = what you seek to accomplish",
+    },
+    "theme_fondation_fond_du_ciel": {
+        "question": "Where do I come from?",
+        "domaines": ["roots", "family", "childhood", "home",
+                     "intimacy", "sense of belonging", "private world"],
+        "conclusion": "IC = your roots, MC = your accomplishment",
+    },
+    # ── §2 Ten bodies (body facet) ──
+    "theme_corps_soleil": {
+        "question": "How do I shine day to day?",
+        "domaines": ["vitality", "conscious identity", "what you express"],
+        "conclusion": "Sun = your nucleus",
+    },
+    "theme_corps_lune": {
+        "question": "How do I react instinctively?",
+        "domaines": ["instincts", "reactions", "immediate needs"],
+        "conclusion": "Moon = your emotional reflexes",
+    },
+    "theme_corps_mercure": {
+        "question": "How do I think?",
+        "domaines": ["thought", "communication", "language",
+                     "reasoning", "learning", "how you process information"],
+        "conclusion": "Mercury = your mental wiring",
+    },
+    "theme_corps_vénus": {
+        "question": "How do I love?",
+        "domaines": ["love", "attraction", "relationships", "pleasure",
+                     "beauty", "values", "relationship to comfort"],
+        "conclusion": "Venus = what draws you",
+    },
+    "theme_corps_mars": {
+        "question": "How do I act?",
+        "domaines": ["action", "desire", "will", "energy",
+                     "assertion", "confrontation"],
+        "conclusion": "Mars = how you turn intent into action",
+    },
+    "theme_corps_jupiter": {
+        "question": "How do I grow?",
+        "domaines": ["expansion", "confidence", "opportunities",
+                     "philosophy", "knowledge", "transmission",
+                     "search for meaning"],
+        "conclusion": "Jupiter = what lets you grow",
+    },
+    "theme_corps_saturne": {
+        "question": "Where must I learn mastery?",
+        "domaines": ["responsibilities", "limits", "discipline",
+                     "structure", "constraints", "maturity",
+                     "long-term building"],
+        "conclusion": "Saturn = your mastery zone to build",
+    },
+    "theme_corps_uranus": {
+        "question": "Where do I need freedom?",
+        "domaines": ["innovation", "independence", "rupture",
+                     "change", "originality", "revolution"],
+        "conclusion": "Uranus = where you break the mold",
+    },
+    "theme_corps_neptune": {
+        "question": "Where am I idealistic?",
+        "domaines": ["imagination", "intuition", "dreams",
+                     "spirituality", "ideals", "compassion",
+                     "dissolution of boundaries"],
+        "conclusion": "Neptune = your ideals (and illusions)",
+    },
+    "theme_corps_pluton": {
+        "question": "Where must I transform?",
+        "domaines": ["deep transformation", "power", "crises",
+                     "destruction/reconstruction", "obsessions", "rebirth"],
+        "conclusion": "Pluto = what dies and is reborn in you",
+    },
+    # ── §3 Evolutionary points ──
+    "theme_point_noeud_nord": {
+        "question": "Toward what to evolve?",
+        "domaines": ["life direction", "evolution to integrate",
+                     "axis of conscious growth"],
+        "conclusion": "North Node = what to evolve toward",
+    },
+    "theme_point_noeud_sud": {
+        "question": "What is familiar?",
+        "domaines": ["karmic acquisition", "comfort zone",
+                     "what you already master"],
+        "conclusion": "South Node = what you master but must leave",
+    },
+    "theme_point_chiron": {
+        "question": "Which wound can become a strength?",
+        "domaines": ["deep wound", "acquired understanding",
+                     "capacity for transmission"],
+        "conclusion": "Chiron = vulnerability → understanding → transmission",
+    },
+    "theme_point_lilith": {
+        "question": "Where is my untamed side?",
+        "domaines": ["independence", "repressed desire", "refusal of norms",
+                     "wild instinct", "what you won't submit"],
+        "conclusion": "Lilith = your free shadow",
+    },
+    # ── §4/§5/§6 Section intros ──
+    "theme_maisons": {
+        "question": "Where does this energy play out?",
+        "domaines": ["twelve sectors of life experience",
+                     "1=identity, 4=home, 7=relationships, 10=career",
+                     "each sector localizes a planetary energy"],
+        "conclusion": "The planet says WHAT, the house says WHERE",
+    },
+    "theme_aspects": {
+        "question": "How do the parts communicate?",
+        "domaines": ["angles between planets", "harmony (trine, sextile)",
+                     "tension (square, opposition)", "fusion (conjunction)"],
+        "conclusion": "The smaller the orb, the more exact the aspect",
+    },
+    "theme_dominantes": {
+        "question": "What stands out most in the chart?",
+        "domaines": ["dominant element family", "action style (mode)",
+                     "structuring planet", "recurring sign",
+                     "most active life domain"],
+        "conclusion": "The dominants = the synthesis that emerges",
+    },
+}
+
 GLOSSAIRE_EN = {
     "soleil": (
         "Sun — zodiac sign the Sun was in at your birth. Core of the personality, "
@@ -943,6 +1094,11 @@ GLOSSAIRE_EN = {
         "Dominant house — the most active life domain. "
         "Where the chart's energy concentrates and manifests."
     ),
+    "theme_dominantes": (
+        "Dominants — synthesis of what stands out most in the chart: "
+        "dominant element, mode, planet, sign and house. Read as the overall "
+        "signature that emerges from the whole chart."
+    ),
 }
 
 # Libellés (labels) FR/EN par id — ce que le front affiche comme titre court.
@@ -1007,6 +1163,7 @@ _GLOSSAIRE_LABELS_EN = {
     "theme_dominante_element": "Dominant Element", "theme_dominante_mode": "Dominant Mode",
     "theme_dominante_planete": "Dominant Planet", "theme_dominante_signe": "Dominant Sign",
     "theme_dominante_maison": "Dominant House",
+    "theme_dominantes": "Dominants",
 }
 
 # Thèmes (ordre de la légende) — couples (label_fr, label_en, [ids]).
@@ -1454,6 +1611,12 @@ def didactique(langue: str = "fr") -> dict:
     (jamais traduits) et existent tous dans GLOSSAIRE_FR/GLOSSAIRE_EN.
     langue="fr" (défaut) ou "en". Retourne {} si la langue est absente
     (l'UI retombe sur le glossaire seul)."""
-    table = DIDACTIQUE_EN if (langue or "fr").lower().startswith("en") else DIDACTIQUE_FR
+    lg = (langue or "fr").lower()
+    if lg.startswith("en"):
+        table = DIDACTIQUE_EN
+    elif lg.startswith("fr"):
+        table = DIDACTIQUE_FR
+    else:
+        return {}
     return {k: {"question": v["question"], "domaines": list(v["domaines"]),
                 "conclusion": v["conclusion"]} for k, v in table.items()}

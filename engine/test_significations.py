@@ -247,3 +247,24 @@ def test_didactique_distinction_soleil_lune_facettes():
     assert d["theme_fondation_soleil"]["conclusion"] != d["theme_corps_soleil"]["conclusion"]
     assert d["theme_fondation_lune"]["conclusion"] != d["theme_corps_lune"]["conclusion"]
     assert d["theme_fondation_soleil"]["question"] != d["theme_corps_soleil"]["question"]
+
+
+def test_didactique_en_memes_cles_que_fr():
+    fr = Z.didactique("fr")
+    en = Z.didactique("en")
+    assert set(fr.keys()) == set(en.keys()), (
+        f"clés divergentes : {set(fr)^set(en)}")
+    for k in en:
+        e = en[k]
+        assert e.get("question"), f"{k} EN sans question"
+        assert isinstance(e.get("domaines"), list) and len(e["domaines"]) >= 3, (
+            f"{k} EN domaines invalides")
+        assert e.get("conclusion"), f"{k} EN sans conclusion"
+
+
+def test_didactique_en_valeurs_differentes_de_fr():
+    """Les valeurs EN sont bien traduites (pas un copier-coller)."""
+    fr = Z.didactique("fr")
+    en = Z.didactique("en")
+    diff = [k for k in fr if fr[k]["question"] == en[k]["question"]]
+    assert not diff, f"entrées EN non traduites : {diff[:3]}"
