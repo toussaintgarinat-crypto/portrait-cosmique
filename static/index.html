@@ -849,6 +849,89 @@ document.getElementById("llm_modele_select").addEventListener("change", () => { 
 changerFournisseur();
 chargerConfigLLM();
 
+// ── Multi-profils : peuplement select + chargement initial ───────
+function rafraichirSelectProfil() {
+  const d = chargerProfils();
+  const sel = document.getElementById("select-profil");
+  sel.innerHTML = "";
+  for (const p of d.profils) {
+    const o = document.createElement("option");
+    o.value = p.id;
+    o.textContent = p.label;
+    if (p.id === d.profil_actif) o.selected = true;
+    sel.appendChild(o);
+  }
+  const oNouveau = document.createElement("option");
+  oNouveau.value = "__nouveau__";
+  oNouveau.textContent = I18N[LANGUE].b_nouveau;
+  sel.appendChild(oNouveau);
+}
+
+function chargerProfilActif() {
+  const d = chargerProfils();
+  if (!d.profils.length) { rafraichirSelectProfil(); return; }
+  let p = d.profils.find(x => x.id === d.profil_actif);
+  if (!p) { p = d.profils[0]; d.profil_actif = p.id; sauvegarderProfils(d); }
+  ecrireChampsForm(p);
+  rafraichirSelectProfil();
+}
+
+document.getElementById("select-profil").addEventListener("change", (e) => {
+  if (e.target.value === "__nouveau__") {
+    document.getElementById("prenoms").value = "";
+    document.getElementById("nom").value = "";
+    document.getElementById("date_naissance").value = "";
+    document.getElementById("heure_naissance").value = "";
+    document.getElementById("ville").value = "";
+    document.getElementById("latitude").value = "";
+    document.getElementById("longitude").value = "";
+    document.getElementById("utc_offset").value = "";
+    document.getElementById("coords-info").textContent = "";
+    const d = chargerProfils();
+    d.profil_actif = null;
+    sauvegarderProfils(d);
+    return;
+  }
+  const d = chargerProfils();
+  const p = d.profils.find(x => x.id === e.target.value);
+  if (p) { d.profil_actif = p.id; sauvegarderProfils(d); ecrireChampsForm(p); }
+});
+
+chargerProfilActif();
+
+function actionRenommer() {
+  const d = chargerProfils();
+  if (!d.profil_actif) return;
+  const p = d.profils.find(x => x.id === d.profil_actif);
+  if (!p) return;
+  const nouveau = prompt(I18N[LANGUE].p_prompt_renommer, p.label);
+  if (nouveau && nouveau.trim()) {
+    renommerProfil(p.id, nouveau.trim());
+    rafraichirSelectProfil();
+  }
+}
+
+function actionSupprimer() {
+  const d = chargerProfils();
+  if (!d.profil_actif) return;
+  if (!confirm(I18N[LANGUE].p_confirm_suppr)) return;
+  supprimerProfil(d.profil_actif);
+  chargerProfilActif();
+}
+
+function actionNouveau() {
+  document.getElementById("select-profil").value = "__nouveau__";
+  document.getElementById("select-profil").dispatchEvent(new Event("change"));
+}
+
+function actionSous() {
+  const label = prompt(I18N[LANGUE].p_prompt_label, "");
+  if (!label || !label.trim()) return;
+  const champs = lireChampsForm();
+  dupliquerProfil(label.trim(), champs);
+  rafraichirSelectProfil();
+}
+
 function setLangue(l) {
   LANGUE = l;
   document.getElementById("btn-fr").classList.toggle("on", l === "fr");
@@ -865,6 +948,7 @@ function setLangue(l) {
   // Un résultat déjà affiché a été calculé dans l'ANCIENNE langue (stats/archétype/
   // récit) : le rafraîchir plutôt que de ré-afficher des données périmées.
   if (DERNIER_RESULTAT) calculerPortrait();
+  rafraichirSelectProfil();
 }
 
 async function localiser() {
@@ -975,6 +1059,9 @@ async function calculerPortrait() {
     systeme_numerologie: document.getElementById("systeme_numerologie").value,
     langue: LANGUE,
   };
+  // Auto-save : mettre à jour le profil actif avec les champs courants
+  mettreAJourProfilActif(lireChampsForm());
+  rafraichirSelectProfil();
   try {
     const r = await fetch("/portrait", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
     if (!r.ok) {
