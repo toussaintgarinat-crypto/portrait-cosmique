@@ -132,10 +132,14 @@ def portrait(body: Fiche):
         raise HTTPException(422, "Indique au moins une date de naissance valide.")
     tc = theme_complet.theme_complet_depuis_traditions(trad, body.model_dump())
     p = synthese.portrait(trad, theme_complet=tc, nom=body.prenoms or body.nom, langue=body.langue)
+    en = (body.langue or "fr").lower().startswith("en")
     return {"traditions": trad, "theme_complet": tc,
             "portrait": p,
             "empreinte": significations.expliquer(trad, body.langue, theme_complet=tc),
-            "glossaire": significations.glossaire(body.langue)}
+            "glossaire": significations.glossaire(body.langue),
+            "didactique": significations.didactique(body.langue),
+            "signes_sens": (significations.SIGNES_SENS_EN if en
+                            else significations.SIGNES_SENS)}
 
 
 @app.post("/lecture-approfondie", tags=["portrait"])

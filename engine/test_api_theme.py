@@ -59,3 +59,19 @@ def test_portrait_endpoint_renvoie_theme_complet():
     # L'empreinte et le portrait existent toujours
     assert "portrait" in data
     assert "empreinte" in data
+
+
+def test_portrait_endpoint_renvoie_didactique_et_signes_sens():
+    r = client.post("/portrait", json=_FICHE)
+    assert r.status_code == 200
+    data = r.json()
+    assert "didactique" in data
+    did = data["didactique"]
+    assert isinstance(did, dict) and did, "didactique vide"
+    assert "theme_fondation_soleil" in did
+    e = did["theme_fondation_soleil"]
+    assert e["question"] and e["conclusion"]
+    assert isinstance(e["domaines"], list) and len(e["domaines"]) >= 3
+    assert "signes_sens" in data
+    ss = data["signes_sens"]
+    assert isinstance(ss, dict) and "Bélier" in ss and ss["Bélier"]
