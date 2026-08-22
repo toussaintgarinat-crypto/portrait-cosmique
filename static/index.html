@@ -264,7 +264,6 @@
     .theme-tableaux table { font-size: 9pt; }
     .theme-tableaux th { cursor: default; }
     #resultat { display: block !important; }
-    details.theme-section-acc > *:not(summary) { display: block !important; }
     .btn-toggle-tout { display: none !important; }
   }
 
@@ -1253,17 +1252,30 @@ let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
   function ic(node){ return node && node.closest && node.closest('.glossaire-ic'); }
   document.addEventListener('mouseover', e => { const x=ic(e.target); if(x) ouvrir(x); });
   document.addEventListener('mouseout', e => { if(!ic(e.relatedTarget) && ic(e.target)===courant) fermer(); });
-  document.addEventListener('click', e => { const x=ic(e.target); if(x){ if(courant===x) fermer(); else { fermer(); ouvrir(x);} e.stopPropagation(); } else if(courant) fermer(); });
+  document.addEventListener('click', e => { const x=ic(e.target); if(x){ if(courant===x) fermer(); else { fermer(); ouvrir(x);} e.stopPropagation(); e.preventDefault(); } else if(courant) fermer(); });
   document.addEventListener('keydown', e => { const x=ic(e.target); if(x && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); if(courant===x) fermer(); else { fermer(); ouvrir(x);} } if(e.key==='Escape'&&courant) fermer(); });
   document.addEventListener('focusin', e => { const x=ic(e.target); if(x) ouvrir(x); });
   document.addEventListener('focusout', e => { if(ic(e.relatedTarget)) return; fermer(); });
   window.addEventListener('scroll', fermer, {passive:true});
   window.addEventListener('resize', fermer, {passive:true});
   })();
+  window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('details.theme-section-acc:not([open])').forEach(d => {
+      d.dataset.printAuto = '1';
+      d.open = true;
+    });
+  });
+  window.addEventListener('afterprint', () => {
+    document.querySelectorAll('details.theme-section-acc[data-print-auto]').forEach(d => {
+      d.open = false;
+      delete d.dataset.printAuto;
+    });
+  });
 <\/script>`;
   const exportExtra = `<style>
     .onglet-contenu { display: block !important; }
     .resultats-onglets { display: none !important; }
+    .btn-toggle-tout { display: none !important; }
   </style>
 <script>
 (function(){
@@ -1386,13 +1398,24 @@ document.getElementById("r-empreinte").addEventListener("toggle", (e) => {
 document.getElementById("tableaux-theme").addEventListener("toggle", (e) => {
   if (e.target.classList && e.target.classList.contains("theme-section-acc")) majBoutonToggle("tableaux-theme");
 }, true);
+window.addEventListener("beforeprint", () => {
+  document.querySelectorAll("details.theme-section-acc:not([open])").forEach(d => {
+    d.dataset.printAuto = "1";
+    d.open = true;
+  });
+});
+window.addEventListener("afterprint", () => {
+  document.querySelectorAll("details.theme-section-acc[data-print-auto]").forEach(d => {
+    d.open = false;
+    delete d.dataset.printAuto;
+  });
+});
 
 async function rechargerTheme() {
   if (!_FICHE_COURANTE) return;
   _FICHE_COURANTE.systeme_maisons = document.querySelector("input[name='systeme-maisons']:checked").value;
   _FICHE_COURANTE.methode_dominantes = document.querySelector("input[name='methode-dominantes']:checked").value;
   const tb = document.getElementById("tableaux-theme");
-  if (tb) tb.innerHTML = `<p class="sous" style="margin:.4rem 0">${I18N[LANGUE].theme_charge}</p>`;
   try {
     const r = await fetch("/theme", { method: "POST", headers: {"Content-Type":"application/json"},
                                      body: JSON.stringify(_FICHE_COURANTE) });
@@ -1798,7 +1821,7 @@ function trierAspects(asps, tri) {
   });
   document.addEventListener("click", (e) => {
     const ic = isIc(e.target);
-    if (ic) { if (courant === ic) fermer(); else { fermer(); ouvrir(ic); } e.stopPropagation(); }
+    if (ic) { if (courant === ic) fermer(); else { fermer(); ouvrir(ic); } e.stopPropagation(); e.preventDefault(); }
     else if (courant) fermer();
   });
   document.addEventListener("keydown", (e) => {
