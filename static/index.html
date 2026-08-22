@@ -1151,7 +1151,7 @@ async function calculerPortrait() {
       _ASPECT_FILTRE = "tous";
       _ASPECT_TRI = { col: "exactitude", sens: -1 };
       renderRoue(_THEME_CACHE);
-      renderTableaux(_THEME_CACHE);
+      renderTableaux(_THEME_CACHE, { reset: true });
     } else {
       viderTheme();
     }
@@ -1546,20 +1546,32 @@ function legendeChiffres(html) {
   return `<div class="legende-chiffres">${html}</div>`;
 }
 
-function renderTableaux(tc) {
+function sectionDetails(c, key, titre, gid, ouverte) {
+  const det = document.createElement("details");
+  det.className = "theme-section-acc";
+  det.dataset.section = key;
+  det.open = ouverte;
+  const ic = gid ? icGlossaire(gid) : "";
+  det.innerHTML = `<summary class="theme-section"><span>${titre}</span>${ic}<span class="tsa-chevron">▶</span></summary>`;
+  c.appendChild(det);
+  return det;
+}
+
+function renderTableaux(tc, { reset = false } = {}) {
   const c = document.getElementById("tableaux-theme");
+  const ouvertesAvant = {};
+  c.querySelectorAll(":scope > details.theme-section-acc").forEach(d => {
+    ouvertesAvant[d.dataset.section] = d.open;
+  });
+  const estOuverte = (key, idx) => reset ? idx === 0 : (key in ouvertesAvant ? ouvertesAvant[key] : false);
   c.innerHTML = "";
   const t = I18N[LANGUE];
-  const sectionH = (titre, gid) => {
-    const ic = gid ? icGlossaire(gid) : "";
-    return `<h3 class="theme-section"><span>${titre}</span>${ic}</h3>`;
-  };
 
   // 1. Fondations (cartes didactiques)
   const fond = tc.fondations || {};
   const dixMap = tc.dix_corps || {};
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_fondations, "theme_fondations"));
-  c.insertAdjacentHTML("beforeend", sectionIntro("theme_fondations"));
+  const secFondations = sectionDetails(c, "fondations", t.ts_fondations, "theme_fondations", estOuverte("fondations", 0));
+  secFondations.insertAdjacentHTML("beforeend", sectionIntro("theme_fondations"));
   const fondCards = _FONDATIONS_ORDRE.map(o => {
     const f = fond[o.key] || {};
     let maison = _FONDATIONS_MAISON[o.key];
@@ -1574,8 +1586,8 @@ function renderTableaux(tc) {
       sens_signe: SIGNES_SENS[f.signe] || "",
     });
   }).join("");
-  c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${fondCards}</div>`);
-  c.insertAdjacentHTML("beforeend", legendeChiffres(
+  secFondations.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${fondCards}</div>`);
+  secFondations.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_retro}`));
 
   // 2. 10 corps (cartes didactiques, facette corps)
@@ -1584,14 +1596,14 @@ function renderTableaux(tc) {
     signe: p.signe, degre: p.degre, maison: p.maison,
     retro: p.retrograde,
   }));
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_corps, "theme_corps"));
-  c.insertAdjacentHTML("beforeend", sectionIntro("theme_corps"));
+  const secCorps = sectionDetails(c, "corps", t.ts_corps, "theme_corps", estOuverte("corps", 1));
+  secCorps.insertAdjacentHTML("beforeend", sectionIntro("theme_corps"));
   const dixCards = dix.map(r => cartePoint(r.symbole, r.corps, r.gid, {
     signe: r.signe, degre: r.degre, maison: r.maison, retro: r.retro,
     sens_signe: SIGNES_SENS[r.signe] || "",
   })).join("");
-  c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${dixCards}</div>`);
-  c.insertAdjacentHTML("beforeend", legendeChiffres(
+  secCorps.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${dixCards}</div>`);
+  secCorps.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_vitesse} · ${t.leg_retro}`));
 
   // 3. Points évolutifs (cartes didactiques)
@@ -1600,33 +1612,33 @@ function renderTableaux(tc) {
     symbole: SYMBOLES_POINTS[p.corps || nom] || "",
     signe: p.signe, degre: p.degre, maison: p.maison, retro: p.retrograde,
   }));
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_points, "theme_points_evolutifs"));
-  c.insertAdjacentHTML("beforeend", sectionIntro("theme_points_evolutifs"));
+  const secPoints = sectionDetails(c, "points", t.ts_points, "theme_points_evolutifs", estOuverte("points", 2));
+  secPoints.insertAdjacentHTML("beforeend", sectionIntro("theme_points_evolutifs"));
   const peCards = pe.map(r => cartePoint(r.symbole, r.point, r.gid, {
     signe: r.signe, degre: r.degre, maison: r.maison, retro: r.retro,
     sens_signe: SIGNES_SENS[r.signe] || "",
   })).join("");
-  c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${peCards}</div>`);
-  c.insertAdjacentHTML("beforeend", legendeChiffres(
+  secPoints.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${peCards}</div>`);
+  secPoints.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_retro}`));
 
   // 4. Maisons (tableau + intro didactique)
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_maisons, "theme_maisons"));
-  c.insertAdjacentHTML("beforeend", sectionIntro("theme_maisons"));
+  const secMaisons = sectionDetails(c, "maisons", t.ts_maisons, "theme_maisons", estOuverte("maisons", 3));
+  secMaisons.insertAdjacentHTML("beforeend", sectionIntro("theme_maisons"));
   const mais = (tc.maisons || []).map(m => ({ n: m.maison, cuspe: m.cuspe, signe: m.signe, symbole: m.symbole }));
-  c.insertAdjacentHTML("beforeend", tableHTML(t.t_maisons,
+  secMaisons.insertAdjacentHTML("beforeend", tableHTML(t.t_maisons,
     [t.th_n, t.th_cuspe, t.th_signe, t.th_symbole],
     mais.map(r => `<tr><td class="num">${r.n}${icGlossaire("maison_" + r.n)}</td><td class="num">${fmtDeg(r.cuspe)}</td><td>${r.signe}</td><td>${r.symbole || ""}</td></tr>`),
     false));
-  c.insertAdjacentHTML("beforeend", legendeChiffres(
+  secMaisons.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_maison_num} · ${t.leg_degre}`));
 
   // 5. Aspects (filtrable + triable)
   const fCfg2 = LEGENDE_FILTRES.find(f => f.val === _ASPECT_FILTRE) || LEGENDE_FILTRES[0];
   let asps = (tc.aspects || []).filter(a => !fCfg2.types || a.type === fCfg2.types);
   asps = trierAspects(asps, _ASPECT_TRI);
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_aspects, "theme_aspects"));
-  c.insertAdjacentHTML("beforeend", sectionIntro("theme_aspects"));
+  const secAspects = sectionDetails(c, "aspects", t.ts_aspects, "theme_aspects", estOuverte("aspects", 4));
+  secAspects.insertAdjacentHTML("beforeend", sectionIntro("theme_aspects"));
   const aspContainer = document.createElement("div");
   aspContainer.className = "theme-asp";
   aspContainer.innerHTML = `<table><caption>${t.t_aspects}</caption><thead><tr>
@@ -1642,9 +1654,9 @@ function renderTableaux(tc) {
       <td class="num">${a.orb.toFixed(2)}°</td>
       <td class="num">${(a.exactitude * 100).toFixed(0)}%</td>
     </tr>`).join("")}</tbody></table>`;
-  c.insertAdjacentHTML("beforeend", legendeChiffres(
+  secAspects.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_orbe} · ${t.leg_exact}`));
-  c.appendChild(aspContainer);
+  secAspects.appendChild(aspContainer);
   aspContainer.querySelectorAll("th[data-col]").forEach(th => {
     th.addEventListener("click", () => {
       const col = th.dataset.col;
@@ -1656,8 +1668,8 @@ function renderTableaux(tc) {
 
   // 6. Dominantes (5 cartes)
   const dom = tc.dominantes || {};
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_dominantes, "theme_dominantes"));
-  c.insertAdjacentHTML("beforeend", sectionIntro("theme_dominantes"));
+  const secDominantes = sectionDetails(c, "dominantes", t.ts_dominantes, "theme_dominantes", estOuverte("dominantes", 5));
+  secDominantes.insertAdjacentHTML("beforeend", sectionIntro("theme_dominantes"));
   const domCont = document.createElement("div");
   domCont.className = "theme-dominantes";
   const cards = [
@@ -1682,8 +1694,8 @@ function renderTableaux(tc) {
       }).join("");
     domCont.appendChild(card);
   }
-  c.insertAdjacentHTML("beforeend", legendeChiffres(t.leg_score));
-  c.appendChild(domCont);
+  secDominantes.insertAdjacentHTML("beforeend", legendeChiffres(t.leg_score));
+  secDominantes.appendChild(domCont);
 }
 
 function tableHTML(caption, headers, bodyRows, zebra) {
