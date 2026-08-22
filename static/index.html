@@ -1316,27 +1316,35 @@ function renderTableaux(tc) {
   c.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_degre} · ${t.leg_maison_num}${t.leg_retro ? " · " + t.leg_retro : ""}`));
 
-  // 2. 10 corps
+  // 2. 10 corps (cartes didactiques, facette corps)
   const dix = Object.entries(dixMap).map(([nom, p]) => ({
-    corps: nom, gid: _CORPS_GLOSS[nom], symbole: SYMBOLES_POINTS[nom] || "", signe: p.signe, degre: p.degre,
-    maison: p.maison, vitesse: p.vitesse_deg_j, retro: p.retrograde,
+    corps: nom, gid: _CORPS_GLOSS[nom], symbole: SYMBOLES_POINTS[nom] || "",
+    signe: p.signe, degre: p.degre, maison: p.maison,
+    retro: p.retrograde,
   }));
   c.insertAdjacentHTML("beforeend", sectionH(t.ts_corps));
-  c.insertAdjacentHTML("beforeend", tableHTML(t.t_dix,
-    [t.th_corps, t.th_symbole, t.th_signe, t.th_degre, t.th_maison, t.th_vitesse, t.th_retro],
-    dix.map(r => `<tr><td>${r.corps}${icGlossaire(r.gid)}</td><td>${r.symbole}</td><td>${r.signe}</td><td class="num">${fmtDeg(r.degre)}</td><td class="num">${r.maison ?? "—"}</td><td class="num">${r.vitesse != null ? r.vitesse.toFixed(3) : "—"}</td><td>${r.retro ? "℞" : ""}</td></tr>`),
-    false));
+  const dixCards = dix.map(r => cartePoint(r.symbole, r.corps, r.gid, {
+    signe: r.signe, degre: r.degre, maison: r.maison, retro: r.retro,
+    sens_signe: SIGNES_SENS[r.signe] || "",
+  })).join("");
+  c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${dixCards}</div>`);
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_vitesse} · ${t.leg_retro}`));
 
-  // 3. Points évolutifs
+  // 3. Points évolutifs (cartes didactiques)
   const pe = Object.entries(tc.points_evolutifs || {}).map(([nom, p]) => ({
-    point: p.corps || nom, gid: _POINTS_GLOSS[nom], symbole: SYMBOLES_POINTS[p.corps || nom] || "", signe: p.signe, degre: p.degre,
-    maison: p.maison, vitesse: p.vitesse_deg_j, retro: p.retrograde,
+    point: p.corps || nom, gid: _POINTS_GLOSS[nom],
+    symbole: SYMBOLES_POINTS[p.corps || nom] || "",
+    signe: p.signe, degre: p.degre, maison: p.maison, retro: p.retrograde,
   }));
   c.insertAdjacentHTML("beforeend", sectionH(t.ts_points));
-  c.insertAdjacentHTML("beforeend", tableHTML(t.t_pe,
-    [t.th_point, t.th_symbole, t.th_signe, t.th_degre, t.th_maison, t.th_vitesse, t.th_retro],
-    pe.map(r => `<tr><td>${r.point}${icGlossaire(r.gid)}</td><td>${r.symbole}</td><td>${r.signe}</td><td class="num">${fmtDeg(r.degre)}</td><td class="num">${r.maison ?? "—"}</td><td class="num">${r.vitesse != null ? r.vitesse.toFixed(3) : "—"}</td><td>${r.retro ? "℞" : ""}</td></tr>`),
-    false));
+  const peCards = pe.map(r => cartePoint(r.symbole, r.point, r.gid, {
+    signe: r.signe, degre: r.degre, maison: r.maison, retro: r.retro,
+    sens_signe: SIGNES_SENS[r.signe] || "",
+  })).join("");
+  c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${peCards}</div>`);
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_degre} · ${t.leg_maison_num}${t.leg_retro ? " · " + t.leg_retro : ""}`));
 
   // 4. Maisons
   const mais = (tc.maisons || []).map(m => ({ n: m.maison, cuspe: m.cuspe, signe: m.signe, symbole: m.symbole }));
