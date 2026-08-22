@@ -1246,7 +1246,6 @@ function cartePoint(symbole, nom, gid, valeur) {
 }
 
 function sectionIntro(gid) {
-  const t = I18N[LANGUE];
   const d = DIDACTIQUE[gid] || {};
   if (!d.question && !d.conclusion) return "";
   const domaines = (d.domaines || []).join(" · ");
@@ -1257,7 +1256,6 @@ function sectionIntro(gid) {
 }
 
 function legendeChiffres(html) {
-  const t = I18N[LANGUE];
   return `<div class="legende-chiffres">${html}</div>`;
 }
 
@@ -1290,7 +1288,7 @@ function renderTableaux(tc) {
   }).join("");
   c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${fondCards}</div>`);
   c.insertAdjacentHTML("beforeend", legendeChiffres(
-    `${t.leg_degre} · ${t.leg_maison_num}${t.leg_retro ? " · " + t.leg_retro : ""}`));
+    `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_retro}`));
 
   // 2. 10 corps (cartes didactiques, facette corps)
   const dix = Object.entries(dixMap).map(([nom, p]) => ({
@@ -1320,7 +1318,7 @@ function renderTableaux(tc) {
   })).join("");
   c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${peCards}</div>`);
   c.insertAdjacentHTML("beforeend", legendeChiffres(
-    `${t.leg_degre} · ${t.leg_maison_num}${t.leg_retro ? " · " + t.leg_retro : ""}`));
+    `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_retro}`));
 
   // 4. Maisons (tableau + intro didactique)
   c.insertAdjacentHTML("beforeend", sectionH(t.ts_maisons, "theme_maisons"));
