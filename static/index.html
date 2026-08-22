@@ -119,19 +119,8 @@
   .glossaire-pop .g-titre { font-weight: 600; color: var(--accent2);
     display: block; margin-bottom: 4px; }
 
-  /* Légende : cachée à l'écran, révélée à l'impression */
-  .legende { display: none; }
-  .legende h3 { margin: 18px 0 6px; font-size: .98rem; color: var(--accent2);
-    border-bottom: 1px solid var(--border); padding-bottom: 4px; }
-  .legende dl { margin: 4px 0 10px; }
-  .legende dt { font-weight: 600; margin-top: 8px; }
-  .legende dd { margin: 2px 0 8px 0; color: var(--muted); font-size: .86rem;
-    line-height: 1.5; }
-
   @media print {
     .glossaire-ic, .glossaire-pop { display: none !important; }
-    .legende { display: block; }
-    .legende dd { color: #333; }
   }
 
   /* ── Onglets des résultats ───────────────────────────────────────── */
@@ -820,19 +809,6 @@ function afficherResultat(d) {
     </div>`).join("");
   rendreRecit(d);
   document.getElementById("resultat").style.display = "block";
-
-  // Légende PDF (cachée à l'écran, révélée à l'impression)
-  let leg = document.getElementById("r-legende");
-  if (!leg) {
-    leg = document.createElement("section");
-    leg.id = "r-legende";
-    leg.className = "legende";
-    document.getElementById("resultat").appendChild(leg);
-  }
-  leg.innerHTML = (d.glossaire || []).map(g => `
-    <h3>${g.theme}</h3>
-    <dl>${(g.items || []).map(it => `<dt>${it.label}</dt><dd>${it.definition}</dd>`).join("")}</dl>
-  `).join("");
 }
 function rendreRecit(d) {
   const t = I18N[LANGUE];
@@ -1346,19 +1322,23 @@ function renderTableaux(tc) {
   c.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_degre} · ${t.leg_maison_num}${t.leg_retro ? " · " + t.leg_retro : ""}`));
 
-  // 4. Maisons
-  const mais = (tc.maisons || []).map(m => ({ n: m.maison, cuspe: m.cuspe, signe: m.signe, symbole: m.symbole }));
+  // 4. Maisons (tableau + intro didactique)
   c.insertAdjacentHTML("beforeend", sectionH(t.ts_maisons, "theme_maisons"));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_maisons"));
+  const mais = (tc.maisons || []).map(m => ({ n: m.maison, cuspe: m.cuspe, signe: m.signe, symbole: m.symbole }));
   c.insertAdjacentHTML("beforeend", tableHTML(t.t_maisons,
     [t.th_n, t.th_cuspe, t.th_signe, t.th_symbole],
     mais.map(r => `<tr><td class="num">${r.n}</td><td class="num">${fmtDeg(r.cuspe)}</td><td>${r.signe}</td><td>${r.symbole || ""}</td></tr>`),
     false));
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_maison_num} · ${t.leg_degre}`));
 
   // 5. Aspects (filtrable + triable)
   const fCfg2 = LEGENDE_FILTRES.find(f => f.val === _ASPECT_FILTRE) || LEGENDE_FILTRES[0];
   let asps = (tc.aspects || []).filter(a => !fCfg2.types || a.type === fCfg2.types);
   asps = trierAspects(asps, _ASPECT_TRI);
   c.insertAdjacentHTML("beforeend", sectionH(t.ts_aspects, "theme_aspects"));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_aspects"));
   const aspContainer = document.createElement("div");
   aspContainer.className = "theme-asp";
   aspContainer.innerHTML = `<table><caption>${t.t_aspects}</caption><thead><tr>
@@ -1374,6 +1354,8 @@ function renderTableaux(tc) {
       <td class="num">${a.orb.toFixed(2)}°</td>
       <td class="num">${(a.exactitude * 100).toFixed(0)}%</td>
     </tr>`).join("")}</tbody></table>`;
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_orbe} · ${t.leg_exact}`));
   c.appendChild(aspContainer);
   aspContainer.querySelectorAll("th[data-col]").forEach(th => {
     th.addEventListener("click", () => {
@@ -1387,6 +1369,7 @@ function renderTableaux(tc) {
   // 6. Dominantes (5 cartes)
   const dom = tc.dominantes || {};
   c.insertAdjacentHTML("beforeend", sectionH(t.ts_dominantes));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_dominantes"));
   const domCont = document.createElement("div");
   domCont.className = "theme-dominantes";
   const cards = [
@@ -1411,6 +1394,7 @@ function renderTableaux(tc) {
       }).join("");
     domCont.appendChild(card);
   }
+  c.insertAdjacentHTML("beforeend", legendeChiffres(t.leg_score));
   c.appendChild(domCont);
 }
 
