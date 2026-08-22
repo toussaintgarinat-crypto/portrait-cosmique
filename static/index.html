@@ -96,6 +96,13 @@
   .glossaire-ic:hover, .glossaire-ic:focus-visible, .glossaire-ic.on {
     opacity: 1; background: #2a2350; outline: none;
   }
+  .theme-section {
+    font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 .5rem;
+    padding-bottom: .3rem; border-bottom: 2px solid var(--accent);
+    display: flex; align-items: center; gap: .4rem;
+  }
+  .theme-section:first-child { margin-top: 0; }
+  .theme-section .glossaire-ic { margin-left: .15rem; }
   .glossaire-pop {
     position: fixed; z-index: 999; max-width: 320px; min-width: 200px;
     background: var(--panel2); border: 1px solid var(--accent); color: var(--text);
@@ -112,19 +119,128 @@
   .glossaire-pop .g-titre { font-weight: 600; color: var(--accent2);
     display: block; margin-bottom: 4px; }
 
-  /* Légende : cachée à l'écran, révélée à l'impression */
-  .legende { display: none; }
-  .legende h3 { margin: 18px 0 6px; font-size: .98rem; color: var(--accent2);
-    border-bottom: 1px solid var(--border); padding-bottom: 4px; }
-  .legende dl { margin: 4px 0 10px; }
-  .legende dt { font-weight: 600; margin-top: 8px; }
-  .legende dd { margin: 2px 0 8px 0; color: var(--muted); font-size: .86rem;
-    line-height: 1.5; }
-
   @media print {
     .glossaire-ic, .glossaire-pop { display: none !important; }
-    .legende { display: block; }
-    .legende dd { color: #333; }
+  }
+
+  /* ── Onglets des résultats ───────────────────────────────────────── */
+  .resultats-onglets { display: flex; gap: .4rem; margin: 18px 0 14px; border-bottom: 1px solid var(--border); }
+  .onglet { padding: .5rem 1rem; border: 1px solid var(--border); border-bottom: none;
+    background: var(--panel2); color: var(--muted); cursor: pointer; border-radius: 8px 8px 0 0;
+    font-size: .9rem; }
+  .onglet:hover { color: var(--text); }
+  .onglet-actif { background: linear-gradient(135deg, var(--accent), #7c5cf0); color: white; border-color: transparent; }
+  .onglet-contenu { display: none; }
+  .onglet-contenu-actif { display: block; }
+
+  /* ── Onglet « Carte astro complète » ─────────────────────────────── */
+  .theme-options { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 0 0 1.2rem; }
+  .theme-options fieldset { border: 1px solid var(--border); border-radius: 10px; padding: .6rem 1rem; background: var(--panel2); }
+  .theme-options legend { font-size: .8rem; color: var(--accent2); padding: 0 .4rem; }
+  .theme-options label { display: inline-flex; align-items: center; gap: .3rem; margin: .2rem .6rem .2rem 0;
+    font-size: .88rem; color: var(--text); cursor: pointer; }
+  .theme-options input[type="radio"] { accent-color: var(--accent); width: auto; }
+
+  .theme-layout { display: grid; grid-template-columns: minmax(320px, 1fr) 1.2fr; gap: 1.8rem; align-items: start; }
+  @media (max-width: 860px) { .theme-layout { grid-template-columns: 1fr; } }
+
+  .theme-roue { display: flex; flex-direction: column; align-items: center; gap: .5rem; position: sticky; top: 12px; }
+  #roue-svg { width: 100%; max-width: 460px; height: auto; background: var(--panel2); border-radius: 12px;
+    border: 1px solid var(--border); }
+  #roue-svg text { font-family: -apple-system, "Segoe UI", sans-serif; fill: var(--text); pointer-events: none; }
+  #roue-svg .zodiac-sector { fill: var(--panel); stroke: var(--border); stroke-width: .5; }
+  #roue-svg .zodiac-sector.alt { fill: #1a1f38; }
+  #roue-svg .zodiac-sym { font-size: 14px; fill: var(--accent2); }
+  #roue-svg .house-ring { fill: none; stroke: var(--border); stroke-width: .5; }
+  #roue-svg .house-line { stroke: var(--border); stroke-width: .4; }
+  #roue-svg .house-num { font-size: 9px; fill: var(--muted); }
+  #roue-svg .planet-glyph { font-size: 13px; fill: var(--text); }
+  #roue-svg .planet-r { font-size: 8px; fill: var(--danger); }
+  #roue-svg .aspect-line { stroke-linecap: round; opacity: .85; }
+  #roue-svg .angle-line { stroke: var(--accent); stroke-width: 1.2; }
+
+  .theme-legend { display: flex; flex-wrap: wrap; gap: .4rem .8rem; font-size: .78rem; justify-content: center; }
+  .theme-legend button { background: var(--panel2); border: 1px solid var(--border); color: var(--muted);
+    padding: 3px 8px; border-radius: 6px; cursor: pointer; font-size: .78rem; }
+  .theme-legend button.on { color: var(--text); border-color: var(--accent); background: #2a2350; }
+  .theme-legend .leg-swatches { display: flex; flex-wrap: wrap; gap: .3rem .6rem; align-items: center; }
+  .theme-legend .swatch { display: inline-flex; align-items: center; gap: .25rem; color: var(--muted); }
+  .theme-legend .swatch i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+  .theme-caveat { font-size: .75rem; color: var(--muted); text-align: center; margin-top: .3rem; line-height: 1.4; max-width: 460px; }
+
+  .theme-tableaux table { width: 100%; border-collapse: collapse; margin-bottom: 1.4rem; font-size: .85rem; }
+  .theme-tableaux caption { caption-side: top; text-align: left; font-weight: 700; margin: .2rem 0 .5rem;
+    color: var(--accent2); font-size: .92rem; }
+  .theme-tableaux th, .theme-tableaux td { padding: .28rem .45rem; border: 1px solid var(--border); text-align: left; }
+  .theme-tableaux th { background: var(--panel2); color: var(--text); font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap; }
+  .theme-tableaux th .sort-ind { opacity: .5; font-size: .7rem; }
+  .theme-tableaux tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
+  .theme-tableaux td.num, .theme-tableaux th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .theme-tableaux .filtres-row { display: flex; gap: .4rem; margin-bottom: .5rem; flex-wrap: wrap; }
+  .theme-tableaux .filtres-row button { background: var(--panel2); border: 1px solid var(--border); color: var(--muted);
+    padding: 3px 10px; border-radius: 6px; cursor: pointer; font-size: .78rem; }
+  .theme-tableaux .filtres-row button.on { color: var(--text); border-color: var(--accent); background: #2a2350; }
+
+  .dominante-carte { border: 1px solid var(--border); border-radius: 10px; padding: .8rem .9rem; margin-bottom: .8rem; background: var(--panel2); }
+  .dominante-carte h4 { margin: 0 0 .5rem; font-size: .9rem; color: var(--accent2); }
+  .dominante-carte .dom-nom { font-weight: 700; color: var(--text); margin-bottom: .4rem; font-size: 1rem; }
+  .dominante-barre { display: flex; align-items: center; gap: .5rem; margin: .15rem 0; }
+  .dominante-barre .dl { width: 92px; font-size: .76rem; color: var(--muted); }
+  .dominante-barre .bar-bg { flex: 1; background: var(--panel); border-radius: 5px; height: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .dominante-barre .bar-fg { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+  .dominante-barre .dv { width: 34px; text-align: right; font-size: .76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .fil-rouge {
+    background: var(--panel2); border: 1px solid var(--accent);
+    border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem;
+    font-size: .82rem; color: var(--accent2); text-align: center;
+  }
+  .section-intro {
+    background: var(--panel2); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: .7rem .9rem; margin: .3rem 0 1rem;
+    font-size: .85rem; line-height: 1.55; color: var(--text);
+  }
+  .section-intro .si-q { font-weight: 600; color: var(--accent2); }
+  .section-intro .si-domaines { color: var(--muted); margin: .3rem 0; }
+  .section-intro .si-conclusion { font-style: italic; color: var(--accent2); }
+  .legende-chiffres {
+    font-size: .76rem; color: var(--muted); margin: .4rem 0 1.2rem;
+    border-top: 1px dashed var(--border); padding-top: .4rem;
+  }
+  .cartes-grille {
+    display: grid; gap: .8rem; margin: .3rem 0 1.2rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .carte-point {
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 10px; padding: .7rem .85rem;
+  }
+  .carte-point .cp-tete { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
+  .carte-point .cp-sym { font-size: 1.3rem; color: var(--accent2); }
+  .carte-point .cp-nom { font-weight: 700; }
+  .carte-point .cp-q { color: var(--muted); font-size: .82rem; font-style: italic; }
+  .carte-point .cp-domaines {
+    margin: .4rem 0; padding-left: 1.1rem; font-size: .8rem; color: var(--muted);
+  }
+  .carte-point .cp-domaines li { margin: .1rem 0; }
+  .carte-point .cp-valeur { font-size: .85rem; margin: .3rem 0; }
+  .carte-point .cp-sens { color: var(--muted); font-size: .78rem; margin-top: .15rem; }
+  .carte-point .cp-conclusion {
+    margin-top: .4rem; font-size: .8rem; color: var(--accent2);
+    border-top: 1px dashed var(--border); padding-top: .3rem;
+  }
+  @media print {
+    .cartes-grille { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    .resultats-onglets, .theme-options, #roue-svg, .theme-legend, .theme-caveat { display: none !important; }
+    .onglet-contenu { display: block !important; }
+    .theme-layout { display: block !important; }
+    .theme-roue { display: none !important; }
+    .theme-tableaux table { font-size: 9pt; }
+    .theme-tableaux th { cursor: default; }
+    #resultat { display: block !important; }
   }
 </style>
 </head>
@@ -222,20 +338,56 @@
 
   <div id="resultat" class="panel">
     <div id="r-identite" class="identite"></div>
-    <div class="archetype" id="r-archetype"></div>
-    <div class="sous" id="r-souscritre"></div>
 
-    <div id="r-stats" style="margin-top:16px;"></div>
+    <div class="resultats-onglets" id="r-onglets">
+      <button class="onglet onglet-actif" data-onglet="portrait" data-t="t_portrait">Portrait</button>
+      <button class="onglet" data-onglet="theme" data-t="t_theme">Carte astro complète</button>
+    </div>
 
-    <div id="r-empreinte" style="margin-top:18px;"></div>
+    <section id="onglet-portrait" class="onglet-contenu onglet-contenu-actif">
+      <div class="archetype" id="r-archetype"></div>
+      <div class="sous" id="r-souscritre"></div>
 
-    <div class="recit" id="r-recit" style="margin-top:18px;"></div>
+      <div id="r-stats" style="margin-top:16px;"></div>
 
-    <details class="avance" style="margin-top:14px;">
-      <summary data-t="l_approfondir_section"><span data-t="l_approfondir_section_txt">Approfondir avec l'IA</span></summary>
-      <p class="sous" data-t="l_approfondir_note">Optionnel : réécriture littéraire par une IA, à partir des mêmes données. Nécessite une clé (voir « Options avancées » du formulaire) ou une configuration par défaut sur cette instance.</p>
-      <button type="button" class="btn secondary" onclick="approfondir()" data-t="b_approfondir">✨ Approfondir avec l'IA</button>
-    </details>
+      <div id="r-empreinte" style="margin-top:18px;"></div>
+
+      <div class="recit" id="r-recit" style="margin-top:18px;"></div>
+
+      <details class="avance" style="margin-top:14px;">
+        <summary data-t="l_approfondir_section"><span data-t="l_approfondir_section_txt">Approfondir avec l'IA</span></summary>
+        <p class="sous" data-t="l_approfondir_note">Optionnel : réécriture littéraire par une IA, à partir des mêmes données. Nécessite une clé (voir « Options avancées » du formulaire) ou une configuration par défaut sur cette instance.</p>
+        <button type="button" class="btn secondary" onclick="approfondir()" data-t="b_approfondir">✨ Approfondir avec l'IA</button>
+      </details>
+    </section>
+
+    <section id="onglet-theme" class="onglet-contenu" hidden>
+      <div class="fil-rouge" data-t="fil_rouge">Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit</div>
+      <div class="theme-options">
+        <fieldset>
+          <legend data-t="l_sys_maisons">Système de maisons</legend>
+          <label><input type="radio" name="systeme-maisons" value="whole_sign" checked> Whole Sign</label>
+          <label><input type="radio" name="systeme-maisons" value="placidus"> Placidus</label>
+          <label><input type="radio" name="systeme-maisons" value="equal_house"> Equal House</label>
+        </fieldset>
+        <fieldset>
+          <legend data-t="l_meth_dom">Méthode des dominantes</legend>
+          <label><input type="radio" name="methode-dominantes" value="comptage_dignite" checked data-t="o_comptage"> Comptage + dignités</label>
+          <label><input type="radio" name="methode-dominantes" value="score_complexe" data-t="o_score"> Score complexe</label>
+        </fieldset>
+      </div>
+
+      <div class="theme-layout">
+        <div class="theme-roue">
+          <svg id="roue-svg" viewBox="-200 -200 400 400" role="img" aria-label="Roue zodiacale"></svg>
+          <div class="theme-legend" id="theme-legend"></div>
+          <p class="theme-caveat" data-t="caveat_precis">Précision : VSOP87 (Soleil→Neptune &lt;1″), Pluton/Chiron formule approchée (~0,1-1°). Sans Swiss Ephemeris.</p>
+        </div>
+        <div class="theme-tableaux">
+          <div id="tableaux-theme"></div>
+        </div>
+      </div>
+    </section>
 
     <div class="btns" style="margin-top:18px;">
       <button type="button" class="btn secondary" onclick="telechargerHTML()" data-t="b_html">⬇️ Télécharger en HTML</button>
@@ -284,6 +436,34 @@ const I18N = {
     approfondi_titre: "✨ Lecture approfondie",
     llm_langue: "français",
     identite_ne: "né(e) le", identite_a: "à", identite_anonyme: "Portrait cosmique",
+    t_portrait: "Portrait", t_theme: "Carte astro complète",
+    l_sys_maisons: "Système de maisons", l_meth_dom: "Méthode des dominantes",
+    o_comptage: "Comptage + dignités", o_score: "Score complexe",
+    caveat_precis: "Précision : VSOP87 (Soleil→Neptune <1″), Pluton/Chiron formule approchée (~0,1-1°). Sans Swiss Ephemeris.",
+    t_fondations: "Fondations (Soleil, Lune, angles)", t_dix: "10 corps", t_pe: "Points évolutifs",
+    t_maisons: "Maisons", t_aspects: "Aspects", t_dominantes: "Dominantes",
+    ts_fondations: "1. Les fondations", ts_corps: "2. Les 10 corps principaux",
+    ts_points: "3. Les points évolutifs", ts_maisons: "4. Les 12 maisons",
+    ts_aspects: "5. Les aspects", ts_dominantes: "6. Les dominantes",
+    fil_rouge: "Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit",
+    dans_ton_theme: "Dans ton thème",
+    donc: "Donc",
+    leg_degre: "Degré = position dans le signe (0-29.99°)",
+    leg_maison_num: "Maison = secteur de vie (1-12)",
+    leg_vitesse: "Vitesse = déplacement/jour (°/j)",
+    leg_retro: "℞ = rétrograde (mouvement apparent inverse)",
+    leg_orbe: "Orbe = écart à l'angle exact (plus petit = plus puissant)",
+    leg_exact: "Exactitude = proximité au parfait (0-100%)",
+    leg_score: "Score = poids selon la méthode choisie",
+    th_point: "Point", th_signe: "Signe", th_degre: "Degré", th_maison: "Maison",
+    th_corps: "Corps", th_symbole: "Symbole", th_vitesse: "Vitesse", th_retro: "R",
+    th_n: "N°", th_cuspe: "Cuspe", th_aspect: "Aspect", th_type: "Type",
+    th_pointa: "Point A", th_pointb: "Point B", th_orb: "Orb", th_exact: "Exactitude",
+    f_tous: "Tous", f_majeurs: "Majeurs", f_mineurs: "Mineurs",
+    dom_element: "Élément dominant", dom_mode: "Mode dominant", dom_planete: "Planète dominante",
+    dom_signe: "Signe dominant", dom_maison: "Maison dominante",
+    theme_vide: "Renseigne une date (et idéalement heure/lieu) pour afficher la carte complète.",
+    theme_charge: "Chargement…", theme_erreur: "Carte indisponible (heure/lieu manquants).",
   },
   en: {
     titre: "Portrait Cosmique",
@@ -320,6 +500,34 @@ const I18N = {
     approfondi_titre: "✨ Deep reading",
     llm_langue: "english",
     identite_ne: "born", identite_a: "at", identite_anonyme: "Cosmic portrait",
+    t_portrait: "Portrait", t_theme: "Full astro chart",
+    l_sys_maisons: "House system", l_meth_dom: "Dominants method",
+    o_comptage: "Counting + dignities", o_score: "Complex score",
+    caveat_precis: "Accuracy: VSOP87 (Sun→Neptune <1″), Pluto/Chiron approximated (~0.1-1°). No Swiss Ephemeris.",
+    t_fondations: "Foundations (Sun, Moon, angles)", t_dix: "10 bodies", t_pe: "Evolutionary points",
+    t_maisons: "Houses", t_aspects: "Aspects", t_dominantes: "Dominants",
+    ts_fondations: "1. Foundations", ts_corps: "2. The 10 main bodies",
+    ts_points: "3. Evolutionary points", ts_maisons: "4. The 12 houses",
+    ts_aspects: "5. Aspects", ts_dominantes: "6. Dominants",
+    fil_rouge: "Planet = what · Sign = how · House = where · Aspect = how they interact",
+    dans_ton_theme: "In your chart",
+    donc: "So",
+    leg_degre: "Degree = position in sign (0-29.99°)",
+    leg_maison_num: "House = life sector (1-12)",
+    leg_vitesse: "Speed = movement/day (°/d)",
+    leg_retro: "℞ = retrograde (apparent reverse motion)",
+    leg_orbe: "Orb = gap to exact angle (smaller = stronger)",
+    leg_exact: "Exactness = closeness to perfect (0-100%)",
+    leg_score: "Score = weight per chosen method",
+    th_point: "Point", th_signe: "Sign", th_degre: "Degree", th_maison: "House",
+    th_corps: "Body", th_symbole: "Symbol", th_vitesse: "Speed", th_retro: "R",
+    th_n: "No.", th_cuspe: "Cusp", th_aspect: "Aspect", th_type: "Type",
+    th_pointa: "Point A", th_pointb: "Point B", th_orb: "Orb", th_exact: "Exactness",
+    f_tous: "All", f_majeurs: "Major", f_mineurs: "Minor",
+    dom_element: "Dominant element", dom_mode: "Dominant mode", dom_planete: "Dominant planet",
+    dom_signe: "Dominant sign", dom_maison: "Dominant house",
+    theme_vide: "Provide a date (and ideally time/place) to show the full chart.",
+    theme_charge: "Loading…", theme_erreur: "Chart unavailable (missing time/place).",
   },
 };
 
@@ -328,6 +536,17 @@ let DERNIER_RESULTAT = null;
 
 let GLOSSAIRE = {};          // { id: definition } — aplati, alimenté par /portrait
 let GLOSSAIRE_LABELS = {};   // { id: label } — utilisé par la légende et le tooltip titre
+
+let DIDACTIQUE = {};          // { id: {question, domaines, conclusion} } — aplati, alimenté par /portrait
+let SIGNES_SENS = {};         // { signe: sens } — alimenté par /portrait
+
+function chargerDidactique(d) {
+  DIDACTIQUE = (d && typeof d === "object") ? d : {};
+}
+
+function chargerSignesSens(d) {
+  SIGNES_SENS = (d && typeof d === "object") ? d : {};
+}
 
 function chargerGlossaire(groups) {
   GLOSSAIRE = {};
@@ -553,6 +772,8 @@ function afficherResultat(d) {
   const t = I18N[LANGUE];
   const p = d.portrait;
   chargerGlossaire(d.glossaire);
+  chargerDidactique(d.didactique);
+  chargerSignesSens(d.signes_sens);
   const id = d._identite || {};
   const nomComplet = [id.prenoms, id.nom].map(s => (s || "").trim()).filter(Boolean).join(" ");
   let dateTxt = "";
@@ -588,19 +809,6 @@ function afficherResultat(d) {
     </div>`).join("");
   rendreRecit(d);
   document.getElementById("resultat").style.display = "block";
-
-  // Légende PDF (cachée à l'écran, révélée à l'impression)
-  let leg = document.getElementById("r-legende");
-  if (!leg) {
-    leg = document.createElement("section");
-    leg.id = "r-legende";
-    leg.className = "legende";
-    document.getElementById("resultat").appendChild(leg);
-  }
-  leg.innerHTML = (d.glossaire || []).map(g => `
-    <h3>${g.theme}</h3>
-    <dl>${(g.items || []).map(it => `<dt>${it.label}</dt><dd>${it.definition}</dd>`).join("")}</dl>
-  `).join("");
 }
 function rendreRecit(d) {
   const t = I18N[LANGUE];
@@ -642,6 +850,24 @@ async function calculerPortrait() {
     };
     DERNIER_RESULTAT = d;
     afficherResultat(d);
+    // Onglet « Carte astro complète » : utiliser le theme_complet du portrait
+    // (les options par défaut). Les radios d'options reflètent l'état courant.
+    _FICHE_COURANTE = {
+      ...body,
+      systeme_maisons: "whole_sign",
+      methode_dominantes: "comptage_dignite",
+    };
+    document.querySelector('input[name="systeme-maisons"][value="whole_sign"]').checked = true;
+    document.querySelector('input[name="methode-dominantes"][value="comptage_dignite"]').checked = true;
+    _THEME_CACHE = d.theme_complet || null;
+    if (_THEME_CACHE) {
+      _ASPECT_FILTRE = "tous";
+      _ASPECT_TRI = { col: "exactitude", sens: -1 };
+      renderRoue(_THEME_CACHE);
+      renderTableaux(_THEME_CACHE);
+    } else {
+      viderTheme();
+    }
   } catch (e) {
     err.textContent = e.message || I18N[LANGUE].erreur_generique;
   }
@@ -714,10 +940,37 @@ let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
   document.addEventListener('focusout', e => { if(ic(e.relatedTarget)) return; fermer(); });
   window.addEventListener('scroll', fermer, {passive:true});
   window.addEventListener('resize', fermer, {passive:true});
-})();
+  })();
+<\/script>`;
+  const exportExtra = `<style>
+    .onglet-contenu { display: block !important; }
+    .resultats-onglets { display: none !important; }
+  </style>
+<script>
+(function(){
+  var MAP={tous:null,majeurs:'majeur',mineurs:'mineur'};
+  function applyLegendFilter(val){
+    var type=MAP[val];
+    document.querySelectorAll('#roue-svg .aspect-line').forEach(function(l){
+      var lt=l.getAttribute('data-type');
+      l.style.display = (!type||lt===type)?'':'none';
+    });
+    document.querySelectorAll('#tableaux-theme .asp-row').forEach(function(r){
+      var rt=r.getAttribute('data-type');
+      r.style.display = (!type||rt===type)?'':'none';
+    });
+  }
+  document.querySelectorAll('.theme-legend button[data-filtre]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.theme-legend button[data-filtre]').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on'); applyLegendFilter(b.getAttribute('data-filtre'));
+    });
+  });
+  var actif=document.querySelector('.theme-legend button[data-filtre].on');
+  if(actif) applyLegendFilter(actif.getAttribute('data-filtre'));})();
 <\/script>`;
   const html = `<!DOCTYPE html><html lang="${LANGUE}"><head><meta charset="utf-8">
-    <title>Portrait Cosmique</title>${styles}</head><body><div class="wrap">
+    <title>Portrait Cosmique</title>${styles}${exportExtra}</head><body><div class="wrap">
     <div id="glossaire-pop" class="glossaire-pop" role="tooltip" aria-hidden="true"></div>
     ${panneau}${ttScript}</div></body></html>`;
   const blob = new Blob([html], { type: "text/html" });
@@ -725,6 +978,443 @@ let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
   a.href = URL.createObjectURL(blob);
   a.download = "portrait-cosmique.html";
   a.click();
+}
+
+// ── Onglet « Carte astro complète » ──────────────────────────────
+let _FICHE_COURANTE = null;
+let _THEME_CACHE = null;
+let _ASPECT_FILTRE = "tous";
+let _ASPECT_TRI = { col: "exactitude", sens: -1 };
+
+const SYMBOLES_POINTS = {
+  "Soleil": "☉", "Lune": "☽", "Mercure": "☿", "Vénus": "♀", "Mars": "♂",
+  "Jupiter": "♃", "Saturne": "♄", "Uranus": "♅", "Neptune": "♆", "Pluton": "♇",
+  "Chiron": "⚷", "Lilith": "⚸", "Nœud Nord": "☊", "Nœud Sud": "☋",
+  "Ascendant": "Asc", "Descendant": "Desc", "Milieu du Ciel": "MC", "Fond du Ciel": "IC",
+};
+const SYMBOLES_ZODIAQUE = ["♈","♉","♊","♋","♌","♍","♎","♏","♐","♑","♒","♓"];
+const COULEURS_ASPECTS = {
+  "conjonction": "#3b82f6", "opposition": "#ef4444", "trigone": "#22c55e",
+  "carre": "#f97316", "sextile": "#a855f7",
+  "semi_sextile": "#94a3b8", "semi_carre": "#94a3b8", "quintile": "#fbbf24",
+  "sesquicarre": "#94a3b8", "quinconce": "#94a3b8",
+};
+const NOMS_ASPECTS_TR = {
+  "conjonction": "Conjonction", "opposition": "Opposition", "trigone": "Trigone",
+  "carre": "Carré", "sextile": "Sextile", "semi_sextile": "Semi-sextile",
+  "semi_carre": "Semi-carré", "quintile": "Quintile", "sesquicarre": "Sesquicarré",
+  "quinconce": "Quinconce",
+};
+const LEGENDE_FILTRES = [
+  { val: "tous", label: "f_tous", types: null },
+  { val: "majeurs", label: "f_majeurs", types: "majeur" },
+  { val: "mineurs", label: "f_mineurs", types: "mineur" },
+];
+
+const _FONDATIONS_ORDRE = [
+  { key: "soleil", nom: "Soleil", gid: "theme_fondation_soleil" },
+  { key: "lune", nom: "Lune", gid: "theme_fondation_lune" },
+  { key: "ascendant", nom: "Ascendant", gid: "theme_fondation_ascendant" },
+  { key: "descendant", nom: "Descendant", gid: "theme_fondation_descendant" },
+  { key: "milieu_du_ciel", nom: "Milieu du Ciel", gid: "theme_fondation_milieu_du_ciel" },
+  { key: "fond_du_ciel", nom: "Fond du Ciel", gid: "theme_fondation_fond_du_ciel" },
+];
+const _FONDATIONS_MAISON = { "ascendant": 1, "descendant": 7, "milieu_du_ciel": 10, "fond_du_ciel": 4 };
+const _CORPS_GLOSS = {
+  "Soleil": "theme_corps_soleil", "Lune": "theme_corps_lune",
+  "Mercure": "theme_corps_mercure", "Vénus": "theme_corps_vénus",
+  "Mars": "theme_corps_mars", "Jupiter": "theme_corps_jupiter",
+  "Saturne": "theme_corps_saturne", "Uranus": "theme_corps_uranus",
+  "Neptune": "theme_corps_neptune", "Pluton": "theme_corps_pluton",
+};
+const _POINTS_GLOSS = {
+  "noeud_nord": "theme_point_noeud_nord", "noeud_sud": "theme_point_noeud_sud",
+  "chiron": "theme_point_chiron", "lilith": "theme_point_lilith",
+};
+const _ASPECT_GLOSS = {
+  "conjonction": "theme_aspect_conjonction", "opposition": "theme_aspect_opposition",
+  "trigone": "theme_aspect_trigone", "carre": "theme_aspect_carre",
+  "sextile": "theme_aspect_sextile",
+};
+const _DOMINANTE_GLOSS = {
+  "dom_element": "theme_dominante_element", "dom_mode": "theme_dominante_mode",
+  "dom_planete": "theme_dominante_planete", "dom_signe": "theme_dominante_signe",
+  "dom_maison": "theme_dominante_maison",
+};
+
+function viderTheme() {
+  _THEME_CACHE = null;
+  const svg = document.getElementById("roue-svg");
+  if (svg) svg.innerHTML = "";
+  const leg = document.getElementById("theme-legend");
+  if (leg) leg.innerHTML = "";
+  const tb = document.getElementById("tableaux-theme");
+  if (tb) tb.innerHTML = `<p class="sous" style="margin:.4rem 0">${I18N[LANGUE].theme_vide}</p>`;
+}
+
+function afficherOnglet(nom) {
+  document.querySelectorAll(".onglet").forEach(b => b.classList.toggle("onglet-actif", b.dataset.onglet === nom));
+  document.querySelectorAll(".onglet-contenu").forEach(s => {
+    const actif = s.id === "onglet-" + nom;
+    s.classList.toggle("onglet-contenu-actif", actif);
+    s.hidden = !actif;
+  });
+}
+document.querySelectorAll(".onglet").forEach(b => b.addEventListener("click", () => afficherOnglet(b.dataset.onglet)));
+
+async function rechargerTheme() {
+  if (!_FICHE_COURANTE) return;
+  _FICHE_COURANTE.systeme_maisons = document.querySelector("input[name='systeme-maisons']:checked").value;
+  _FICHE_COURANTE.methode_dominantes = document.querySelector("input[name='methode-dominantes']:checked").value;
+  const tb = document.getElementById("tableaux-theme");
+  if (tb) tb.innerHTML = `<p class="sous" style="margin:.4rem 0">${I18N[LANGUE].theme_charge}</p>`;
+  try {
+    const r = await fetch("/theme", { method: "POST", headers: {"Content-Type":"application/json"},
+                                     body: JSON.stringify(_FICHE_COURANTE) });
+    if (!r.ok) throw new Error();
+    _THEME_CACHE = await r.json();
+    _ASPECT_FILTRE = "tous";
+    renderRoue(_THEME_CACHE);
+    renderTableaux(_THEME_CACHE);
+  } catch (e) {
+    if (tb) tb.innerHTML = `<p class="sous" style="color:var(--danger);margin:.4rem 0">${I18N[LANGUE].theme_erreur}</p>`;
+  }
+}
+document.querySelectorAll("input[name='systeme-maisons'], input[name='methode-dominantes']").forEach(input => {
+  input.addEventListener("change", rechargerTheme);
+});
+
+// ── Géométrie de la roue ──────────────────────────────────────────
+function lonToXY(lon, radius, ascOffset) {
+  const delta = (((lon - ascOffset) % 360) + 360) % 360;
+  const rad = delta * Math.PI / 180;
+  return [-radius * Math.cos(rad), -radius * Math.sin(rad)];
+}
+function svgArc(x1, y1, r, x2, y2, sweep) {
+  return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${sweep ? 1 : 0} ${sweep ? 1 : 0} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+}
+function elNS(ns, tag, attrs, text) {
+  const el = document.createElementNS(ns, tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (text != null) el.textContent = text;
+  return el;
+}
+
+function renderRoue(tc) {
+  const svg = document.getElementById("roue-svg");
+  svg.innerHTML = "";
+  const ns = "http://www.w3.org/2000/svg";
+  const R_EXT = 190, R_ZOD_INT = 165, R_MAI_INT = 140, R_PLANETE = 90, R_ASPECT = 95;
+  // Offset d'orientation : l'Ascendant à 9h. Repli sur 0 (roue naturelle).
+  let ascOffset = 0;
+  if (tc.fondations && tc.fondations.ascendant) ascOffset = tc.fondations.ascendant.longitude || 0;
+
+  // Anneau zodiacal : 12 secteurs de 30° à partir de 0° Bélier
+  for (let i = 0; i < 12; i++) {
+    const start = i * 30;
+    const end = (i + 1) * 30;
+    const [x1, y1] = lonToXY(start, R_EXT, ascOffset);
+    const [x2, y2] = lonToXY(end, R_EXT, ascOffset);
+    const [xi1, yi1] = lonToXY(start, R_ZOD_INT, ascOffset);
+    const [xi2, yi2] = lonToXY(end, R_ZOD_INT, ascOffset);
+    const d = `M ${x1.toFixed(2)} ${y1.toFixed(2)} ${svgArc(x1, y1, R_EXT, x2, y2, 0)} L ${xi2.toFixed(2)} ${yi2.toFixed(2)} ${svgArc(xi2, yi2, R_ZOD_INT, xi1, yi1, 1)} Z`;
+    svg.appendChild(elNS(ns, "path", { class: "zodiac-sector" + (i % 2 ? " alt" : ""), d }));
+    // Symbole du signe au milieu du secteur
+    const mid = start + 15;
+    const [sx, sy] = lonToXY(mid, (R_EXT + R_ZOD_INT) / 2, ascOffset);
+    svg.appendChild(elNS(ns, "text", { class: "zodiac-sym", x: sx.toFixed(2), y: sy.toFixed(2), "text-anchor": "middle", "dominant-baseline": "central" }, SYMBOLES_ZODIAQUE[i]));
+  }
+  // Cercles de l'anneau des maisons
+  svg.appendChild(elNS(ns, "circle", { class: "house-ring", cx: 0, cy: 0, r: R_ZOD_INT }));
+  svg.appendChild(elNS(ns, "circle", { class: "house-ring", cx: 0, cy: 0, r: R_MAI_INT }));
+
+  // Lignes des cuspides de maisons + numéros
+  const maisons = tc.maisons || [];
+  for (const m of maisons) {
+    const lon = m.longitude_cuspe != null ? m.longitude_cuspe : m.cuspe;
+    const [x1, y1] = lonToXY(lon, R_ZOD_INT, ascOffset);
+    const [x2, y2] = lonToXY(lon, R_MAI_INT, ascOffset);
+    const isAngle = [1, 4, 7, 10].includes(m.maison);
+    svg.appendChild(elNS(ns, "line", { class: isAngle ? "angle-line" : "house-line", x1: x1.toFixed(2), y1: y1.toFixed(2), x2: x2.toFixed(2), y2: y2.toFixed(2) }));
+    const [nx, ny] = lonToXY(lon + (m.maison <= 6 ? 8 : -8), (R_ZOD_INT + R_MAI_INT) / 2, ascOffset);
+    svg.appendChild(elNS(ns, "text", { class: "house-num", x: nx.toFixed(2), y: ny.toFixed(2), "text-anchor": "middle", "dominant-baseline": "central" }, String(m.maison)));
+  }
+
+  // Cercle planétaire
+  svg.appendChild(elNS(ns, "circle", { class: "house-ring", cx: 0, cy: 0, r: R_PLANETE }));
+
+  // Lignes d'aspects (filtre appliqué)
+  const fCfg = LEGENDE_FILTRES.find(f => f.val === _ASPECT_FILTRE) || LEGENDE_FILTRES[0];
+  const aspects = (tc.aspects || []).filter(a => !fCfg.types || a.type === fCfg.types);
+  const posForAspect = (nom) => {
+    const p = (tc.dix_corps || {})[nom] || (tc.points_evolutifs || {})[normalizePE(nom)] || (tc.fondations || {})[normalizeFond(nom)];
+    if (!p) return null;
+    return p.longitude;
+  };
+  for (const a of aspects) {
+    const la = posForAspect(a.point_a), lb = posForAspect(a.point_b);
+    if (la == null || lb == null) continue;
+    const [x1, y1] = lonToXY(la, R_ASPECT, ascOffset);
+    const [x2, y2] = lonToXY(lb, R_ASPECT, ascOffset);
+    const couleur = COULEURS_ASPECTS[a.aspect] || "#94a3b8";
+    const epaisseur = Math.max(0.6, 2.2 * (a.exactitude || 0));
+    svg.appendChild(elNS(ns, "line", { class: "aspect-line", "data-type": a.type, "data-aspect": a.aspect, x1: x1.toFixed(2), y1: y1.toFixed(2), x2: x2.toFixed(2), y2: y2.toFixed(2), stroke: couleur, "stroke-width": epaisseur.toFixed(2), opacity: (0.35 + 0.6 * (a.exactitude || 0)).toFixed(2) }));
+  }
+
+  // Glyphes planétaires (10 corps + points évolutifs + angles)
+  const planetes = [];
+  for (const [nom, info] of Object.entries(tc.dix_corps || {})) planetes.push({ nom, info });
+  for (const [nom, info] of Object.entries(tc.points_evolutifs || {})) planetes.push({ nom: info.corps || nom, info });
+  for (const [nom, info] of Object.entries(tc.fondations || {})) {
+    if (["ascendant", "descendant", "milieu_du_ciel", "fond_du_ciel"].includes(nom)) {
+      planetes.push({ nom: nom === "milieu_du_ciel" ? "Milieu du Ciel" : nom === "fond_du_ciel" ? "Fond du Ciel" : nom.charAt(0).toUpperCase() + nom.slice(1), info });
+    }
+  }
+  for (const p of planetes) {
+    if (p.info.longitude == null) continue;
+    const [px, py] = lonToXY(p.info.longitude, (R_PLANETE + R_MAI_INT) / 2 + 4, ascOffset);
+    const glyph = SYMBOLES_POINTS[p.nom] || p.nom.slice(0, 3);
+    svg.appendChild(elNS(ns, "text", { class: "planet-glyph", x: px.toFixed(2), y: py.toFixed(2), "text-anchor": "middle", "dominant-baseline": "central" }, glyph));
+    if (p.info.retrograde) {
+      svg.appendChild(elNS(ns, "text", { class: "planet-r", x: (px + 9).toFixed(2), y: (py + 1).toFixed(2), "text-anchor": "start", "dominant-baseline": "central" }, "R"));
+    }
+  }
+
+  // Légende de filtre des aspects
+  const leg = document.getElementById("theme-legend");
+  leg.innerHTML = "";
+  const fSet = document.createElement("span");
+  fSet.className = "leg-swatches";
+  const typesVus = new Set(aspects.map(a => a.aspect));
+  for (const [asp, col] of Object.entries(COULEURS_ASPECTS)) {
+    if (!typesVus.has(asp)) continue;
+    const sw = document.createElement("span");
+    sw.className = "swatch";
+    sw.innerHTML = `<i style="background:${col}"></i>${NOMS_ASPECTS_TR[asp] || asp}`;
+    fSet.appendChild(sw);
+  }
+  leg.appendChild(fSet);
+  const btns = document.createElement("span");
+  btns.style.display = "flex";
+  btns.style.gap = ".3rem";
+  for (const f of LEGENDE_FILTRES) {
+    const b = document.createElement("button");
+    b.setAttribute("data-filtre", f.val);
+    b.textContent = I18N[LANGUE][f.label];
+    if (_ASPECT_FILTRE === f.val) b.classList.add("on");
+    b.addEventListener("click", () => {
+      _ASPECT_FILTRE = f.val;
+      renderRoue(tc);
+      renderTableaux(tc);
+    });
+    btns.appendChild(b);
+  }
+  leg.appendChild(btns);
+}
+
+function normalizePE(nom) {
+  const m = { "Nœud Nord": "noeud_nord", "Nœud Sud": "noeud_sud", "Chiron": "chiron", "Lilith": "lilith" };
+  return m[nom] || nom;
+}
+function normalizeFond(nom) {
+  const m = { "Ascendant": "ascendant", "Descendant": "descendant", "Milieu du Ciel": "milieu_du_ciel", "Fond du Ciel": "fond_du_ciel", "Soleil": "soleil", "Lune": "lune" };
+  return m[nom] || nom.toLowerCase();
+}
+
+// ── Tableaux ──────────────────────────────────────────────────────
+function cartePoint(symbole, nom, gid, valeur) {
+  const t = I18N[LANGUE];
+  const d = DIDACTIQUE[gid] || {};
+  const domaines = (d.domaines || []).map(x => `<li>${x}</li>`).join("");
+  const parts = [];
+  if (valeur.signe) parts.push(`<strong>${valeur.signe}</strong>`);
+  if (valeur.degre != null) parts.push(fmtDeg(valeur.degre));
+  if (valeur.maison) parts.push(`${t.th_maison} ${valeur.maison}`);
+  if (valeur.retro) parts.push("℞");
+  const sens = valeur.sens_signe ? `<div class="cp-sens">${valeur.sens_signe}</div>` : "";
+  const valeurHtml = parts.length
+    ? `<div class="cp-valeur">${t.dans_ton_theme} : ${parts.join(" · ")}</div>${sens}` : "";
+  const conclusion = d.conclusion
+    ? `<div class="cp-conclusion">${t.donc} : ${d.conclusion}</div>` : "";
+  return `<div class="carte-point">
+    <div class="cp-tete"><span class="cp-sym">${symbole || ""}</span>
+      <span class="cp-nom">${nom}</span>${icGlossaire(gid)}
+      ${d.question ? `<span class="cp-q">« ${d.question} »</span>` : ""}</div>
+    ${domaines ? `<ul class="cp-domaines">${domaines}</ul>` : ""}
+    ${valeurHtml}${conclusion}
+  </div>`;
+}
+
+function sectionIntro(gid) {
+  const d = DIDACTIQUE[gid] || {};
+  if (!d.question && !d.conclusion) return "";
+  const domaines = (d.domaines || []).join(" · ");
+  return `<div class="section-intro">${icGlossaire(gid)}
+    ${d.question ? `<div class="si-q">« ${d.question} »</div>` : ""}
+    ${domaines ? `<div class="si-domaines">${domaines}</div>` : ""}
+    ${d.conclusion ? `<div class="si-conclusion">${d.conclusion}</div>` : ""}</div>`;
+}
+
+function legendeChiffres(html) {
+  return `<div class="legende-chiffres">${html}</div>`;
+}
+
+function renderTableaux(tc) {
+  const c = document.getElementById("tableaux-theme");
+  c.innerHTML = "";
+  const t = I18N[LANGUE];
+  const sectionH = (titre, gid) => {
+    const ic = gid ? icGlossaire(gid) : "";
+    return `<h3 class="theme-section"><span>${titre}</span>${ic}</h3>`;
+  };
+
+  // 1. Fondations (cartes didactiques)
+  const fond = tc.fondations || {};
+  const dixMap = tc.dix_corps || {};
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_fondations));
+  const fondCards = _FONDATIONS_ORDRE.map(o => {
+    const f = fond[o.key] || {};
+    let maison = _FONDATIONS_MAISON[o.key];
+    if (!maison) {
+      const src = o.key === "soleil" ? dixMap["Soleil"] : (o.key === "lune" ? dixMap["Lune"] : null);
+      maison = src ? src.maison : null;
+    }
+    return cartePoint(f.symbole || "—", o.nom, o.gid, {
+      signe: f.signe, degre: f.degre, maison: maison,
+      retro: (o.key === "soleil" ? (dixMap["Soleil"] || {}).retrograde
+              : o.key === "lune" ? (dixMap["Lune"] || {}).retrograde : false),
+      sens_signe: SIGNES_SENS[f.signe] || "",
+    });
+  }).join("");
+  c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${fondCards}</div>`);
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_retro}`));
+
+  // 2. 10 corps (cartes didactiques, facette corps)
+  const dix = Object.entries(dixMap).map(([nom, p]) => ({
+    corps: nom, gid: _CORPS_GLOSS[nom], symbole: SYMBOLES_POINTS[nom] || "",
+    signe: p.signe, degre: p.degre, maison: p.maison,
+    retro: p.retrograde,
+  }));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_corps));
+  const dixCards = dix.map(r => cartePoint(r.symbole, r.corps, r.gid, {
+    signe: r.signe, degre: r.degre, maison: r.maison, retro: r.retro,
+    sens_signe: SIGNES_SENS[r.signe] || "",
+  })).join("");
+  c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${dixCards}</div>`);
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_vitesse} · ${t.leg_retro}`));
+
+  // 3. Points évolutifs (cartes didactiques)
+  const pe = Object.entries(tc.points_evolutifs || {}).map(([nom, p]) => ({
+    point: p.corps || nom, gid: _POINTS_GLOSS[nom],
+    symbole: SYMBOLES_POINTS[p.corps || nom] || "",
+    signe: p.signe, degre: p.degre, maison: p.maison, retro: p.retrograde,
+  }));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_points));
+  const peCards = pe.map(r => cartePoint(r.symbole, r.point, r.gid, {
+    signe: r.signe, degre: r.degre, maison: r.maison, retro: r.retro,
+    sens_signe: SIGNES_SENS[r.signe] || "",
+  })).join("");
+  c.insertAdjacentHTML("beforeend", `<div class="cartes-grille">${peCards}</div>`);
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_degre} · ${t.leg_maison_num} · ${t.leg_retro}`));
+
+  // 4. Maisons (tableau + intro didactique)
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_maisons, "theme_maisons"));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_maisons"));
+  const mais = (tc.maisons || []).map(m => ({ n: m.maison, cuspe: m.cuspe, signe: m.signe, symbole: m.symbole }));
+  c.insertAdjacentHTML("beforeend", tableHTML(t.t_maisons,
+    [t.th_n, t.th_cuspe, t.th_signe, t.th_symbole],
+    mais.map(r => `<tr><td class="num">${r.n}</td><td class="num">${fmtDeg(r.cuspe)}</td><td>${r.signe}</td><td>${r.symbole || ""}</td></tr>`),
+    false));
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_maison_num} · ${t.leg_degre}`));
+
+  // 5. Aspects (filtrable + triable)
+  const fCfg2 = LEGENDE_FILTRES.find(f => f.val === _ASPECT_FILTRE) || LEGENDE_FILTRES[0];
+  let asps = (tc.aspects || []).filter(a => !fCfg2.types || a.type === fCfg2.types);
+  asps = trierAspects(asps, _ASPECT_TRI);
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_aspects, "theme_aspects"));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_aspects"));
+  const aspContainer = document.createElement("div");
+  aspContainer.className = "theme-asp";
+  aspContainer.innerHTML = `<table><caption>${t.t_aspects}</caption><thead><tr>
+    <th data-col="aspect">${t.th_aspect}<span class="sort-ind">↕</span></th>
+    <th data-col="type">${t.th_type}<span class="sort-ind">↕</span></th>
+    <th>${t.th_pointa}</th><th>${t.th_pointb}</th>
+    <th class="num" data-col="orb">${t.th_orb}<span class="sort-ind">↕</span></th>
+    <th class="num" data-col="exactitude">${t.th_exact}<span class="sort-ind">↕</span></th>
+    </tr></thead><tbody>${asps.map(a => `<tr class="asp-row" data-type="${a.type}">
+      <td>${NOMS_ASPECTS_TR[a.aspect] || a.aspect}${icGlossaire(_ASPECT_GLOSS[a.aspect])}</td>
+      <td>${a.type}</td>
+      <td>${a.point_a}</td><td>${a.point_b}</td>
+      <td class="num">${a.orb.toFixed(2)}°</td>
+      <td class="num">${(a.exactitude * 100).toFixed(0)}%</td>
+    </tr>`).join("")}</tbody></table>`;
+  c.insertAdjacentHTML("beforeend", legendeChiffres(
+    `${t.leg_orbe} · ${t.leg_exact}`));
+  c.appendChild(aspContainer);
+  aspContainer.querySelectorAll("th[data-col]").forEach(th => {
+    th.addEventListener("click", () => {
+      const col = th.dataset.col;
+      if (_ASPECT_TRI.col === col) _ASPECT_TRI.sens = -_ASPECT_TRI.sens;
+      else { _ASPECT_TRI.col = col; _ASPECT_TRI.sens = 1; }
+      renderTableaux(tc);
+    });
+  });
+
+  // 6. Dominantes (5 cartes)
+  const dom = tc.dominantes || {};
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_dominantes));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_dominantes"));
+  const domCont = document.createElement("div");
+  domCont.className = "theme-dominantes";
+  const cards = [
+    { titre: t.dom_element, gid: _DOMINANTE_GLOSS.dom_element, d: dom.element, key: "dominant" },
+    { titre: t.dom_mode, gid: _DOMINANTE_GLOSS.dom_mode, d: dom.mode, key: "dominant" },
+    { titre: t.dom_planete, gid: _DOMINANTE_GLOSS.dom_planete, d: dom.planete, key: "dominante" },
+    { titre: t.dom_signe, gid: _DOMINANTE_GLOSS.dom_signe, d: dom.signe, key: "dominant" },
+    { titre: t.dom_maison, gid: _DOMINANTE_GLOSS.dom_maison, d: dom.maison, key: "dominante" },
+  ];
+  for (const c2 of cards) {
+    if (!c2.d || !c2.d.scores) continue;
+    const scores = c2.d.scores;
+    const maxVal = Math.max(...Object.values(scores), 1);
+    const dominant = c2.d[c2.key] || c2.d.dominant || c2.d.dominante || "—";
+    const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    const card = document.createElement("div");
+    card.className = "dominante-carte";
+    card.innerHTML = `<h4>${c2.titre}${icGlossaire(c2.gid)}</h4><div class="dom-nom">${dominant}</div>` +
+      entries.map(([k, v]) => {
+        const pct = maxVal > 0 ? (v / maxVal * 100) : 0;
+        return `<div class="dominante-barre"><div class="dl">${k}</div><div class="bar-bg"><div class="bar-fg" style="width:${pct.toFixed(1)}%"></div></div><div class="dv">${typeof v === "number" ? v : ""}</div></div>`;
+      }).join("");
+    domCont.appendChild(card);
+  }
+  c.insertAdjacentHTML("beforeend", legendeChiffres(t.leg_score));
+  c.appendChild(domCont);
+}
+
+function tableHTML(caption, headers, bodyRows, zebra) {
+  const rows = bodyRows.join("");
+  return `<table><caption>${caption}</caption><thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+function fmtDeg(d) { return d == null ? "—" : (typeof d === "number" ? `${d.toFixed(2)}°` : `${d}°`); }
+function trierAspects(asps, tri) {
+  const arr = [...asps];
+  const sens = tri.sens;
+  arr.sort((a, b) => {
+    let va, vb;
+    if (tri.col === "aspect") { va = a.aspect; vb = b.aspect; }
+    else if (tri.col === "type") { va = a.type; vb = b.type; }
+    else if (tri.col === "orb") { va = a.orb; vb = b.orb; }
+    else if (tri.col === "exactitude") { va = a.exactitude; vb = b.exactitude; }
+    else return 0;
+    if (typeof va === "string") return va.localeCompare(vb) * sens;
+    return (va - vb) * sens;
+  });
+  return arr;
 }
 
 // ── Tooltip glossaire universel (délégation) ────────────────────────

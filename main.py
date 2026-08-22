@@ -26,6 +26,7 @@ if _ENGINE_DIR.is_dir():   # dev local (repo tel quel) ; en Docker les fichiers 
 
 import significations
 import synthese
+import theme_complet
 import traditions
 
 import llm
@@ -48,6 +49,8 @@ class Fiche(BaseModel):
     utc_offset:     Optional[float] = None  # décalage local→UTC à la naissance
     systeme_numerologie: str = "classique"  # "classique" (A=1…Z=26) ou "pythagoricien"
     langue:         str = "fr"              # "fr" ou "en" — langue du portrait déterministe
+    systeme_maisons: str = "whole_sign"      # "whole_sign" | "placidus" | "equal_house"
+    methode_dominantes: str = "comptage_dignite"  # "comptage_dignite" | "score_complexe"
 
 
 class LectureApprofondieBody(BaseModel):
@@ -107,17 +110,36 @@ async def modeles(cle: str = Query(...), base_url: str = Query("")):
         return {"modeles": await llm.lister_modeles(base, cle)}
     except Exception as e:
         raise HTTPException(502, f"Impossible de récupérer les modèles : {str(e)[:150]}")
+@app.post("/theme", tags=["portrait"])
+def theme(body: Fiche):
+    """Carte astrologique complète (fondations, 10 corps, points évolutifs,
+    maisons, aspects, dominantes). Seule la date est absolument requise —
+    sans heure/lieu, seules les fondations Soleil/Lune sont calculées
+    (Lune approximative sans heure) ; le reste en repli honnête."""
+    tc = theme_complet.theme_complet(body.model_dump())
+    if not tc.get("fondations", {}).get("soleil"):
+        raise HTTPException(422, "Indique au moins une date de naissance valide.")
+    return tc
+
+
 @app.post("/portrait", tags=["portrait"])
 def portrait(body: Fiche):
     """Fiche → traditions calculées → portrait (stats/archétype/forces/faiblesse/pierre/
-    récit) → empreinte lisible. Un seul appel, la langue choisie s'applique aux deux."""
+    récit) → empreinte lisible. Étendu : inclut désormais `theme_complet` intégré
+    pour que le récit déterministe et l'empreinte exploitent les nouvelles données."""
     trad = traditions.calculer(body.model_dump())
     if not trad.get("signe_solaire"):
         raise HTTPException(422, "Indique au moins une date de naissance valide.")
-    p = synthese.portrait(trad, nom=body.prenoms or body.nom, langue=body.langue)
-    return {"traditions": trad, "portrait": p,
-            "empreinte": significations.expliquer(trad, body.langue),
-            "glossaire": significations.glossaire(body.langue)}
+    tc = theme_complet.theme_complet_depuis_traditions(trad, body.model_dump())
+    p = synthese.portrait(trad, theme_complet=tc, nom=body.prenoms or body.nom, langue=body.langue)
+    en = (body.langue or "fr").lower().startswith("en")
+    return {"traditions": trad, "theme_complet": tc,
+            "portrait": p,
+            "empreinte": significations.expliquer(trad, body.langue, theme_complet=tc),
+            "glossaire": significations.glossaire(body.langue),
+            "didactique": significations.didactique(body.langue),
+            "signes_sens": (significations.SIGNES_SENS_EN if en
+                            else significations.SIGNES_SENS)}
 
 
 @app.post("/lecture-approfondie", tags=["portrait"])
