@@ -1517,7 +1517,8 @@ function renderTableaux(tc) {
   // 1. Fondations (cartes didactiques)
   const fond = tc.fondations || {};
   const dixMap = tc.dix_corps || {};
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_fondations));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_fondations, "theme_fondations"));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_fondations"));
   const fondCards = _FONDATIONS_ORDRE.map(o => {
     const f = fond[o.key] || {};
     let maison = _FONDATIONS_MAISON[o.key];
@@ -1542,7 +1543,8 @@ function renderTableaux(tc) {
     signe: p.signe, degre: p.degre, maison: p.maison,
     retro: p.retrograde,
   }));
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_corps));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_corps, "theme_corps"));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_corps"));
   const dixCards = dix.map(r => cartePoint(r.symbole, r.corps, r.gid, {
     signe: r.signe, degre: r.degre, maison: r.maison, retro: r.retro,
     sens_signe: SIGNES_SENS[r.signe] || "",
@@ -1557,7 +1559,8 @@ function renderTableaux(tc) {
     symbole: SYMBOLES_POINTS[p.corps || nom] || "",
     signe: p.signe, degre: p.degre, maison: p.maison, retro: p.retrograde,
   }));
-  c.insertAdjacentHTML("beforeend", sectionH(t.ts_points));
+  c.insertAdjacentHTML("beforeend", sectionH(t.ts_points, "theme_points_evolutifs"));
+  c.insertAdjacentHTML("beforeend", sectionIntro("theme_points_evolutifs"));
   const peCards = pe.map(r => cartePoint(r.symbole, r.point, r.gid, {
     signe: r.signe, degre: r.degre, maison: r.maison, retro: r.retro,
     sens_signe: SIGNES_SENS[r.signe] || "",

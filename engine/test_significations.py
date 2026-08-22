@@ -219,6 +219,7 @@ _DIDACTIQUE_IDS_ATTENDUS = [
     "theme_corps_pluton",
     "theme_point_noeud_nord", "theme_point_noeud_sud",
     "theme_point_chiron", "theme_point_lilith",
+    "theme_fondations", "theme_corps", "theme_points_evolutifs",
     "theme_maisons", "theme_aspects", "theme_dominantes",
 ]
 

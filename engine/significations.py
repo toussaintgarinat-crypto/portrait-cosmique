@@ -466,6 +466,22 @@ GLOSSAIRE_FR = {
         "Lilith — ombre, désir refoulé, intuition sauvage. La part libre et "
         "incontrôlable de ton psychisme."
     ),
+    "theme_fondations": (
+        "Fondations — les piliers du thème : Soleil, Lune, Ascendant/Descendant, "
+        "Milieu du Ciel/Fond du Ciel. Ensemble, ils dessinent l'ossature de la "
+        "personnalité avant même de regarder les planètes une à une."
+    ),
+    "theme_corps": (
+        "Les 10 corps — les dix points célestes utilisés en astrologie occidentale "
+        "(Soleil, Lune, Mercure, Vénus, Mars, Jupiter, Saturne, Uranus, Neptune, "
+        "Pluton). Chacun représente une fonction psychique distincte ; son signe "
+        "indique comment elle s'exprime, sa maison où."
+    ),
+    "theme_points_evolutifs": (
+        "Points évolutifs — Nœuds lunaires, Chiron, Lilith : des points "
+        "mathématiques (pas des corps physiques) qui marquent une trajectoire "
+        "de transformation plutôt qu'un trait fixe."
+    ),
     "theme_maisons": (
         "Maisons — douze secteurs de l'expérience de vie. Chaque maison indique "
         "où se jouent les énergies planétaires : maison 1 = identité, "
@@ -495,6 +511,28 @@ GLOSSAIRE_FR = {
     "theme_aspect_sextile": (
         "Sextile (60°) — opportunité, coopération. Une facilité à activer "
         "consciemment."
+    ),
+    "theme_axe_noeuds": (
+        "Axe des Nœuds — Nœud Nord et Nœud Sud sont toujours exactement à "
+        "l'opposé l'un de l'autre (180°), par construction géométrique, jamais "
+        "par calcul d'aspect. Le Nœud Sud représente les acquis, les automatismes "
+        "du passé ; le Nœud Nord, la direction vers laquelle grandir. Cet axe "
+        "n'est pas un aspect au sens classique mais la colonne vertébrale du "
+        "chemin karmique du thème."
+    ),
+    "theme_axe_horizon": (
+        "Axe Ascendant-Descendant — l'Ascendant et le Descendant sont toujours "
+        "exactement opposés (180°), par définition géométrique (l'horizon a deux "
+        "bouts). L'Ascendant = comment tu abordes le monde ; le Descendant = ce "
+        "que tu cherches chez l'autre, en miroir. À lire comme l'axe du « moi "
+        "face à l'autre »."
+    ),
+    "theme_axe_meridien": (
+        "Axe Milieu du Ciel-Fond du Ciel — le Milieu du Ciel (MC) et le Fond du "
+        "Ciel (FC/IC) sont toujours exactement opposés (180°), par définition "
+        "géométrique (le méridien a deux bouts). Le MC = vocation, image "
+        "publique ; le FC = racines, vie privée. À lire comme l'axe « public "
+        "face à intime »."
     ),
     "theme_dominante_element": (
         "Élément dominant (Feu, Terre, Air, Eau) — tempérament global. "
@@ -660,6 +698,30 @@ DIDACTIQUE_FR = {
                      "instinct sauvage", "ce qu'on ne veut pas soumettre"],
         "conclusion": "Lilith = ta part d'ombre libre",
     },
+    # ── §1/§2/§3 Intros de section ──
+    "theme_fondations": {
+        "question": "Qui es-tu à la base ?",
+        "domaines": ["Soleil = identité consciente", "Lune = besoins émotionnels",
+                     "Ascendant/Descendant = axe de l'horizon",
+                     "Milieu du Ciel/Fond du Ciel = axe vertical, vocation/racines"],
+        "conclusion": "Les fondations = le squelette du thème",
+    },
+    "theme_corps": {
+        "question": "Quelles énergies agissent en toi ?",
+        "domaines": ["10 corps célestes = 10 énergies distinctes",
+                     "chaque planète = un besoin ou une fonction psychique",
+                     "son signe = comment cette énergie s'exprime",
+                     "sa maison = où elle s'exprime"],
+        "conclusion": "Les 10 corps = l'orchestre complet de la personnalité",
+    },
+    "theme_points_evolutifs": {
+        "question": "Où se joue ton évolution ?",
+        "domaines": ["Nœuds lunaires = axe karmique (passé → futur)",
+                     "Chiron = blessure à transformer en force",
+                     "Lilith = part sauvage et indomptée",
+                     "ce sont des points, pas des planètes"],
+        "conclusion": "Les points évolutifs = la trajectoire, pas la photo",
+    },
     # ── §4/§5/§6 Intros de section ──
     "theme_maisons": {
         "question": "Où se joue cette énergie ?",
@@ -810,6 +872,30 @@ DIDACTIQUE_EN = {
         "domaines": ["independence", "repressed desire", "refusal of norms",
                      "wild instinct", "what you won't submit"],
         "conclusion": "Lilith = your free shadow",
+    },
+    # ── §1/§2/§3 Section intros ──
+    "theme_fondations": {
+        "question": "Who are you at your core?",
+        "domaines": ["Sun = conscious identity", "Moon = emotional needs",
+                     "Ascendant/Descendant = horizon axis",
+                     "Midheaven/IC = vertical axis, vocation/roots"],
+        "conclusion": "The foundations = the skeleton of the chart",
+    },
+    "theme_corps": {
+        "question": "What energies are at work in you?",
+        "domaines": ["10 celestial bodies = 10 distinct energies",
+                     "each planet = a need or a psychic function",
+                     "its sign = how that energy expresses itself",
+                     "its house = where it expresses itself"],
+        "conclusion": "The 10 bodies = the full orchestra of the personality",
+    },
+    "theme_points_evolutifs": {
+        "question": "Where is your growth happening?",
+        "domaines": ["lunar Nodes = karmic axis (past → future)",
+                     "Chiron = wound to transform into strength",
+                     "Lilith = wild, untamed part",
+                     "these are points, not planets"],
+        "conclusion": "The evolutionary points = the trajectory, not the snapshot",
     },
     # ── §4/§5/§6 Section intros ──
     "theme_maisons": {
@@ -1045,6 +1131,22 @@ GLOSSAIRE_EN = {
         "Lilith — shadow, repressed desire, wild intuition. The free and "
         "uncontrollable part of your psyche."
     ),
+    "theme_fondations": (
+        "Foundations — the pillars of the chart: Sun, Moon, Ascendant/Descendant, "
+        "Midheaven/IC. Together they draw the skeleton of the personality before "
+        "even looking at the planets one by one."
+    ),
+    "theme_corps": (
+        "The 10 bodies — the ten celestial points used in Western astrology "
+        "(Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune, "
+        "Pluto). Each represents a distinct psychic function; its sign shows "
+        "how it expresses, its house shows where."
+    ),
+    "theme_points_evolutifs": (
+        "Evolutionary points — Lunar Nodes, Chiron, Lilith: mathematical points "
+        "(not physical bodies) that mark a trajectory of transformation rather "
+        "than a fixed trait."
+    ),
     "theme_maisons": (
         "Houses — twelve sectors of life experience. Each house indicates where "
         "planetary energies play out: house 1 = identity, house 7 = relationships, "
@@ -1073,6 +1175,27 @@ GLOSSAIRE_EN = {
     "theme_aspect_sextile": (
         "Sextile (60°) — opportunity, cooperation. A facilitation to "
         "activate consciously."
+    ),
+    "theme_axe_noeuds": (
+        "Nodal Axis — the North Node and South Node are always exactly "
+        "opposite each other (180°), by geometric construction, never by "
+        "aspect calculation. The South Node represents past habits and "
+        "acquired traits; the North Node, the direction to grow toward. This "
+        "axis isn't an aspect in the classical sense but the backbone of the "
+        "chart's karmic path."
+    ),
+    "theme_axe_horizon": (
+        "Ascendant-Descendant Axis — the Ascendant and Descendant are always "
+        "exactly opposite (180°), by geometric definition (the horizon has two "
+        "ends). The Ascendant = how you approach the world; the Descendant = "
+        "what you seek in others, as a mirror. Read as the axis of \"self "
+        "facing other\"."
+    ),
+    "theme_axe_meridien": (
+        "Midheaven-IC Axis — the Midheaven (MC) and the IC are always exactly "
+        "opposite (180°), by geometric definition (the meridian has two ends). "
+        "The MC = vocation, public image; the IC = roots, private life. Read "
+        "as the axis of \"public facing private\"."
     ),
     "theme_dominante_element": (
         "Dominant element (Fire, Earth, Air, Water) — overall temperament. "
@@ -1124,10 +1247,14 @@ _GLOSSAIRE_LABELS = {
     "theme_corps_pluton": "Pluton",
     "theme_point_noeud_nord": "Nœud Nord", "theme_point_noeud_sud": "Nœud Sud",
     "theme_point_chiron": "Chiron", "theme_point_lilith": "Lilith",
+    "theme_fondations": "Fondations", "theme_corps": "Les 10 corps",
+    "theme_points_evolutifs": "Points évolutifs",
     "theme_maisons": "Maisons", "theme_aspects": "Aspects",
     "theme_aspect_conjonction": "Conjonction", "theme_aspect_opposition": "Opposition",
     "theme_aspect_trigone": "Trigone", "theme_aspect_carre": "Carré",
     "theme_aspect_sextile": "Sextile",
+    "theme_axe_noeuds": "Axe des Nœuds", "theme_axe_horizon": "Axe Ascendant-Descendant",
+    "theme_axe_meridien": "Axe Milieu du Ciel-Fond du Ciel",
     "theme_dominante_element": "Élément dominant", "theme_dominante_mode": "Mode dominant",
     "theme_dominante_planete": "Planète dominante", "theme_dominante_signe": "Signe dominant",
     "theme_dominante_maison": "Maison dominante",
@@ -1156,10 +1283,14 @@ _GLOSSAIRE_LABELS_EN = {
     "theme_corps_pluton": "Pluto",
     "theme_point_noeud_nord": "North Node", "theme_point_noeud_sud": "South Node",
     "theme_point_chiron": "Chiron", "theme_point_lilith": "Lilith",
+    "theme_fondations": "Foundations", "theme_corps": "The 10 bodies",
+    "theme_points_evolutifs": "Evolutionary points",
     "theme_maisons": "Houses", "theme_aspects": "Aspects",
     "theme_aspect_conjonction": "Conjunction", "theme_aspect_opposition": "Opposition",
     "theme_aspect_trigone": "Trine", "theme_aspect_carre": "Square",
     "theme_aspect_sextile": "Sextile",
+    "theme_axe_noeuds": "Nodal Axis", "theme_axe_horizon": "Ascendant-Descendant Axis",
+    "theme_axe_meridien": "Midheaven-IC Axis",
     "theme_dominante_element": "Dominant Element", "theme_dominante_mode": "Dominant Mode",
     "theme_dominante_planete": "Dominant Planet", "theme_dominante_signe": "Dominant Sign",
     "theme_dominante_maison": "Dominant House",
@@ -1184,15 +1315,19 @@ _GLOSSAIRE_THEMES = [
     ("Synthèse du portrait", "Portrait Synthesis",
         ["archetype", "forces", "faiblesse", "pierre"]),
     ("Carte astro complète", "Complete Astro Chart",
-        ["theme_fondation_soleil", "theme_fondation_lune", "theme_fondation_ascendant",
+        ["theme_fondations",
+         "theme_fondation_soleil", "theme_fondation_lune", "theme_fondation_ascendant",
          "theme_fondation_descendant", "theme_fondation_milieu_du_ciel", "theme_fondation_fond_du_ciel",
+         "theme_corps",
          "theme_corps_soleil", "theme_corps_lune", "theme_corps_mercure", "theme_corps_vénus",
          "theme_corps_mars", "theme_corps_jupiter", "theme_corps_saturne", "theme_corps_uranus",
          "theme_corps_neptune", "theme_corps_pluton",
+         "theme_points_evolutifs",
          "theme_point_noeud_nord", "theme_point_noeud_sud", "theme_point_chiron", "theme_point_lilith",
          "theme_maisons", "theme_aspects",
          "theme_aspect_conjonction", "theme_aspect_opposition", "theme_aspect_trigone",
          "theme_aspect_carre", "theme_aspect_sextile",
+         "theme_axe_noeuds", "theme_axe_horizon", "theme_axe_meridien",
          "theme_dominante_element", "theme_dominante_mode", "theme_dominante_planete",
           "theme_dominante_signe", "theme_dominante_maison", "theme_dominantes"]),
 ]
@@ -1530,6 +1665,18 @@ def expliquer(trad: dict, langue: str = "fr",
     return out
 
 
+# Axes structurels — paires toujours en opposition par construction géométrique
+# (jamais par calcul d'aspect). Id stable par paire, indépendant du type d'aspect
+# (qui serait de toute façon toujours "opposition" ici). Toute autre paire (ex.
+# Nœud-Lilith, dont le type varie selon la personne) retombe sur l'id générique
+# `theme_aspect_{type}` déjà présent dans le glossaire.
+_AXES_STRUCTURELS = {
+    frozenset({"noeud_nord", "noeud_sud"}): "theme_axe_noeuds",
+    frozenset({"Ascendant", "Descendant"}): "theme_axe_horizon",
+    frozenset({"Milieu du Ciel", "Fond du Ciel"}): "theme_axe_meridien",
+}
+
+
 def _expliquer_theme_complet(tc: dict, langue: str) -> list:
     """Sous-section empreinte pour la carte astro complète (theme_complet).
 
@@ -1580,11 +1727,12 @@ def _expliquer_theme_complet(tc: dict, langue: str) -> list:
         a_type = asp.get("aspect", "?")
         pa = asp.get("point_a", "?")
         pb = asp.get("point_b", "?")
+        gloss_id = _AXES_STRUCTURELS.get(frozenset({pa, pb})) or f"theme_aspect_{a_type}"
         entries.append(_entree(
             f"{a_type.title()} {pa}-{pb}",
             f"orbe {asp.get('orb', 0):.1f}°",
             CLEFS_ASPECTS.get(a_type, {}).get(lg, ""),
-            "aspect", id=f"theme_aspect_{pa}_{pb}_{a_type}"))
+            "aspect", id=gloss_id))
 
     # — Dominantes (élément / mode / planète / signe / maison) —
     dom = tc.get("dominantes") or {}
