@@ -201,6 +201,49 @@
   .dominante-barre .bar-fg { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
   .dominante-barre .dv { width: 34px; text-align: right; font-size: .76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
+  .fil-rouge {
+    background: var(--panel2); border: 1px solid var(--accent);
+    border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem;
+    font-size: .82rem; color: var(--accent2); text-align: center;
+  }
+  .section-intro {
+    background: var(--panel2); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: .7rem .9rem; margin: .3rem 0 1rem;
+    font-size: .85rem; line-height: 1.55; color: var(--text);
+  }
+  .section-intro .si-q { font-weight: 600; color: var(--accent2); }
+  .section-intro .si-domaines { color: var(--muted); margin: .3rem 0; }
+  .section-intro .si-conclusion { font-style: italic; color: var(--accent2); }
+  .legende-chiffres {
+    font-size: .76rem; color: var(--muted); margin: .4rem 0 1.2rem;
+    border-top: 1px dashed var(--border); padding-top: .4rem;
+  }
+  .cartes-grille {
+    display: grid; gap: .8rem; margin: .3rem 0 1.2rem;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .carte-point {
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 10px; padding: .7rem .85rem;
+  }
+  .carte-point .cp-tete { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
+  .carte-point .cp-sym { font-size: 1.3rem; color: var(--accent2); }
+  .carte-point .cp-nom { font-weight: 700; }
+  .carte-point .cp-q { color: var(--muted); font-size: .82rem; font-style: italic; }
+  .carte-point .cp-domaines {
+    margin: .4rem 0; padding-left: 1.1rem; font-size: .8rem; color: var(--muted);
+  }
+  .carte-point .cp-domaines li { margin: .1rem 0; }
+  .carte-point .cp-valeur { font-size: .85rem; margin: .3rem 0; }
+  .carte-point .cp-sens { color: var(--muted); font-size: .78rem; margin-top: .15rem; }
+  .carte-point .cp-conclusion {
+    margin-top: .4rem; font-size: .8rem; color: var(--accent2);
+    border-top: 1px dashed var(--border); padding-top: .3rem;
+  }
+  @media print {
+    .cartes-grille { grid-template-columns: 1fr; }
+  }
+
   @media print {
     .resultats-onglets, .theme-options, #roue-svg, .theme-legend, .theme-caveat { display: none !important; }
     .onglet-contenu { display: block !important; }
@@ -330,6 +373,7 @@
     </section>
 
     <section id="onglet-theme" class="onglet-contenu" hidden>
+      <div class="fil-rouge" data-t="fil_rouge">Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit</div>
       <div class="theme-options">
         <fieldset>
           <legend data-t="l_sys_maisons">Système de maisons</legend>
@@ -412,6 +456,16 @@ const I18N = {
     ts_fondations: "1. Les fondations", ts_corps: "2. Les 10 corps principaux",
     ts_points: "3. Les points évolutifs", ts_maisons: "4. Les 12 maisons",
     ts_aspects: "5. Les aspects", ts_dominantes: "6. Les dominantes",
+    fil_rouge: "Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit",
+    dans_ton_theme: "Dans ton thème",
+    donc: "Donc",
+    leg_degre: "Degré = position dans le signe (0-29.99°)",
+    leg_maison_num: "Maison = secteur de vie (1-12)",
+    leg_vitesse: "Vitesse = déplacement/jour (°/j)",
+    leg_retro: "℞ = rétrograde (mouvement apparent inverse)",
+    leg_orbe: "Orbe = écart à l'angle exact (plus petit = plus puissant)",
+    leg_exact: "Exactitude = proximité au parfait (0-100%)",
+    leg_score: "Score = poids selon la méthode choisie",
     th_point: "Point", th_signe: "Signe", th_degre: "Degré", th_maison: "Maison",
     th_corps: "Corps", th_symbole: "Symbole", th_vitesse: "Vitesse", th_retro: "R",
     th_n: "N°", th_cuspe: "Cuspe", th_aspect: "Aspect", th_type: "Type",
@@ -466,6 +520,16 @@ const I18N = {
     ts_fondations: "1. Foundations", ts_corps: "2. The 10 main bodies",
     ts_points: "3. Evolutionary points", ts_maisons: "4. The 12 houses",
     ts_aspects: "5. Aspects", ts_dominantes: "6. Dominants",
+    fil_rouge: "Planet = what · Sign = how · House = where · Aspect = how they interact",
+    dans_ton_theme: "In your chart",
+    donc: "So",
+    leg_degre: "Degree = position in sign (0-29.99°)",
+    leg_maison_num: "House = life sector (1-12)",
+    leg_vitesse: "Speed = movement/day (°/d)",
+    leg_retro: "℞ = retrograde (apparent reverse motion)",
+    leg_orbe: "Orb = gap to exact angle (smaller = stronger)",
+    leg_exact: "Exactness = closeness to perfect (0-100%)",
+    leg_score: "Score = weight per chosen method",
     th_point: "Point", th_signe: "Sign", th_degre: "Degree", th_maison: "House",
     th_corps: "Body", th_symbole: "Symbol", th_vitesse: "Speed", th_retro: "R",
     th_n: "No.", th_cuspe: "Cusp", th_aspect: "Aspect", th_type: "Type",
@@ -483,6 +547,17 @@ let DERNIER_RESULTAT = null;
 
 let GLOSSAIRE = {};          // { id: definition } — aplati, alimenté par /portrait
 let GLOSSAIRE_LABELS = {};   // { id: label } — utilisé par la légende et le tooltip titre
+
+let DIDACTIQUE = {};          // { id: {question, domaines, conclusion} } — aplati, alimenté par /portrait
+let SIGNES_SENS = {};         // { signe: sens } — alimenté par /portrait
+
+function chargerDidactique(d) {
+  DIDACTIQUE = (d && typeof d === "object") ? d : {};
+}
+
+function chargerSignesSens(d) {
+  SIGNES_SENS = (d && typeof d === "object") ? d : {};
+}
 
 function chargerGlossaire(groups) {
   GLOSSAIRE = {};
@@ -708,6 +783,8 @@ function afficherResultat(d) {
   const t = I18N[LANGUE];
   const p = d.portrait;
   chargerGlossaire(d.glossaire);
+  chargerDidactique(d.didactique);
+  chargerSignesSens(d.signes_sens);
   const id = d._identite || {};
   const nomComplet = [id.prenoms, id.nom].map(s => (s || "").trim()).filter(Boolean).join(" ");
   let dateTxt = "";
@@ -1169,6 +1246,45 @@ function normalizeFond(nom) {
 }
 
 // ── Tableaux ──────────────────────────────────────────────────────
+function cartePoint(symbole, nom, gid, valeur) {
+  const t = I18N[LANGUE];
+  const d = DIDACTIQUE[gid] || {};
+  const domaines = (d.domaines || []).map(x => `<li>${x}</li>`).join("");
+  const parts = [];
+  if (valeur.signe) parts.push(`<strong>${valeur.signe}</strong>`);
+  if (valeur.degre != null) parts.push(fmtDeg(valeur.degre));
+  if (valeur.maison) parts.push(`${t.th_maison} ${valeur.maison}`);
+  if (valeur.retro) parts.push("℞");
+  const sens = valeur.sens_signe ? `<div class="cp-sens">${valeur.sens_signe}</div>` : "";
+  const valeurHtml = parts.length
+    ? `<div class="cp-valeur">${t.dans_ton_theme} : ${parts.join(" · ")}</div>${sens}` : "";
+  const conclusion = d.conclusion
+    ? `<div class="cp-conclusion">${t.donc} : ${d.conclusion}</div>` : "";
+  return `<div class="carte-point">
+    <div class="cp-tete"><span class="cp-sym">${symbole || ""}</span>
+      <span class="cp-nom">${nom}</span>${icGlossaire(gid)}
+      ${d.question ? `<span class="cp-q">« ${d.question} »</span>` : ""}</div>
+    ${domaines ? `<ul class="cp-domaines">${domaines}</ul>` : ""}
+    ${valeurHtml}${conclusion}
+  </div>`;
+}
+
+function sectionIntro(gid) {
+  const t = I18N[LANGUE];
+  const d = DIDACTIQUE[gid] || {};
+  if (!d.question && !d.conclusion) return "";
+  const domaines = (d.domaines || []).join(" · ");
+  return `<div class="section-intro">${icGlossaire(gid)}
+    ${d.question ? `<div class="si-q">« ${d.question} »</div>` : ""}
+    ${domaines ? `<div class="si-domaines">${domaines}</div>` : ""}
+    ${d.conclusion ? `<div class="si-conclusion">${d.conclusion}</div>` : ""}</div>`;
+}
+
+function legendeChiffres(html) {
+  const t = I18N[LANGUE];
+  return `<div class="legende-chiffres">${html}</div>`;
+}
+
 function renderTableaux(tc) {
   const c = document.getElementById("tableaux-theme");
   c.innerHTML = "";
