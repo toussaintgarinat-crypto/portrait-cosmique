@@ -111,6 +111,7 @@
     transition: transform .15s;
   }
   details.theme-section-acc[open] > .theme-section .tsa-chevron { transform: rotate(90deg); }
+  .btn-toggle-tout { margin: 0 0 1rem; }
   .glossaire-pop {
     position: fixed; z-index: 999; max-width: 320px; min-width: 200px;
     background: var(--panel2); border: 1px solid var(--accent); color: var(--text);
@@ -502,6 +503,7 @@ const I18N = {
     pt_traditions: "Traditions natales", pt_fondations: "Les fondations",
     pt_corps: "Les 10 corps principaux", pt_points: "Les points évolutifs",
     pt_aspects: "Aspects structurels", pt_dominantes: "Les dominantes",
+    b_deplier_tout: "Tout déplier", b_replier_tout: "Tout replier",
     fil_rouge: "Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit",
     dans_ton_theme: "Dans ton thème",
     donc: "Donc",
@@ -578,6 +580,7 @@ const I18N = {
     pt_traditions: "Natal traditions", pt_fondations: "Foundations",
     pt_corps: "The 10 main bodies", pt_points: "Evolutionary points",
     pt_aspects: "Structural aspects", pt_dominantes: "Dominants",
+    b_deplier_tout: "Expand all", b_replier_tout: "Collapse all",
     fil_rouge: "Planet = what · Sign = how · House = where · Aspect = how they interact",
     dans_ton_theme: "In your chart",
     donc: "So",
@@ -633,6 +636,30 @@ function icGlossaire(id) {
   if (!id || !GLOSSAIRE[id]) return "";
   return ` <span class="glossaire-ic" data-glossaire="${id}" role="button"
     tabindex="0" aria-label="Définition : ${GLOSSAIRE_LABELS[id] || id}">ℹ️</span>`;
+}
+
+// ── Accordéon des sections (bouton tout déplier/replier) ──────────
+function boutonToggleTout(containerId) {
+  return `<button type="button" class="btn ghost btn-toggle-tout" id="btn-toggle-${containerId}"
+    onclick="toggleToutesSections('${containerId}')">${I18N[LANGUE].b_deplier_tout}</button>`;
+}
+function toggleToutesSections(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const details = c.querySelectorAll(":scope > details.theme-section-acc");
+  const tousOuverts = Array.from(details).every(d => d.open);
+  details.forEach(d => { d.open = !tousOuverts; });
+  majBoutonToggle(containerId);
+}
+function majBoutonToggle(containerId) {
+  const c = document.getElementById(containerId);
+  const btn = document.getElementById(`btn-toggle-${containerId}`);
+  if (!btn) return;
+  const details = c ? c.querySelectorAll(":scope > details.theme-section-acc") : [];
+  if (!details.length) { btn.style.display = "none"; return; }
+  btn.style.display = "";
+  const tousOuverts = Array.from(details).every(d => d.open);
+  btn.textContent = tousOuverts ? I18N[LANGUE].b_replier_tout : I18N[LANGUE].b_deplier_tout;
 }
 
 // ── Découpage theme-section de l'empreinte (onglet Portrait) ──────
@@ -1075,7 +1102,9 @@ function afficherResultat(d) {
   const sectionsEmpreinte = EMPREINTE_SECTIONS
     .map(sec => ({ sec, items: d.empreinte.filter(e => sectionDeEntree(e) === sec.key) }))
     .filter(x => x.items.length);
-  document.getElementById("r-empreinte").innerHTML = sectionsEmpreinte.map(({ sec, items }, idx) => {
+  document.getElementById("r-empreinte").innerHTML =
+    (sectionsEmpreinte.length ? boutonToggleTout("r-empreinte") : "") +
+    sectionsEmpreinte.map(({ sec, items }, idx) => {
     const ouverte = idx === 0 ? " open" : "";
     const header = `<summary class="theme-section"><span>${t[sec.titleKey]}</span>${sec.gid ? icGlossaire(sec.gid) : ""}<span class="tsa-chevron">▶</span></summary>`;
     const intro = sec.gid ? sectionIntro(sec.gid) : "";
@@ -1087,6 +1116,7 @@ function afficherResultat(d) {
       </div>`).join("");
     return `<details class="theme-section-acc" data-section="${sec.key}"${ouverte}>${header}${intro}${body}</details>`;
   }).join("");
+  majBoutonToggle("r-empreinte");
   rendreRecit(d);
   document.getElementById("r-legende").innerHTML = (d.glossaire || []).map(g => `
     <h3>${g.theme}</h3>
@@ -1348,6 +1378,12 @@ function afficherOnglet(nom) {
   });
 }
 document.querySelectorAll(".onglet").forEach(b => b.addEventListener("click", () => afficherOnglet(b.dataset.onglet)));
+document.getElementById("r-empreinte").addEventListener("toggle", (e) => {
+  if (e.target.classList && e.target.classList.contains("theme-section-acc")) majBoutonToggle("r-empreinte");
+}, true);
+document.getElementById("tableaux-theme").addEventListener("toggle", (e) => {
+  if (e.target.classList && e.target.classList.contains("theme-section-acc")) majBoutonToggle("tableaux-theme");
+}, true);
 
 async function rechargerTheme() {
   if (!_FICHE_COURANTE) return;
@@ -1564,7 +1600,7 @@ function renderTableaux(tc, { reset = false } = {}) {
     ouvertesAvant[d.dataset.section] = d.open;
   });
   const estOuverte = (key, idx) => reset ? idx === 0 : (key in ouvertesAvant ? ouvertesAvant[key] : false);
-  c.innerHTML = "";
+  c.innerHTML = boutonToggleTout("tableaux-theme");
   const t = I18N[LANGUE];
 
   // 1. Fondations (cartes didactiques)
@@ -1696,6 +1732,7 @@ function renderTableaux(tc, { reset = false } = {}) {
   }
   secDominantes.insertAdjacentHTML("beforeend", legendeChiffres(t.leg_score));
   secDominantes.appendChild(domCont);
+  majBoutonToggle("tableaux-theme");
 }
 
 function tableHTML(caption, headers, bodyRows, zebra) {
