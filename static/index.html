@@ -123,6 +123,20 @@
     .glossaire-ic, .glossaire-pop { display: none !important; }
   }
 
+  /* Légende PDF : cachée à l'écran, révélée à l'impression */
+  .legende { display: none; }
+  .legende h3 { margin: 18px 0 6px; font-size: .98rem; color: var(--accent2);
+    border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .legende dl { margin: 4px 0 10px; }
+  .legende dt { font-weight: 600; margin-top: 8px; }
+  .legende dd { margin: 2px 0 8px 0; color: var(--muted); font-size: .86rem;
+    line-height: 1.5; }
+
+  @media print {
+    .legende { display: block; }
+    .legende dd { color: #333; }
+  }
+
   /* ── Onglets des résultats ───────────────────────────────────────── */
   .resultats-onglets { display: flex; gap: .4rem; margin: 18px 0 14px; border-bottom: 1px solid var(--border); }
   .onglet { padding: .5rem 1rem; border: 1px solid var(--border); border-bottom: none;
@@ -409,6 +423,8 @@
         </div>
       </div>
     </section>
+
+    <section id="r-legende" class="legende"></section>
 
     <div class="btns" style="margin-top:18px;">
       <button type="button" class="btn secondary" onclick="telechargerHTML()" data-t="b_html">⬇️ Télécharger en HTML</button>
@@ -1031,6 +1047,10 @@ function afficherResultat(d) {
       <div class="sens">${e.sens}</div>
     </div>`).join("");
   rendreRecit(d);
+  document.getElementById("r-legende").innerHTML = (d.glossaire || []).map(g => `
+    <h3>${g.theme}</h3>
+    <dl>${(g.items || []).map(it => `<dt>${it.label}</dt><dd>${it.definition}</dd>`).join("")}</dl>
+  `).join("");
   document.getElementById("resultat").style.display = "block";
 }
 function rendreRecit(d) {
