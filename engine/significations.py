@@ -516,6 +516,171 @@ GLOSSAIRE_FR = {
         "Maison dominante — le domaine de vie le plus actif. "
         "Là où l'énergie du thème se concentre et se manifeste."
     ),
+    "theme_dominantes": (
+        "Dominantes — synthèse de ce qui ressort le plus du thème : élément, "
+        "mode, planète, signe et maison dominants. À lire comme la signature "
+        "globale qui se dégage de l'ensemble de la carte."
+    ),
+}
+
+# ══════════════════════════════════════════════════════════════════
+# Couche didactique — cartes pédagogiques de l'onglet « Carte astro
+# complète ». Chaque entrée = {question, domaines[], conclusion}.
+# La clé est un id glossaire EXISTANT (pas de nouvel id) ; on l'enrichit
+# d'une facette didactique. Soleil & Lune ont 2 facettes distinctes
+# (pilier = theme_fondation_*, corps = theme_corps_*), ce qui rend la
+# double présence §1/§2 explicite plutôt qu'un doublon.
+# ══════════════════════════════════════════════════════════════════
+DIDACTIQUE_FR = {
+    # ── §1 Fondations (facette pilier) ──
+    "theme_fondation_soleil": {
+        "question": "Qui suis-je ?",
+        "domaines": ["identité consciente", "volonté", "affirmation de soi",
+                     "ce que tu cherches à devenir", "manière de rayonner"],
+        "conclusion": "Soleil = ton centre",
+    },
+    "theme_fondation_lune": {
+        "question": "De quoi ai-je besoin intérieurement ?",
+        "domaines": ["émotions", "besoins affectifs", "sécurité",
+                     "réactions instinctives", "monde intérieur",
+                     "habitudes émotionnelles"],
+        "conclusion": "Lune = ton monde intérieur",
+    },
+    "theme_fondation_ascendant": {
+        "question": "Comment j'entre dans le monde ?",
+        "domaines": ["première impression", "comportement spontané",
+                     "manière d'aborder la vie", "façon dont tu te présentes",
+                     "réflexes face au monde"],
+        "conclusion": "Ascendant = ta porte d'entrée",
+    },
+    "theme_fondation_descendant": {
+        "question": "Qui est l'autre ?",
+        "domaines": ["couple", "partenaires", "associations",
+                     "relations importantes",
+                     "qualités recherchées chez l'autre"],
+        "conclusion": "Ascendant = moi, Descendant = l'autre",
+    },
+    "theme_fondation_milieu_du_ciel": {
+        "question": "Où vais-je dans le monde ?",
+        "domaines": ["vocation", "carrière", "ambition", "réputation",
+                     "réussite sociale", "contribution au monde"],
+        "conclusion": "MC = ce que tu cherches à accomplir",
+    },
+    "theme_fondation_fond_du_ciel": {
+        "question": "D'où est-ce que je viens ?",
+        "domaines": ["racines", "famille", "enfance", "foyer",
+                     "intimité", "sentiment d'appartenance", "monde privé"],
+        "conclusion": "IC = tes racines, MC = ton accomplissement",
+    },
+    # ── §2 10 corps (facette corps) ──
+    "theme_corps_soleil": {
+        "question": "Comment je rayonne au quotidien ?",
+        "domaines": ["vitalité", "identité consciente", "ce que tu exprimes"],
+        "conclusion": "Soleil = ton noyau",
+    },
+    "theme_corps_lune": {
+        "question": "Comment réagis-je instinctivement ?",
+        "domaines": ["instincts", "réactions", "besoins immédiats"],
+        "conclusion": "Lune = tes réflexes émotionnels",
+    },
+    "theme_corps_mercure": {
+        "question": "Comment je pense ?",
+        "domaines": ["pensée", "communication", "langage",
+                     "raisonnement", "apprentissage",
+                     "manière de traiter l'information"],
+        "conclusion": "Mercure = ton fonctionnement mental",
+    },
+    "theme_corps_vénus": {
+        "question": "Comment j'aime ?",
+        "domaines": ["amour", "attraction", "relations", "plaisir",
+                     "beauté", "valeurs", "rapport au confort"],
+        "conclusion": "Vénus = ce qui t'attire",
+    },
+    "theme_corps_mars": {
+        "question": "Comment j'agis ?",
+        "domaines": ["action", "désir", "volonté", "énergie",
+                     "affirmation", "confrontation"],
+        "conclusion": "Mars = comment tu passes de l'intention à l'acte",
+    },
+    "theme_corps_jupiter": {
+        "question": "Comment je grandis ?",
+        "domaines": ["expansion", "confiance", "opportunités",
+                     "philosophie", "connaissances", "transmission",
+                     "recherche de sens"],
+        "conclusion": "Jupiter = ce qui te permet de grandir",
+    },
+    "theme_corps_saturne": {
+        "question": "Où dois-je apprendre la maîtrise ?",
+        "domaines": ["responsabilités", "limites", "discipline",
+                     "structure", "contraintes", "maturité",
+                     "construction à long terme"],
+        "conclusion": "Saturne = ta zone de maîtrise à construire",
+    },
+    "theme_corps_uranus": {
+        "question": "Où ai-je besoin de liberté ?",
+        "domaines": ["innovation", "indépendance", "rupture",
+                     "changement", "originalité", "révolution"],
+        "conclusion": "Uranus = où tu sors du cadre",
+    },
+    "theme_corps_neptune": {
+        "question": "Où suis-je idéaliste ?",
+        "domaines": ["imagination", "intuition", "rêves",
+                     "spiritualité", "idéaux", "compassion",
+                     "dissolution des frontières"],
+        "conclusion": "Neptune = tes idéaux (et tes illusions)",
+    },
+    "theme_corps_pluton": {
+        "question": "Où dois-je me transformer ?",
+        "domaines": ["transformation profonde", "pouvoir", "crises",
+                     "destruction/reconstruction", "obsessions", "renaissance"],
+        "conclusion": "Pluton = ce qui meurt et renaît en toi",
+    },
+    # ── §3 Points évolutifs ──
+    "theme_point_noeud_nord": {
+        "question": "Vers quoi évoluer ?",
+        "domaines": ["direction de vie", "évolution à intégrer",
+                     "axe de croissance consciente"],
+        "conclusion": "Nœud Nord = ce vers quoi évoluer",
+    },
+    "theme_point_noeud_sud": {
+        "question": "Qu'est-ce qui est familier ?",
+        "domaines": ["acquis karmique", "zone de confort",
+                     "ce que tu maîtrises déjà"],
+        "conclusion": "Nœud Sud = ce que tu maîtrises mais dois quitter",
+    },
+    "theme_point_chiron": {
+        "question": "Quelle blessure peut devenir une force ?",
+        "domaines": ["blessure profonde", "compréhension acquise",
+                     "capacité de transmission"],
+        "conclusion": "Chiron = vulnérabilité → compréhension → transmission",
+    },
+    "theme_point_lilith": {
+        "question": "Où se trouve mon côté indomptable ?",
+        "domaines": ["indépendance", "désir refoulé", "refus des normes",
+                     "instinct sauvage", "ce qu'on ne veut pas soumettre"],
+        "conclusion": "Lilith = ta part d'ombre libre",
+    },
+    # ── §4/§5/§6 Intros de section ──
+    "theme_maisons": {
+        "question": "Où se joue cette énergie ?",
+        "domaines": ["douze secteurs de l'expérience de vie",
+                     "1=identité, 4=foyer, 7=relations, 10=carrière",
+                     "chaque secteur localise une énergie planétaire"],
+        "conclusion": "La planète dit QUOI, la maison dit OÙ",
+    },
+    "theme_aspects": {
+        "question": "Comment les parties communiquent entre elles ?",
+        "domaines": ["angles entre planètes", "harmonie (trigone, sextile)",
+                     "tension (carré, opposition)", "fusion (conjonction)"],
+        "conclusion": "Plus l'orbe est petit, plus l'aspect est exact",
+    },
+    "theme_dominantes": {
+        "question": "Qu'est-ce qui ressort le plus du thème ?",
+        "domaines": ["famille d'élément dominante", "style d'action (mode)",
+                     "planète structurante", "signe récurrent",
+                     "domaine de vie le plus actif"],
+        "conclusion": "Les dominantes = la synthèse qui se dégage",
+    },
 }
 
 GLOSSAIRE_EN = {
@@ -810,7 +975,9 @@ _GLOSSAIRE_LABELS = {
     "theme_dominante_element": "Élément dominant", "theme_dominante_mode": "Mode dominant",
     "theme_dominante_planete": "Planète dominante", "theme_dominante_signe": "Signe dominant",
     "theme_dominante_maison": "Maison dominante",
+    "theme_dominantes": "Dominantes",
 }
+
 _GLOSSAIRE_LABELS_EN = {
     "soleil": "Sun", "lune": "Moon", "ascendant": "Ascendant",
     "chinoise": "Chinese Astrology", "animal_heure": "Hour Animal",
@@ -870,7 +1037,7 @@ _GLOSSAIRE_THEMES = [
          "theme_aspect_conjonction", "theme_aspect_opposition", "theme_aspect_trigone",
          "theme_aspect_carre", "theme_aspect_sextile",
          "theme_dominante_element", "theme_dominante_mode", "theme_dominante_planete",
-         "theme_dominante_signe", "theme_dominante_maison"]),
+          "theme_dominante_signe", "theme_dominante_maison", "theme_dominantes"]),
 ]
 _GLOSSAIRE_THEMES_IDS = [i for *_, lst in _GLOSSAIRE_THEMES for i in lst]
 
@@ -1278,3 +1445,15 @@ def _expliquer_theme_complet(tc: dict, langue: str) -> list:
             id=f"theme_dominante_{categorie}"))
 
     return entries
+
+
+def didactique(langue: str = "fr") -> dict:
+    """Couche didactique pour l'onglet « Carte astro complète ».
+
+    Renvoie {id: {question, domaines, conclusion}}. Les ids sont stables
+    (jamais traduits) et existent tous dans GLOSSAIRE_FR/GLOSSAIRE_EN.
+    langue="fr" (défaut) ou "en". Retourne {} si la langue est absente
+    (l'UI retombe sur le glossaire seul)."""
+    table = DIDACTIQUE_EN if (langue or "fr").lower().startswith("en") else DIDACTIQUE_FR
+    return {k: {"question": v["question"], "domaines": list(v["domaines"]),
+                "conclusion": v["conclusion"]} for k, v in table.items()}

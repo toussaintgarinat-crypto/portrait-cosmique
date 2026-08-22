@@ -206,3 +206,44 @@ def test_expliquer_sans_theme_complet_compatible():
     trad = {"signe_solaire": {"nom": "Bélier"}}
     res = Z.expliquer(trad, "fr")
     assert isinstance(res, list)
+
+
+# ── Couche didactique (cartes pédagogiques) ───────────────────────
+_DIDACTIQUE_IDS_ATTENDUS = [
+    "theme_fondation_soleil", "theme_fondation_lune",
+    "theme_fondation_ascendant", "theme_fondation_descendant",
+    "theme_fondation_milieu_du_ciel", "theme_fondation_fond_du_ciel",
+    "theme_corps_soleil", "theme_corps_lune", "theme_corps_mercure",
+    "theme_corps_vénus", "theme_corps_mars", "theme_corps_jupiter",
+    "theme_corps_saturne", "theme_corps_uranus", "theme_corps_neptune",
+    "theme_corps_pluton",
+    "theme_point_noeud_nord", "theme_point_noeud_sud",
+    "theme_point_chiron", "theme_point_lilith",
+    "theme_maisons", "theme_aspects", "theme_dominantes",
+]
+
+
+def test_didactique_fr_structure():
+    d = Z.didactique("fr")
+    assert set(d.keys()) == set(_DIDACTIQUE_IDS_ATTENDUS), (
+        f"manquent={set(_DIDACTIQUE_IDS_ATTENDUS)-set(d.keys())}, "
+        f"en_trop={set(d.keys())-set(_DIDACTIQUE_IDS_ATTENDUS)}")
+    for k, e in d.items():
+        assert e.get("question"), f"{k} sans question"
+        assert isinstance(e.get("domaines"), list) and len(e["domaines"]) >= 3, (
+            f"{k} domaines invalides")
+        assert e.get("conclusion"), f"{k} sans conclusion"
+
+
+def test_didactique_ids_connus_du_glossaire():
+    """Toute clé didactique existe dans GLOSSAIRE_FR (garde-fou doublon)."""
+    for k in Z.DIDACTIQUE_FR:
+        assert Z.GLOSSAIRE_FR.get(k), f"clé didactique inconnue du glossaire FR : {k}"
+
+
+def test_didactique_distinction_soleil_lune_facettes():
+    """Soleil/Lune ont 2 facettes distinctes (pilier vs corps)."""
+    d = Z.didactique("fr")
+    assert d["theme_fondation_soleil"]["conclusion"] != d["theme_corps_soleil"]["conclusion"]
+    assert d["theme_fondation_lune"]["conclusion"] != d["theme_corps_lune"]["conclusion"]
+    assert d["theme_fondation_soleil"]["question"] != d["theme_corps_soleil"]["question"]
