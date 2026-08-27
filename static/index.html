@@ -213,6 +213,20 @@
   .dominante-barre .bar-fg { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
   .dominante-barre .dv { width: 34px; text-align: right; font-size: .76rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
+  /* ── Onglet « Poster » ────────────────────────────────────────────── */
+  .poster-options { display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; margin: 0 0 1.2rem; }
+  .poster-options fieldset { border: 1px solid var(--border); border-radius: 10px; padding: .6rem 1rem; background: var(--panel2); }
+  .poster-options legend { font-size: .8rem; color: var(--accent2); padding: 0 .4rem; }
+  .poster-options label { display: inline-flex; align-items: center; gap: .3rem; margin: .2rem .6rem .2rem 0;
+    font-size: .88rem; color: var(--text); cursor: pointer; }
+  .poster-options input[type="radio"], .poster-options input[type="checkbox"] { accent-color: var(--accent); width: auto; }
+  .poster-transparent { display: inline-flex; align-items: center; gap: .4rem; font-size: .88rem; color: var(--text); cursor: pointer; }
+  .poster-vide { text-align: center; }
+  .poster-cadre { display: flex; justify-content: center; }
+  #poster-svg { width: 100%; max-width: 560px; height: auto; background: var(--bg); border-radius: 12px;
+    border: 1px solid var(--border); }
+  #poster-svg text { font-family: -apple-system, "Segoe UI", sans-serif; fill: var(--text); pointer-events: none; }
+
   .fil-rouge {
     background: var(--panel2); border: 1px solid var(--accent);
     border-radius: 10px; padding: .6rem .9rem; margin-bottom: 1rem;
@@ -265,6 +279,7 @@
     .theme-tableaux th { cursor: default; }
     #resultat { display: block !important; }
     .btn-toggle-tout { display: none !important; }
+    #onglet-poster { display: none !important; }
   }
 
   .profils-barre {
@@ -387,6 +402,7 @@
     <div class="resultats-onglets" id="r-onglets">
       <button class="onglet onglet-actif" data-onglet="portrait" data-t="t_portrait">Portrait</button>
       <button class="onglet" data-onglet="theme" data-t="t_theme">Carte astro complète</button>
+      <button class="onglet" data-onglet="poster" data-t="t_poster">Poster</button>
     </div>
 
     <section id="onglet-portrait" class="onglet-contenu onglet-contenu-actif">
@@ -431,6 +447,30 @@
         <div class="theme-tableaux">
           <div id="tableaux-theme"></div>
         </div>
+      </div>
+    </section>
+
+    <section id="onglet-poster" class="onglet-contenu" hidden>
+      <div class="poster-options">
+        <fieldset>
+          <legend data-t="l_poster_type">Type de poster</legend>
+          <label><input type="radio" name="poster-type" value="ciel" checked> <span data-t="o_poster_ciel">Carte du ciel</span></label>
+          <label><input type="radio" name="poster-type" value="traditions"> <span data-t="o_poster_traditions">Traditions natales</span></label>
+        </fieldset>
+        <fieldset id="poster-densite-fieldset">
+          <legend data-t="l_poster_densite">Densité</legend>
+          <label><input type="radio" name="poster-densite" value="epure" checked> <span data-t="o_poster_epure">Épuré</span></label>
+          <label><input type="radio" name="poster-densite" value="complet"> <span data-t="o_poster_complet">Complet</span></label>
+        </fieldset>
+        <label class="poster-transparent">
+          <input type="checkbox" id="poster-fond-transparent">
+          <span data-t="l_poster_transparent">Fond transparent (t-shirt)</span>
+        </label>
+        <button type="button" class="btn" id="btn-export-poster" data-t="b_export_poster">⬇️ Télécharger en PNG</button>
+      </div>
+      <p id="poster-vide" class="sous poster-vide" data-t="poster_vide">Calcule d'abord un portrait pour voir le poster.</p>
+      <div class="poster-cadre" id="poster-cadre" style="display:none">
+        <svg id="poster-svg" viewBox="-260 -260 520 520" role="img" aria-label="Poster"></svg>
       </div>
     </section>
 
@@ -505,6 +545,12 @@ const I18N = {
     pt_corps: "Les 10 corps principaux", pt_points: "Les points évolutifs",
     pt_aspects: "Aspects structurels", pt_dominantes: "Les dominantes",
     b_deplier_tout: "Tout déplier", b_replier_tout: "Tout replier",
+    t_poster: "Poster",
+    l_poster_type: "Type de poster", o_poster_ciel: "Carte du ciel", o_poster_traditions: "Traditions natales",
+    l_poster_densite: "Densité", o_poster_epure: "Épuré", o_poster_complet: "Complet",
+    l_poster_transparent: "Fond transparent (t-shirt)",
+    b_export_poster: "⬇️ Télécharger en PNG",
+    poster_vide: "Calcule d'abord un portrait pour voir le poster.",
     fil_rouge: "Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit",
     dans_ton_theme: "Dans ton thème",
     donc: "Donc",
@@ -582,6 +628,12 @@ const I18N = {
     pt_corps: "The 10 main bodies", pt_points: "Evolutionary points",
     pt_aspects: "Structural aspects", pt_dominantes: "Dominants",
     b_deplier_tout: "Expand all", b_replier_tout: "Collapse all",
+    t_poster: "Poster",
+    l_poster_type: "Poster type", o_poster_ciel: "Sky chart", o_poster_traditions: "Natal traditions",
+    l_poster_densite: "Density", o_poster_epure: "Minimal", o_poster_complet: "Full",
+    l_poster_transparent: "Transparent background (t-shirt)",
+    b_export_poster: "⬇️ Download as PNG",
+    poster_vide: "Calculate a portrait first to see the poster.",
     fil_rouge: "Planet = what · Sign = how · House = where · Aspect = how they interact",
     dans_ton_theme: "In your chart",
     donc: "So",
@@ -1183,6 +1235,7 @@ async function calculerPortrait() {
       _ASPECT_TRI = { col: "exactitude", sens: -1 };
       renderRoue(_THEME_CACHE);
       renderTableaux(_THEME_CACHE, { reset: true });
+      renderPoster();
     } else {
       viderTheme();
     }
@@ -1276,6 +1329,7 @@ let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
     .onglet-contenu { display: block !important; }
     .resultats-onglets { display: none !important; }
     .btn-toggle-tout { display: none !important; }
+    #onglet-poster { display: none !important; }
   </style>
 <script>
 (function(){
@@ -1381,6 +1435,20 @@ function viderTheme() {
   if (leg) leg.innerHTML = "";
   const tb = document.getElementById("tableaux-theme");
   if (tb) tb.innerHTML = `<p class="sous" style="margin:.4rem 0">${I18N[LANGUE].theme_vide}</p>`;
+  renderPoster();
+}
+
+// ── Onglet « Poster » ─────────────────────────────────────────────
+function renderPoster() {
+  const vide = document.getElementById("poster-vide");
+  const cadre = document.getElementById("poster-cadre");
+  if (!DERNIER_RESULTAT || !_THEME_CACHE) {
+    vide.style.display = "";
+    cadre.style.display = "none";
+    return;
+  }
+  vide.style.display = "none";
+  cadre.style.display = "";
 }
 
 function afficherOnglet(nom) {
@@ -1424,12 +1492,20 @@ async function rechargerTheme() {
     _ASPECT_FILTRE = "tous";
     renderRoue(_THEME_CACHE);
     renderTableaux(_THEME_CACHE);
+    renderPoster();
   } catch (e) {
     if (tb) tb.innerHTML = `<p class="sous" style="color:var(--danger);margin:.4rem 0">${I18N[LANGUE].theme_erreur}</p>`;
   }
 }
 document.querySelectorAll("input[name='systeme-maisons'], input[name='methode-dominantes']").forEach(input => {
   input.addEventListener("change", rechargerTheme);
+});
+document.querySelectorAll("input[name='poster-type'], input[name='poster-densite']").forEach(input => {
+  input.addEventListener("change", () => {
+    const type = document.querySelector("input[name='poster-type']:checked").value;
+    document.getElementById("poster-densite-fieldset").style.display = type === "ciel" ? "" : "none";
+    renderPoster();
+  });
 });
 
 // ── Géométrie de la roue ──────────────────────────────────────────
