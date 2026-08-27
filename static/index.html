@@ -1694,7 +1694,7 @@ function exportPosterPNG() {
   const posterRulesCss = Array.from(document.styleSheets)
     .filter(s => !s.href)
     .flatMap(s => Array.from(s.cssRules))
-    .filter(r => r.selectorText && r.selectorText.startsWith("#poster-svg"))
+    .filter(r => r.selectorText && r.selectorText.startsWith("#poster-svg "))
     .map(r => r.cssText)
     .join("\n");
   const styleEl = elNS(ns, "style", {}, varsCss + posterRulesCss);
