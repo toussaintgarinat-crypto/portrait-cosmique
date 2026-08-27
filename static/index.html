@@ -238,6 +238,11 @@
   #poster-svg .poster-nom { font-size: 20px; font-weight: 700; letter-spacing: .12em; fill: var(--text); }
   #poster-svg .poster-regle { stroke: var(--border); stroke-width: 1; }
   #poster-svg .poster-sous { font-size: 11px; fill: var(--muted); letter-spacing: .03em; }
+  #poster-svg .poster-trad-rect { fill: var(--panel2); stroke: var(--border); stroke-width: 1; }
+  #poster-svg .poster-trad-sym { font-size: 20px; fill: var(--accent2); }
+  #poster-svg .poster-trad-label { font-size: 8px; fill: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+  #poster-svg .poster-trad-valeur { font-size: 12px; font-weight: 700; fill: var(--text); }
+  #poster-svg .poster-trad-sous { font-size: 8px; fill: var(--muted); }
 
   .fil-rouge {
     background: var(--panel2); border: 1px solid var(--accent);
@@ -563,6 +568,14 @@ const I18N = {
     l_poster_transparent: "Fond transparent (t-shirt)",
     b_export_poster: "⬇️ Télécharger en PNG",
     poster_vide: "Calcule d'abord un portrait pour voir le poster.",
+    pos_signe_solaire: "Signe solaire", pos_signe_lunaire: "Signe lunaire",
+    pos_signe_chinois: "Signe chinois", pos_animal_heure: "Animal de l'heure",
+    pos_chemin_de_vie: "Chemin de vie", pos_numerologie_nom: "Numérologie du nom",
+    pos_egyptien: "Divinité égyptienne", pos_celte: "Arbre celte",
+    pos_amerindien: "Totem amérindien", pos_maya: "Tzolkin maya",
+    pos_pierre_du_mois: "Pierre du mois", pos_nakshatra: "Nakshatra védique",
+    pos_vedique: "Rashi védique",
+    pos_ame: "Âme", pos_personnalite: "Personnalité", pos_tonalite: "Tonalité", pos_pada: "Pada",
     fil_rouge: "Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit",
     dans_ton_theme: "Dans ton thème",
     donc: "Donc",
@@ -646,6 +659,14 @@ const I18N = {
     l_poster_transparent: "Transparent background (t-shirt)",
     b_export_poster: "⬇️ Download as PNG",
     poster_vide: "Calculate a portrait first to see the poster.",
+    pos_signe_solaire: "Sun sign", pos_signe_lunaire: "Moon sign",
+    pos_signe_chinois: "Chinese sign", pos_animal_heure: "Hour animal",
+    pos_chemin_de_vie: "Life path", pos_numerologie_nom: "Name numerology",
+    pos_egyptien: "Egyptian deity", pos_celte: "Celtic tree",
+    pos_amerindien: "Native American totem", pos_maya: "Maya tzolkin",
+    pos_pierre_du_mois: "Birthstone", pos_nakshatra: "Vedic nakshatra",
+    pos_vedique: "Vedic rashi",
+    pos_ame: "Soul", pos_personnalite: "Personality", pos_tonalite: "Tone", pos_pada: "Pada",
     fil_rouge: "Planet = what · Sign = how · House = where · Aspect = how they interact",
     dans_ton_theme: "In your chart",
     donc: "So",
@@ -1562,6 +1583,73 @@ function renderPosterCiel(tc, identite, densite) {
   posterBlocIdentite(svg, ns, identite, 205);
 }
 
+const TRADITIONS_POSTER_CHAMPS = [
+  { cle: "signe_solaire", labelKey: "pos_signe_solaire",
+    symbole: v => v.symbole, valeur: v => v.nom, sous: v => v.element || "" },
+  { cle: "signe_lunaire", labelKey: "pos_signe_lunaire",
+    symbole: v => v.symbole, valeur: v => v.signe, sous: () => "" },
+  { cle: "signe_chinois", labelKey: "pos_signe_chinois",
+    symbole: v => v.emoji, valeur: v => v.animal, sous: v => [v.element, v.polarite].filter(Boolean).join(" · ") },
+  { cle: "animal_heure", labelKey: "pos_animal_heure",
+    symbole: v => v.emoji, valeur: v => v.animal, sous: v => v.tranche || "" },
+  { cle: "chemin_de_vie", labelKey: "pos_chemin_de_vie",
+    symbole: () => "", valeur: v => String(v), sous: () => "" },
+  { cle: "numerologie_nom", labelKey: "pos_numerologie_nom",
+    symbole: () => "", valeur: v => String(v.expression),
+    sous: v => `${I18N[LANGUE].pos_ame} ${v.ame} · ${I18N[LANGUE].pos_personnalite} ${v.personnalite}` },
+  { cle: "egyptien", labelKey: "pos_egyptien", symbole: () => "", valeur: v => String(v), sous: () => "" },
+  { cle: "celte", labelKey: "pos_celte", symbole: () => "", valeur: v => String(v), sous: () => "" },
+  { cle: "amerindien", labelKey: "pos_amerindien", symbole: () => "", valeur: v => String(v), sous: () => "" },
+  { cle: "maya", labelKey: "pos_maya",
+    symbole: () => "", valeur: v => v.glyphe, sous: v => `${I18N[LANGUE].pos_tonalite} ${v.tonalite}` },
+  { cle: "pierre_du_mois", labelKey: "pos_pierre_du_mois", symbole: () => "", valeur: v => String(v), sous: () => "" },
+  { cle: "nakshatra", labelKey: "pos_nakshatra",
+    symbole: () => "", valeur: v => v.nakshatra, sous: v => `${I18N[LANGUE].pos_pada} ${v.pada}` },
+  { cle: "vedique", labelKey: "pos_vedique", symbole: v => v.symbole, valeur: v => v.rashi, sous: () => "" },
+];
+
+function renderPosterTraditions(traditions, identite) {
+  const svg = document.getElementById("poster-svg");
+  svg.innerHTML = "";
+  const ns = "http://www.w3.org/2000/svg";
+  const t = I18N[LANGUE];
+  svg.setAttribute("aria-label", `Poster traditions natales de ${(identite.prenoms || "").trim() || "—"}`);
+
+  const defs = elNS(ns, "defs");
+  const grad = elNS(ns, "radialGradient", { id: "poster-halo", cx: "50%", cy: "50%", r: "50%" });
+  grad.appendChild(elNS(ns, "stop", { offset: "0%", "stop-color": "#3a2a6b", "stop-opacity": "0.4" }));
+  grad.appendChild(elNS(ns, "stop", { offset: "100%", "stop-color": "#3a2a6b", "stop-opacity": "0" }));
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+  svg.appendChild(elNS(ns, "circle", { class: "poster-halo", cx: 0, cy: -20, r: 250, fill: "url(#poster-halo)" }));
+
+  const cartes = TRADITIONS_POSTER_CHAMPS
+    .map(champ => ({ champ, val: (traditions || {})[champ.cle] }))
+    .filter(({ val }) => val != null && val !== "");
+
+  const cols = cartes.length > 9 ? 4 : 3;
+  const cw = 470 / cols, ch = 92;
+  const rows = Math.ceil(cartes.length / cols) || 1;
+  const gridW = cw * cols, gridH = ch * rows;
+  const startX = -gridW / 2, startY = -gridH / 2 - 30;
+
+  cartes.forEach(({ champ, val }, idx) => {
+    const col = idx % cols, row = Math.floor(idx / cols);
+    const x = startX + col * cw, y = startY + row * ch;
+    const card = elNS(ns, "g", { class: "poster-trad-carte", transform: `translate(${x.toFixed(1)},${y.toFixed(1)})` });
+    card.appendChild(elNS(ns, "rect", { x: 4, y: 4, width: cw - 8, height: ch - 8, rx: 8, class: "poster-trad-rect" }));
+    const sym = champ.symbole(val);
+    if (sym) card.appendChild(elNS(ns, "text", { class: "poster-trad-sym", x: cw / 2, y: 30, "text-anchor": "middle" }, sym));
+    card.appendChild(elNS(ns, "text", { class: "poster-trad-label", x: cw / 2, y: sym ? 46 : 26, "text-anchor": "middle" }, t[champ.labelKey]));
+    card.appendChild(elNS(ns, "text", { class: "poster-trad-valeur", x: cw / 2, y: sym ? 64 : 46, "text-anchor": "middle" }, String(champ.valeur(val))));
+    const sous = champ.sous(val);
+    if (sous) card.appendChild(elNS(ns, "text", { class: "poster-trad-sous", x: cw / 2, y: sym ? 78 : 60, "text-anchor": "middle" }, sous));
+    svg.appendChild(card);
+  });
+
+  posterBlocIdentite(svg, ns, identite, startY + gridH + 45);
+}
+
 // ── Onglet « Poster » ─────────────────────────────────────────────
 function renderPoster() {
   const vide = document.getElementById("poster-vide");
@@ -1578,6 +1666,8 @@ function renderPoster() {
   if (type === "ciel") {
     const densite = document.querySelector("input[name='poster-densite']:checked").value;
     renderPosterCiel(_THEME_CACHE, identite, densite);
+  } else if (type === "traditions") {
+    renderPosterTraditions(DERNIER_RESULTAT.traditions || {}, identite);
   }
 }
 
