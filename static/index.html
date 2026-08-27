@@ -1476,10 +1476,11 @@ function renderPosterCiel(tc, identite, densite) {
   const ns = "http://www.w3.org/2000/svg";
   svg.setAttribute("aria-label", `Poster carte du ciel de ${(identite.prenoms || "").trim() || "—"}, mode ${densite}`);
 
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
   const defs = elNS(ns, "defs");
   const grad = elNS(ns, "radialGradient", { id: "poster-halo", cx: "50%", cy: "50%", r: "50%" });
-  grad.appendChild(elNS(ns, "stop", { offset: "0%", "stop-color": "#3a2a6b", "stop-opacity": "0.55" }));
-  grad.appendChild(elNS(ns, "stop", { offset: "100%", "stop-color": "#3a2a6b", "stop-opacity": "0" }));
+  grad.appendChild(elNS(ns, "stop", { offset: "0%", "stop-color": accentColor, "stop-opacity": "0.55" }));
+  grad.appendChild(elNS(ns, "stop", { offset: "100%", "stop-color": accentColor, "stop-opacity": "0" }));
   defs.appendChild(grad);
   svg.appendChild(defs);
 
