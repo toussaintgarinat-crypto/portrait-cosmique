@@ -226,6 +226,18 @@
   #poster-svg { width: 100%; max-width: 560px; height: auto; background: var(--bg); border-radius: 12px;
     border: 1px solid var(--border); }
   #poster-svg text { font-family: -apple-system, "Segoe UI", sans-serif; fill: var(--text); pointer-events: none; }
+  #poster-svg .poster-zodiac-sector { fill: var(--panel); stroke: var(--border); stroke-width: .4; }
+  #poster-svg .poster-zodiac-sector.alt { fill: #1a1f38; }
+  #poster-svg .poster-zodiac-sym { font-size: 15px; fill: var(--accent2); }
+  #poster-svg .poster-ring { fill: none; stroke: var(--border); stroke-width: .4; }
+  #poster-svg .poster-house-line { stroke: var(--border); stroke-width: .3; }
+  #poster-svg .poster-angle-line { stroke: var(--accent); stroke-width: .9; }
+  #poster-svg .poster-house-num { font-size: 9px; fill: var(--muted); }
+  #poster-svg .poster-planet-glyph { font-size: 15px; fill: var(--text); }
+  #poster-svg .poster-aspect-line { stroke-linecap: round; }
+  #poster-svg .poster-nom { font-size: 20px; font-weight: 700; letter-spacing: .12em; fill: var(--text); }
+  #poster-svg .poster-regle { stroke: var(--border); stroke-width: 1; }
+  #poster-svg .poster-sous { font-size: 11px; fill: var(--muted); letter-spacing: .03em; }
 
   .fil-rouge {
     background: var(--panel2); border: 1px solid var(--accent);
@@ -1438,6 +1450,117 @@ function viderTheme() {
   renderPoster();
 }
 
+function posterBlocIdentite(svg, ns, identite, yStart) {
+  const nomComplet = [identite.prenoms, identite.nom].map(s => (s || "").trim()).filter(Boolean).join(" ").toUpperCase();
+  let y = yStart;
+  if (nomComplet) {
+    svg.appendChild(elNS(ns, "text", { class: "poster-nom", x: 0, y, "text-anchor": "middle" }, nomComplet));
+    y += 24;
+  }
+  const parts = [];
+  if (identite.date_naissance) {
+    const d = new Date(identite.date_naissance + "T00:00:00");
+    if (!isNaN(d)) parts.push(d.toLocaleDateString(LANGUE === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "long", year: "numeric" }));
+  }
+  if (identite.heure_naissance) parts.push(identite.heure_naissance);
+  if (identite.ville) parts.push(identite.ville);
+  if (parts.length) {
+    svg.appendChild(elNS(ns, "line", { class: "poster-regle", x1: -50, y1: y, x2: 50, y2: y }));
+    svg.appendChild(elNS(ns, "text", { class: "poster-sous", x: 0, y: y + 20, "text-anchor": "middle" }, parts.join(" · ")));
+  }
+}
+
+function renderPosterCiel(tc, identite, densite) {
+  const svg = document.getElementById("poster-svg");
+  svg.innerHTML = "";
+  const ns = "http://www.w3.org/2000/svg";
+  svg.setAttribute("aria-label", `Poster carte du ciel de ${(identite.prenoms || "").trim() || "—"}, mode ${densite}`);
+
+  const defs = elNS(ns, "defs");
+  const grad = elNS(ns, "radialGradient", { id: "poster-halo", cx: "50%", cy: "50%", r: "50%" });
+  grad.appendChild(elNS(ns, "stop", { offset: "0%", "stop-color": "#3a2a6b", "stop-opacity": "0.55" }));
+  grad.appendChild(elNS(ns, "stop", { offset: "100%", "stop-color": "#3a2a6b", "stop-opacity": "0" }));
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+
+  const complet = densite === "complet";
+  const R_EXT = 205, R_ZOD_INT = 178;
+  const R_MAI_INT = complet ? 150 : null;
+  const R_PLANETE = complet ? 100 : 130;
+  const R_ASPECT = complet ? 108 : 120;
+
+  let ascOffset = 0;
+  if (tc.fondations && tc.fondations.ascendant) ascOffset = tc.fondations.ascendant.longitude || 0;
+
+  const g = elNS(ns, "g", { class: "poster-roue-groupe", transform: "translate(0,-30)" });
+  svg.appendChild(g);
+  g.appendChild(elNS(ns, "circle", { class: "poster-halo", cx: 0, cy: 0, r: R_EXT + 30, fill: "url(#poster-halo)" }));
+
+  for (let i = 0; i < 12; i++) {
+    const start = i * 30, end = (i + 1) * 30;
+    const [x1, y1] = lonToXY(start, R_EXT, ascOffset);
+    const [x2, y2] = lonToXY(end, R_EXT, ascOffset);
+    const [xi1, yi1] = lonToXY(start, R_ZOD_INT, ascOffset);
+    const [xi2, yi2] = lonToXY(end, R_ZOD_INT, ascOffset);
+    const d = `M ${x1.toFixed(2)} ${y1.toFixed(2)} ${svgArc(x1, y1, R_EXT, x2, y2, 0)} L ${xi2.toFixed(2)} ${yi2.toFixed(2)} ${svgArc(xi2, yi2, R_ZOD_INT, xi1, yi1, 1)} Z`;
+    g.appendChild(elNS(ns, "path", { class: "poster-zodiac-sector" + (i % 2 ? " alt" : ""), d }));
+    const mid = start + 15;
+    const [sx, sy] = lonToXY(mid, (R_EXT + R_ZOD_INT) / 2, ascOffset);
+    g.appendChild(elNS(ns, "text", { class: "poster-zodiac-sym", x: sx.toFixed(2), y: sy.toFixed(2), "text-anchor": "middle", "dominant-baseline": "central" }, SYMBOLES_ZODIAQUE[i]));
+  }
+
+  g.appendChild(elNS(ns, "circle", { class: "poster-ring", cx: 0, cy: 0, r: R_ZOD_INT }));
+
+  if (complet) {
+    g.appendChild(elNS(ns, "circle", { class: "poster-ring", cx: 0, cy: 0, r: R_MAI_INT }));
+    for (const m of (tc.maisons || [])) {
+      const lon = m.longitude_cuspe != null ? m.longitude_cuspe : m.cuspe;
+      const [mx1, my1] = lonToXY(lon, R_ZOD_INT, ascOffset);
+      const [mx2, my2] = lonToXY(lon, R_MAI_INT, ascOffset);
+      const isAngle = [1, 4, 7, 10].includes(m.maison);
+      g.appendChild(elNS(ns, "line", { class: isAngle ? "poster-angle-line" : "poster-house-line", x1: mx1.toFixed(2), y1: my1.toFixed(2), x2: mx2.toFixed(2), y2: my2.toFixed(2) }));
+      const [nx, ny] = lonToXY(lon + (m.maison <= 6 ? 6 : -6), (R_ZOD_INT + R_MAI_INT) / 2, ascOffset);
+      g.appendChild(elNS(ns, "text", { class: "poster-house-num", x: nx.toFixed(2), y: ny.toFixed(2), "text-anchor": "middle", "dominant-baseline": "central" }, String(m.maison)));
+    }
+  }
+
+  g.appendChild(elNS(ns, "circle", { class: "poster-ring", cx: 0, cy: 0, r: R_PLANETE }));
+
+  const aspectsSrc = (tc.aspects || []).filter(a => complet || a.type === "majeur");
+  const posForAspect = (nom) => {
+    const p = (tc.dix_corps || {})[nom] || (tc.points_evolutifs || {})[normalizePE(nom)] || (tc.fondations || {})[normalizeFond(nom)];
+    return p ? p.longitude : null;
+  };
+  for (const a of aspectsSrc) {
+    const la = posForAspect(a.point_a), lb = posForAspect(a.point_b);
+    if (la == null || lb == null) continue;
+    const [ax1, ay1] = lonToXY(la, R_ASPECT, ascOffset);
+    const [ax2, ay2] = lonToXY(lb, R_ASPECT, ascOffset);
+    const couleur = COULEURS_ASPECTS[a.aspect] || "#94a3b8";
+    const epaisseur = Math.max(0.5, 1.6 * (a.exactitude || 0));
+    g.appendChild(elNS(ns, "line", { class: "poster-aspect-line", x1: ax1.toFixed(2), y1: ay1.toFixed(2), x2: ax2.toFixed(2), y2: ay2.toFixed(2), stroke: couleur, "stroke-width": epaisseur.toFixed(2), opacity: (0.3 + 0.55 * (a.exactitude || 0)).toFixed(2) }));
+  }
+
+  const planetes = [];
+  for (const [nom, info] of Object.entries(tc.dix_corps || {})) planetes.push({ nom, info });
+  for (const [nom, info] of Object.entries(tc.points_evolutifs || {})) planetes.push({ nom: info.corps || nom, info });
+  if (complet) {
+    for (const [nom, info] of Object.entries(tc.fondations || {})) {
+      if (["ascendant", "descendant", "milieu_du_ciel", "fond_du_ciel"].includes(nom)) {
+        planetes.push({ nom: nom === "milieu_du_ciel" ? "Milieu du Ciel" : nom === "fond_du_ciel" ? "Fond du Ciel" : nom.charAt(0).toUpperCase() + nom.slice(1), info });
+      }
+    }
+  }
+  for (const p of planetes) {
+    if (p.info.longitude == null) continue;
+    const [px, py] = lonToXY(p.info.longitude, R_PLANETE - 20, ascOffset);
+    const glyph = SYMBOLES_POINTS[p.nom] || p.nom.slice(0, 3);
+    g.appendChild(elNS(ns, "text", { class: "poster-planet-glyph", x: px.toFixed(2), y: py.toFixed(2), "text-anchor": "middle", "dominant-baseline": "central" }, glyph));
+  }
+
+  posterBlocIdentite(svg, ns, identite, 205);
+}
+
 // ── Onglet « Poster » ─────────────────────────────────────────────
 function renderPoster() {
   const vide = document.getElementById("poster-vide");
@@ -1449,6 +1572,12 @@ function renderPoster() {
   }
   vide.style.display = "none";
   cadre.style.display = "";
+  const type = document.querySelector("input[name='poster-type']:checked").value;
+  const identite = DERNIER_RESULTAT._identite || {};
+  if (type === "ciel") {
+    const densite = document.querySelector("input[name='poster-densite']:checked").value;
+    renderPosterCiel(_THEME_CACHE, identite, densite);
+  }
 }
 
 function afficherOnglet(nom) {
