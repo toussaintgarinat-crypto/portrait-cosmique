@@ -1672,6 +1672,51 @@ function renderPoster() {
   }
 }
 
+function slugPourFichier(s) {
+  return (s || "").toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "portrait-cosmique";
+}
+
+function exportPosterPNG() {
+  const svgEl = document.getElementById("poster-svg");
+  if (!svgEl.childElementCount) return;
+  const transparent = document.getElementById("poster-fond-transparent").checked;
+  const clone = svgEl.cloneNode(true);
+  if (transparent) {
+    clone.querySelectorAll(".poster-halo").forEach(el => el.remove());
+  }
+  const taille = 3000;
+  clone.setAttribute("width", String(taille));
+  clone.setAttribute("height", String(taille));
+  const xml = new XMLSerializer().serializeToString(clone);
+  const svgBlob = new Blob([xml], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = taille;
+    canvas.height = taille;
+    const ctx = canvas.getContext("2d");
+    if (!transparent) {
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#0f1220";
+      ctx.fillRect(0, 0, taille, taille);
+    }
+    ctx.drawImage(img, 0, 0, taille, taille);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(blob => {
+      const type = document.querySelector("input[name='poster-type']:checked").value;
+      const prefix = type === "ciel" ? "carte-du-ciel" : "traditions-natales";
+      const prenom = slugPourFichier((DERNIER_RESULTAT._identite || {}).prenoms);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${prefix}-${prenom}.png`;
+      a.click();
+    }, "image/png");
+  };
+  img.src = url;
+}
+document.getElementById("btn-export-poster").addEventListener("click", exportPosterPNG);
+
 function afficherOnglet(nom) {
   document.querySelectorAll(".onglet").forEach(b => b.classList.toggle("onglet-actif", b.dataset.onglet === nom));
   document.querySelectorAll(".onglet-contenu").forEach(s => {
