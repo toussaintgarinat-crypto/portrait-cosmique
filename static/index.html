@@ -1685,6 +1685,32 @@ function exportPosterPNG() {
   if (transparent) {
     clone.querySelectorAll(".poster-halo").forEach(el => el.remove());
   }
+  const ns = "http://www.w3.org/2000/svg";
+  const cssVars = ["--panel", "--panel2", "--border", "--text", "--muted", "--accent", "--accent2"];
+  const cs = getComputedStyle(document.documentElement);
+  const varsCss = ":root{" + cssVars.map(v => `${v}:${cs.getPropertyValue(v).trim()}`).join(";") + "}";
+  const posterRulesCss = `
+    #poster-svg text { font-family: -apple-system, "Segoe UI", sans-serif; fill: var(--text); }
+    #poster-svg .poster-zodiac-sector { fill: var(--panel); stroke: var(--border); stroke-width: .4; }
+    #poster-svg .poster-zodiac-sector.alt { fill: #1a1f38; }
+    #poster-svg .poster-zodiac-sym { font-size: 15px; fill: var(--accent2); }
+    #poster-svg .poster-ring { fill: none; stroke: var(--border); stroke-width: .4; }
+    #poster-svg .poster-house-line { stroke: var(--border); stroke-width: .3; }
+    #poster-svg .poster-angle-line { stroke: var(--accent); stroke-width: .9; }
+    #poster-svg .poster-house-num { font-size: 9px; fill: var(--muted); }
+    #poster-svg .poster-planet-glyph { font-size: 15px; fill: var(--text); }
+    #poster-svg .poster-aspect-line { stroke-linecap: round; }
+    #poster-svg .poster-nom { font-size: 20px; font-weight: 700; letter-spacing: .12em; fill: var(--text); }
+    #poster-svg .poster-regle { stroke: var(--border); stroke-width: 1; }
+    #poster-svg .poster-sous { font-size: 11px; fill: var(--muted); letter-spacing: .03em; }
+    #poster-svg .poster-trad-rect { fill: var(--panel2); stroke: var(--border); stroke-width: 1; }
+    #poster-svg .poster-trad-sym { font-size: 20px; fill: var(--accent2); }
+    #poster-svg .poster-trad-label { font-size: 8px; fill: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+    #poster-svg .poster-trad-valeur { font-size: 12px; font-weight: 700; fill: var(--text); }
+    #poster-svg .poster-trad-sous { font-size: 8px; fill: var(--muted); }
+  `;
+  const styleEl = elNS(ns, "style", {}, varsCss + posterRulesCss);
+  clone.insertBefore(styleEl, clone.firstChild);
   const taille = 3000;
   clone.setAttribute("width", String(taille));
   clone.setAttribute("height", String(taille));
