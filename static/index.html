@@ -1615,10 +1615,11 @@ function renderPosterTraditions(traditions, identite) {
   const t = I18N[LANGUE];
   svg.setAttribute("aria-label", `Poster traditions natales de ${(identite.prenoms || "").trim() || "—"}`);
 
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
   const defs = elNS(ns, "defs");
   const grad = elNS(ns, "radialGradient", { id: "poster-halo", cx: "50%", cy: "50%", r: "50%" });
-  grad.appendChild(elNS(ns, "stop", { offset: "0%", "stop-color": "#3a2a6b", "stop-opacity": "0.4" }));
-  grad.appendChild(elNS(ns, "stop", { offset: "100%", "stop-color": "#3a2a6b", "stop-opacity": "0" }));
+  grad.appendChild(elNS(ns, "stop", { offset: "0%", "stop-color": accentColor, "stop-opacity": "0.4" }));
+  grad.appendChild(elNS(ns, "stop", { offset: "100%", "stop-color": accentColor, "stop-opacity": "0" }));
   defs.appendChild(grad);
   svg.appendChild(defs);
   svg.appendChild(elNS(ns, "circle", { class: "poster-halo", cx: 0, cy: -20, r: 250, fill: "url(#poster-halo)" }));
