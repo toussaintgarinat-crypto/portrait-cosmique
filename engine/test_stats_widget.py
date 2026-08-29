@@ -41,4 +41,8 @@ def test_url_maliceuse_ne_casse_pas_le_script(monkeypatch):
     monkeypatch.delenv("BOUTIQUE_URL", raising=False)
     html = client.get("/").text
     assert '__STATS_API_URL__' not in html
-    assert '\\"' in html  # le guillemet est échappé, pas brut
+    # Le guillemet de l'URL malicieuse doit être échappé par json.dumps (a\"b),
+    # et la forme brute a"b (sans backslash) ne doit JAMAIS apparaître : sinon
+    # une régression vers une concaténation naïve casserait le littéral JS.
+    assert 'a\\"b' in html   # forme échappée présente
+    assert 'a"b' not in html  # forme brute absente
