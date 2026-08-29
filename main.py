@@ -9,6 +9,7 @@ avec repli honnête sur le récit déterministe sinon.
 Stateless : rien n'est stocké, pas de compte, pas d'auth par défaut — le produit est
 pensé pour être public (un formulaire, une réponse).
 """
+import json
 import os
 import sys
 from pathlib import Path
@@ -63,7 +64,13 @@ class LectureApprofondieBody(BaseModel):
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def accueil():
-    return Path(__file__).parent.joinpath("static/index.html").read_text(encoding="utf-8")
+    html = Path(__file__).parent.joinpath("static/index.html").read_text(encoding="utf-8")
+    # Widget « Guerre Cosmique » (stats boutique) : opt-in via l'environnement.
+    # json.dumps produit un littéral JS sûr (guillemets échappés) — l'URL vient de
+    # l'opérateur de l'instance, jamais de l'utilisateur.
+    return (html
+            .replace("__STATS_API_URL__", json.dumps(os.getenv("STATS_API_URL", "")))
+            .replace("__BOUTIQUE_URL__", json.dumps(os.getenv("BOUTIQUE_URL", ""))))
 
 
 @app.get("/sante", tags=["système"])

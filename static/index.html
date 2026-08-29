@@ -311,6 +311,23 @@
     border-radius: 8px; cursor: pointer;
   }
   .profils-barre .btn.ghost { margin: 0; padding: 6px 10px; font-size: .82rem; }
+    .guerre-cosmique { margin-top: 26px; padding: 18px; border-radius: 14px;
+      background: #171b2e; border: 1px solid #2b3050; text-align: center; }
+    .gc-titre { margin: 0 0 4px; font-size: 1.15rem; color: #eef0fb; }
+    .gc-sous { margin: 0 0 14px; font-size: 0.85rem; color: #9aa1c4; }
+    .gc-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 640px) { .gc-grille { grid-template-columns: 1fr; } }
+    .gc-bloc { padding: 10px; border-radius: 10px; background: #1e2338; }
+    .gc-bloc h3 { margin: 0 0 8px; font-size: 0.8rem; color: #9aa1c4;
+      text-transform: uppercase; letter-spacing: 0.5px; }
+    .gc-ligne { display: flex; justify-content: space-between; font-size: 0.9rem;
+      color: #eef0fb; padding: 3px 0; }
+    .gc-barre { height: 8px; border-radius: 4px; background: #0f1220; overflow: hidden;
+      margin: 6px 0 10px; display: flex; }
+    .gc-barre span { height: 100%; }
+    .gc-barre .gc-a { background: #b98cf7; }
+    .gc-barre .gc-b { background: #6ee7c3; }
+    .gc-total { margin: 12px 0; font-size: 0.85rem; color: #9aa1c4; }
 </style>
 </head>
 <body>
@@ -499,6 +516,16 @@
     </div>
   </div>
 
+    <section id="guerre-cosmique" class="guerre-cosmique" hidden>
+      <h2 class="gc-titre">⚔️ La Guerre Cosmique</h2>
+      <p class="gc-sous">Les posters les plus commandés, signe par signe.</p>
+      <div class="gc-grille">
+        <div class="gc-bloc" id="gc-podium"></div>
+        <div class="gc-bloc" id="gc-duel"></div>
+      </div>
+      <p class="gc-total" id="gc-total"></p>
+      <a id="gc-lien" class="btn secondary" href="#" target="_blank" rel="noopener noreferrer">Voir les posters les plus achetés →</a>
+    </section>
   <footer class="mentions" data-t="mentions">Lecture symbolique — divertissement, pas un fait. Aucune donnée n'est conservée par ce service.</footer>
   <div id="glossaire-pop" class="glossaire-pop" role="tooltip" aria-hidden="true"></div>
 </div>
@@ -2198,6 +2225,62 @@ function trierAspects(asps, tri) {
   });
   window.addEventListener("scroll", fermer, { passive: true });
   window.addEventListener("resize", fermer, { passive: true });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  const STATS_API_URL = __STATS_API_URL__;
+  const BOUTIQUE_URL = __BOUTIQUE_URL__;
+  // Widget opt-in : sans config, rien n'est affiché (comportement par défaut de
+  // l'installation en une commande).
+  if (!STATS_API_URL || !BOUTIQUE_URL) return;
+
+  function texte(tag, contenu) {
+    const el = document.createElement(tag);
+    el.textContent = contenu;   // jamais innerHTML : données externes
+    return el;
+  }
+
+  const ctrl = new AbortController();
+  const minuteur = setTimeout(() => ctrl.abort(), 3000);
+
+  fetch(STATS_API_URL, { signal: ctrl.signal })
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(stats => {
+      clearTimeout(minuteur);
+      // Dégradation : statut insuffisant, réponse inattendue ou vide → rien.
+      if (!stats || stats.statut !== "ok" || !Array.isArray(stats.podiumZodiaque)
+          || stats.podiumZodiaque.length === 0) return;
+
+      const podium = document.getElementById("gc-podium");
+      podium.appendChild(texte("h3", "Podium du mois"));
+      stats.podiumZodiaque.forEach((p, i) => {
+        const ligne = texte("div", (i + 1) + ". " + p.signe + " — " + p.part + "%");
+        ligne.className = "gc-ligne";
+        podium.appendChild(ligne);
+      });
+
+      const duel = (stats.duels || [])[0];
+      if (duel) {
+        const bloc = document.getElementById("gc-duel");
+        bloc.appendChild(texte("h3", "Duel le plus serré"));
+        bloc.appendChild(texte("div", duel.a + " " + duel.partA + "%"));
+        bloc.appendChild(texte("div", duel.b + " " + duel.partB + "%"));
+      }
+
+      document.getElementById("gc-total").textContent =
+        stats.totalCommandes + " posters commandés à ce jour";
+
+      const lien = document.getElementById("gc-lien");
+      lien.href = BOUTIQUE_URL;
+      document.getElementById("guerre-cosmique").hidden = false;
+    })
+    .catch(() => {
+      // Silencieux : la section (encore hidden) n'apparaît jamais —
+      // portrait-cosmique fonctionne même si la boutique est down.
+      clearTimeout(minuteur);
+    });
 })();
 </script>
 </body>
