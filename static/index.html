@@ -168,6 +168,10 @@
   @media (max-width: 860px) { .theme-layout { grid-template-columns: 1fr; } }
 
   .theme-roue { display: flex; flex-direction: column; align-items: center; gap: .5rem; position: sticky; top: 12px; }
+  @media (max-width: 860px) { .theme-roue { position: static; } }
+  .theme-layout > *, .theme-tableaux { min-width: 0; }
+  .theme-asp { max-width: 100%; overflow-x: auto; }
+  .glossaire-pop { max-height: calc(100dvh - 24px); overflow-y: auto; }
   #roue-svg { width: 100%; max-width: 460px; height: auto; background: var(--panel2); border-radius: 12px;
     border: 1px solid var(--border); }
   #roue-svg text { font-family: -apple-system, "Segoe UI", sans-serif; fill: var(--text); pointer-events: none; }
@@ -328,6 +332,7 @@
     .gc-barre .gc-a { background: #b98cf7; }
     .gc-barre .gc-b { background: #6ee7c3; }
     .gc-total { margin: 12px 0; font-size: 0.85rem; color: #9aa1c4; }
+__HOLISTIQUE_CSS__
 </style>
 </head>
 <body>
@@ -359,6 +364,12 @@
         <div>
           <label data-t="l_nom">Nom</label>
           <input id="nom" type="text" placeholder="Dupont">
+        </div><div>
+          <label for="nom_naissance" data-t="l_nom_naissance">Nom complet de naissance</label>
+          <input id="nom_naissance" type="text" autocomplete="off">
+        </div><div>
+          <label for="polarite" data-t="l_polarite">Polarité de lecture (facultatif)</label>
+          <select id="polarite"><option value="" data-t="pol_libre">Sans préférence</option><option value="feminine" data-t="pol_f">Féminine</option><option value="masculine" data-t="pol_m">Masculine</option><option value="neutre" data-t="pol_n">Neutre</option></select>
         </div>
       </div>
       <p class="sous" style="margin:4px 0 8px;" data-t="l_prenoms_aide">Plusieurs prénoms ? Sépare-les par un espace (ex. « Jean Paul ») — la ponctuation n'a aucun effet sur le calcul.</p>
@@ -370,6 +381,7 @@
         <div>
           <label data-t="l_heure">Heure de naissance</label>
           <input id="heure_naissance" type="time">
+          <label class="heure-choix"><input id="heure_inconnue" type="checkbox"> <span data-t="l_heure_inconnue">Je ne connais pas mon heure</span></label>
         </div>
       </div>
       <label data-t="l_ville">Ville de naissance</label>
@@ -380,7 +392,10 @@
       <div id="coords-info" class="sous" style="margin-top:6px;"></div>
       <input type="hidden" id="latitude">
       <input type="hidden" id="longitude">
-      <input type="hidden" id="utc_offset">
+      <label for="utc_offset" data-t="l_utc">Décalage UTC à la naissance</label>
+      <input type="number" id="utc_offset" min="-14" max="14" step="0.25" placeholder="+2" aria-describedby="utc-aide">
+      <p id="utc-aide" class="sous" data-t="l_utc_aide">Ex. France métropolitaine : généralement +1 en hiver, +2 en été. Renseigne le décalage historique du lieu et de la date ; localiser la ville ne le détermine pas.</p>
+      <p class="sous" data-t="l_nom_aide">Pour les calculs du nom, utilise tous les prénoms et le nom de naissance. À défaut, le nom affiché est utilisé. La polarité ne modifie aucun calcul.</p>
 
       <details class="avance">
         <summary data-t="l_options">Options avancées</summary>
@@ -445,6 +460,7 @@
 
       <div id="r-stats" style="margin-top:16px;"></div>
 
+      <div id="r-holistique"></div>
       <div id="r-empreinte" style="margin-top:18px;"></div>
 
       <div class="recit" id="r-recit" style="margin-top:18px;"></div>
@@ -457,6 +473,7 @@
     </section>
 
     <section id="onglet-theme" class="onglet-contenu" hidden>
+      <p id="theme-heure-inconnue" class="section-intro" hidden data-t="theme_sans_heure">L’heure est inconnue : la carte du ciel est masquée. La matrice, la numérologie et les traditions calendaires restent disponibles dans le Portrait.</p>
       <div class="fil-rouge" data-t="fil_rouge">Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit</div>
       <div class="theme-options">
         <fieldset>
@@ -489,6 +506,7 @@
         <fieldset>
           <legend data-t="l_poster_type">Type de poster</legend>
           <label><input type="radio" name="poster-type" value="ciel" checked> <span data-t="o_poster_ciel">Carte du ciel</span></label>
+          <label><input type="radio" name="poster-type" value="matrice"> <span data-t="o_poster_matrice">Matrice de la destinée</span></label>
           <label><input type="radio" name="poster-type" value="traditions"> <span data-t="o_poster_traditions">Traditions natales</span></label>
         </fieldset>
         <fieldset id="poster-densite-fieldset">
@@ -500,8 +518,10 @@
           <input type="checkbox" id="poster-fond-transparent">
           <span data-t="l_poster_transparent">Fond transparent (t-shirt)</span>
         </label>
+        <button type="button" class="btn secondary" id="btn-export-svg" onclick="exportPosterSVG()" data-t="b_export_svg">Télécharger le SVG</button>
         <button type="button" class="btn" id="btn-export-poster" data-t="b_export_poster">⬇️ Télécharger en PNG</button>
       </div>
+      <p class="sous" data-t="poster_resolution">SVG vectoriel sans limite de résolution · PNG 3 000 × 3 000 px, 25,4 × 25,4 cm à 300 DPI.</p>
       <p id="poster-vide" class="sous poster-vide" data-t="poster_vide">Calcule d'abord un portrait pour voir le poster.</p>
       <div class="poster-cadre" id="poster-cadre" style="display:none">
         <svg id="poster-svg" viewBox="-260 -260 520 520" role="img" aria-label="Poster"></svg>
@@ -610,8 +630,8 @@ const I18N = {
     leg_maison_num: "Maison = secteur de vie (1-12)",
     leg_vitesse: "Vitesse = déplacement/jour (°/j)",
     leg_retro: "℞ = rétrograde (mouvement apparent inverse)",
-    leg_orbe: "Orbe = écart à l'angle exact (plus petit = plus puissant)",
-    leg_exact: "Exactitude = proximité au parfait (0-100%)",
+    leg_orbe: "Orbe = écart à l'angle idéal (plus petit = plus exact)",
+    leg_exact: "Exactitude = proximité de l’angle idéal (0–100 %, pas une probabilité)",
     leg_score: "Score = poids selon la méthode choisie",
     th_point: "Point", th_signe: "Signe", th_degre: "Degré", th_maison: "Maison",
     th_corps: "Corps", th_symbole: "Symbole", th_vitesse: "Vitesse", th_retro: "R",
@@ -701,8 +721,8 @@ const I18N = {
     leg_maison_num: "House = life sector (1-12)",
     leg_vitesse: "Speed = movement/day (°/d)",
     leg_retro: "℞ = retrograde (apparent reverse motion)",
-    leg_orbe: "Orb = gap to exact angle (smaller = stronger)",
-    leg_exact: "Exactness = closeness to perfect (0-100%)",
+    leg_orbe: "Orb = gap to the ideal angle (smaller = more exact)",
+    leg_exact: "Exactness = proximity to the ideal angle (0–100%, not a probability)",
     leg_score: "Score = weight per chosen method",
     th_point: "Point", th_signe: "Sign", th_degre: "Degree", th_maison: "House",
     th_corps: "Body", th_symbole: "Symbol", th_vitesse: "Speed", th_retro: "R",
@@ -776,6 +796,27 @@ function majBoutonToggle(containerId) {
 }
 
 // ── Découpage theme-section de l'empreinte (onglet Portrait) ──────
+Object.assign(I18N.fr, {
+  l_nom: "Nom affiché", l_nom_naissance: "Nom complet de naissance", l_polarite: "Polarité de lecture (facultatif)",
+  pol_libre: "Sans préférence", pol_f: "Féminine", pol_m: "Masculine", pol_n: "Neutre",
+  l_heure_inconnue: "Je ne connais pas mon heure", l_utc: "Décalage UTC à la naissance",
+  l_utc_aide: "Ex. France métropolitaine : généralement +1 en hiver, +2 en été. Renseigne le décalage historique du lieu et de la date ; localiser la ville ne le détermine pas.",
+  l_nom_aide: "Pour les calculs du nom, utilise tous les prénoms et le nom de naissance. À défaut, le nom affiché est utilisé. La polarité ne modifie aucun calcul.",
+  theme_sans_heure: "L’heure est inconnue : la carte du ciel est masquée. La matrice, la numérologie et les traditions calendaires restent disponibles dans le Portrait.",
+  o_poster_matrice: "Matrice de la destinée", b_export_svg: "Télécharger le SVG",
+  poster_resolution: "SVG vectoriel sans limite de résolution · PNG 3 000 × 3 000 px, 25,4 × 25,4 cm à 300 DPI."
+});
+Object.assign(I18N.en, {
+  l_nom: "Display surname", l_nom_naissance: "Full birth surname", l_polarite: "Reading polarity (optional)",
+  pol_libre: "No preference", pol_f: "Feminine", pol_m: "Masculine", pol_n: "Neutral",
+  l_heure_inconnue: "I don't know my birth time", l_utc: "UTC offset at birth",
+  l_utc_aide: "Enter the historical UTC offset for the birth date and place, including daylight saving time. Locating a city does not determine its offset.",
+  l_nom_aide: "Name calculations use all given names and the birth surname, falling back to the display surname. Polarity does not change calculations.",
+  theme_sans_heure: "Birth time is unknown: the sky chart is hidden. The matrix, numerology and calendar traditions remain available in the Portrait.",
+  o_poster_matrice: "Destiny matrix", b_export_svg: "Download SVG",
+  poster_resolution: "Resolution-independent vector SVG · PNG 3,000 × 3,000 px, 10 × 10 in at 300 DPI."
+});
+
 const EMPREINTE_SECTIONS = [
   { key: "traditions", titleKey: "pt_traditions", gid: null },
   { key: "fondations", titleKey: "pt_fondations", gid: "theme_fondations" },
@@ -833,6 +874,9 @@ function lireChampsForm() {
   return {
     prenoms: document.getElementById("prenoms").value,
     nom: document.getElementById("nom").value,
+    nom_naissance: document.getElementById("nom_naissance").value,
+    polarite: document.getElementById("polarite").value,
+    heure_inconnue: document.getElementById("heure_inconnue").checked,
     date_naissance: document.getElementById("date_naissance").value,
     heure_naissance: document.getElementById("heure_naissance").value,
     ville: document.getElementById("ville").value,
@@ -847,14 +891,18 @@ function ecrireChampsForm(p) {
   if (!p) return;
   document.getElementById("prenoms").value = p.prenoms || "";
   document.getElementById("nom").value = p.nom || "";
+  document.getElementById("nom_naissance").value = p.nom_naissance || "";
+  document.getElementById("polarite").value = p.polarite || "";
+  document.getElementById("heure_inconnue").checked = !!p.heure_inconnue;
   document.getElementById("date_naissance").value = p.date_naissance || "";
   document.getElementById("heure_naissance").value = p.heure_naissance || "";
   document.getElementById("ville").value = p.ville || "";
   document.getElementById("latitude").value = p.latitude || "";
   document.getElementById("longitude").value = p.longitude || "";
-  document.getElementById("utc_offset").value = p.utc_offset || "";
+  document.getElementById("utc_offset").value = p.utc_offset ?? "";
   document.getElementById("systeme_numerologie").value = p.systeme_numerologie || "classique";
   document.getElementById("coords-info").textContent = p.ville ? p.ville : "";
+  synchroniserHeure();
 }
 
 function prochainLabelDefaut() {
@@ -1068,6 +1116,10 @@ document.getElementById("select-profil").addEventListener("change", (e) => {
   if (e.target.value === "__nouveau__") {
     document.getElementById("prenoms").value = "";
     document.getElementById("nom").value = "";
+    document.getElementById("nom_naissance").value = "";
+    document.getElementById("polarite").value = "";
+    document.getElementById("heure_inconnue").checked = false;
+    synchroniserHeure();
     document.getElementById("date_naissance").value = "";
     document.getElementById("heure_naissance").value = "";
     document.getElementById("ville").value = "";
@@ -1075,6 +1127,7 @@ document.getElementById("select-profil").addEventListener("change", (e) => {
     document.getElementById("longitude").value = "";
     document.getElementById("utc_offset").value = "";
     document.getElementById("coords-info").textContent = "";
+    synchroniserHeure();
     const d = chargerProfils();
     d.profil_actif = null;
     sauvegarderProfils(d);
@@ -1148,7 +1201,7 @@ async function localiser() {
     const d = await r.json();
     document.getElementById("latitude").value = d.latitude;
     document.getElementById("longitude").value = d.longitude;
-    document.getElementById("utc_offset").value = document.getElementById("utc_offset").value || 0;
+
     document.getElementById("coords-info").textContent = `${d.ville} (${d.latitude.toFixed(2)}, ${d.longitude.toFixed(2)})`;
   } catch (e) {
     document.getElementById("coords-info").textContent = LANGUE === "fr" ? "Ville introuvable." : "City not found.";
@@ -1156,6 +1209,8 @@ async function localiser() {
 }
 
 function aleatoire() {
+  document.getElementById("heure_inconnue").checked = false;
+  document.getElementById("heure_naissance").disabled = false;
   const an = 1960 + Math.floor(Math.random() * 60);
   const mois = 1 + Math.floor(Math.random() * 12);
   const jour = 1 + Math.floor(Math.random() * 28);
@@ -1167,6 +1222,7 @@ function aleatoire() {
     `${String(heure).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
   const noms = ["Aria","Kalen","Sora","Ilian","Noa","Vesna","Rin","Malo"];
   document.getElementById("prenoms").value = noms[Math.floor(Math.random()*noms.length)];
+  synchroniserHeure();
 }
 
 function md(txt) {
@@ -1197,8 +1253,8 @@ function afficherResultat(d) {
   if (id.heure_naissance) detailParts.push(`${t.identite_a} ${id.heure_naissance}`);
   if (id.ville) detailParts.push(id.ville);
   document.getElementById("r-identite").innerHTML =
-    `<div class="nom">${nomComplet || t.identite_anonyme}</div>` +
-    (detailParts.length ? `<div class="details">${detailParts.join(" · ")}</div>` : "");
+    `<div class="nom">${echapperIdentite(nomComplet || t.identite_anonyme)}</div>` +
+    (detailParts.length ? `<div class="details">${detailParts.map(echapperIdentite).join(" · ")}</div>` : "");
   document.getElementById("r-archetype").innerHTML =
     `${p.archetype}${icGlossaire("archetype")}`;
   const stats = p.stats;
@@ -1213,8 +1269,8 @@ function afficherResultat(d) {
     ` · ${t.faiblesse_titre} : ${p.faiblesse}${icGlossaire("faiblesse")}` +
     ` <span class="badge">${t.pierre_titre} : ${p.pierre_equilibrage.pierre}${icGlossaire("pierre")}</span>`;
   const sectionsEmpreinte = EMPREINTE_SECTIONS
-    .map(sec => ({ sec, items: d.empreinte.filter(e => sectionDeEntree(e) === sec.key) }))
-    .filter(x => x.items.length);
+    .map(sec => ({ sec, items: d.empreinte.filter(e => sectionDeEntree(e) === sec.key && !["soleil", "lune", "ascendant", "milieu_du_ciel", "expression", "celte", "maya", "nakshatra", "vedique"].includes(e.id)) }))
+    .filter(x => x.sec.key === "traditions" && x.items.length);
   document.getElementById("r-empreinte").innerHTML =
     (sectionsEmpreinte.length ? boutonToggleTout("r-empreinte") : "") +
     sectionsEmpreinte.map(({ sec, items }, idx) => {
@@ -1231,6 +1287,7 @@ function afficherResultat(d) {
   }).join("");
   majBoutonToggle("r-empreinte");
   rendreRecit(d);
+  rendreHolistique(d);
   document.getElementById("r-legende").innerHTML = (d.glossaire || []).map(g => `
     <h3>${g.theme}</h3>
     <dl>${(g.items || []).map(it => `<dt>${it.label}</dt><dd>${it.definition}</dd>`).join("")}</dl>
@@ -1255,6 +1312,9 @@ async function calculerPortrait() {
   const body = {
     prenoms: document.getElementById("prenoms").value,
     nom: document.getElementById("nom").value,
+    nom_naissance: document.getElementById("nom_naissance").value,
+    polarite: document.getElementById("polarite").value,
+    heure_inconnue: document.getElementById("heure_inconnue").checked,
     date_naissance: document.getElementById("date_naissance").value,
     heure_naissance: document.getElementById("heure_naissance").value || null,
     latitude: document.getElementById("latitude").value ? parseFloat(document.getElementById("latitude").value) : null,
@@ -1295,6 +1355,7 @@ async function calculerPortrait() {
       _ASPECT_TRI = { col: "exactitude", sens: -1 };
       renderRoue(_THEME_CACHE);
       renderTableaux(_THEME_CACHE, { reset: true });
+      synchroniserCarte();
       renderPoster();
     } else {
       viderTheme();
@@ -1321,6 +1382,7 @@ async function approfondir() {
   const body = {
     portrait: DERNIER_RESULTAT.portrait,
     empreinte: DERNIER_RESULTAT.empreinte,
+    donnees_synthetiques: DERNIER_RESULTAT.donnees_synthetiques,
     langue: I18N[LANGUE].llm_langue,
     llm: llmBody,
   };
@@ -1334,7 +1396,15 @@ async function approfondir() {
 }
 
 function telechargerHTML() {
-  const panneau = document.getElementById("resultat").outerHTML;
+  const copie = document.getElementById("resultat").cloneNode(true);
+  copie.querySelectorAll("[onclick]").forEach(el => el.removeAttribute("onclick"));
+  copie.querySelectorAll(".hol-controls, .btn, .btns").forEach(el => el.remove());
+  copie.querySelectorAll(".hol-arcane-bouton").forEach(button => {
+    const value = document.createElement("div"); value.className = button.className;
+    value.innerHTML = button.innerHTML; value.style.cursor = "default"; button.replaceWith(value);
+  });
+  copie.querySelectorAll("svg [role=button]").forEach(el => { el.removeAttribute("role"); el.removeAttribute("tabindex"); });
+  const panneau = copie.outerHTML;
   const styles = document.querySelector("style").outerHTML;
   const ttScript = `
 <script>
@@ -1363,23 +1433,23 @@ let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
     if (courant) { courant.classList.remove('on'); courant = null; }
   }
   function ic(node){ return node && node.closest && node.closest('.glossaire-ic'); }
-  document.addEventListener('mouseover', e => { const x=ic(e.target); if(x) ouvrir(x); });
+  document.addEventListener('mouseover', e => { const x=ic(e.target); if(x && matchMedia('(hover: hover)').matches) ouvrir(x); });
   document.addEventListener('mouseout', e => { if(!ic(e.relatedTarget) && ic(e.target)===courant) fermer(); });
   document.addEventListener('click', e => { const x=ic(e.target); if(x){ if(courant===x) fermer(); else { fermer(); ouvrir(x);} e.stopPropagation(); e.preventDefault(); } else if(courant) fermer(); });
   document.addEventListener('keydown', e => { const x=ic(e.target); if(x && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); if(courant===x) fermer(); else { fermer(); ouvrir(x);} } if(e.key==='Escape'&&courant) fermer(); });
-  document.addEventListener('focusin', e => { const x=ic(e.target); if(x) ouvrir(x); });
+  document.addEventListener('focusin', e => { const x=ic(e.target); if(x && x.matches(':focus-visible')) ouvrir(x); });
   document.addEventListener('focusout', e => { if(ic(e.relatedTarget)) return; fermer(); });
   window.addEventListener('scroll', fermer, {passive:true});
   window.addEventListener('resize', fermer, {passive:true});
   })();
   window.addEventListener('beforeprint', () => {
-    document.querySelectorAll('details.theme-section-acc:not([open])').forEach(d => {
+    document.querySelectorAll('details.theme-section-acc:not([open]), details.hol-details:not([open]), details.hol-methode:not([open]), details.carte-point:not([open])').forEach(d => {
       d.dataset.printAuto = '1';
       d.open = true;
     });
   });
   window.addEventListener('afterprint', () => {
-    document.querySelectorAll('details.theme-section-acc[data-print-auto]').forEach(d => {
+    document.querySelectorAll('details[data-print-auto]').forEach(d => {
       d.open = false;
       delete d.dataset.printAuto;
     });
@@ -1415,7 +1485,7 @@ let GLOSSAIRE_LABELS = ${JSON.stringify(GLOSSAIRE_LABELS)};
   if(actif) applyLegendFilter(actif.getAttribute('data-filtre'));})();
 <\/script>`;
   const html = `<!DOCTYPE html><html lang="${LANGUE}"><head><meta charset="utf-8">
-    <title>Portrait Cosmique</title>${styles}${exportExtra}</head><body><div class="wrap">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><title>Portrait Cosmique</title>${styles}${exportExtra}</head><body><div class="wrap">
     <div id="glossaire-pop" class="glossaire-pop" role="tooltip" aria-hidden="true"></div>
     ${panneau}${ttScript}</div></body></html>`;
   const blob = new Blob([html], { type: "text/html" });
@@ -1480,6 +1550,9 @@ const _ASPECT_GLOSS = {
   "conjonction": "theme_aspect_conjonction", "opposition": "theme_aspect_opposition",
   "trigone": "theme_aspect_trigone", "carre": "theme_aspect_carre",
   "sextile": "theme_aspect_sextile",
+  "semi_sextile": "theme_aspect_semi_sextile", "semi_carre": "theme_aspect_semi_carre",
+  "quintile": "theme_aspect_quintile", "sesquicarre": "theme_aspect_sesquicarre",
+  "quinconce": "theme_aspect_quinconce",
 };
 const _DOMINANTE_GLOSS = {
   "dom_element": "theme_dominante_element", "dom_mode": "theme_dominante_mode",
@@ -1693,7 +1766,10 @@ function renderPoster() {
   cadre.style.display = "";
   const type = document.querySelector("input[name='poster-type']:checked").value;
   const identite = DERNIER_RESULTAT._identite || {};
-  if (type === "ciel") {
+  document.getElementById("poster-svg").setAttribute("viewBox", "-260 -260 520 520");
+  if (type === "matrice") {
+    dessinerMatrice(document.getElementById("poster-svg"), DERNIER_RESULTAT.traditions.matrice_destinee, {identite});
+  } else if (type === "ciel") {
     const densite = document.querySelector("input[name='poster-densite']:checked").value;
     renderPosterCiel(_THEME_CACHE, identite, densite);
   } else if (type === "traditions") {
@@ -1710,22 +1786,7 @@ function exportPosterPNG() {
   const svgEl = document.getElementById("poster-svg");
   if (!svgEl.childElementCount) return;
   const transparent = document.getElementById("poster-fond-transparent").checked;
-  const clone = svgEl.cloneNode(true);
-  if (transparent) {
-    clone.querySelectorAll(".poster-halo").forEach(el => el.remove());
-  }
-  const ns = "http://www.w3.org/2000/svg";
-  const cssVars = ["--panel", "--panel2", "--border", "--text", "--muted", "--accent", "--accent2"];
-  const cs = getComputedStyle(document.documentElement);
-  const varsCss = ":root{" + cssVars.map(v => `${v}:${cs.getPropertyValue(v).trim()}`).join(";") + "}";
-  const posterRulesCss = Array.from(document.styleSheets)
-    .filter(s => !s.href)
-    .flatMap(s => Array.from(s.cssRules))
-    .filter(r => r.selectorText && r.selectorText.startsWith("#poster-svg "))
-    .map(r => r.cssText)
-    .join("\n");
-  const styleEl = elNS(ns, "style", {}, varsCss + posterRulesCss);
-  clone.insertBefore(styleEl, clone.firstChild);
+  const clone = preparerSVGPoster(svgEl, transparent);
   const taille = 3000;
   clone.setAttribute("width", String(taille));
   clone.setAttribute("height", String(taille));
@@ -1744,9 +1805,11 @@ function exportPosterPNG() {
     }
     ctx.drawImage(img, 0, 0, taille, taille);
     URL.revokeObjectURL(url);
-    canvas.toBlob(blob => {
+    canvas.toBlob(async blob => {
+      if (!blob) return;
+      blob = await pngAvec300DPI(blob);
       const type = document.querySelector("input[name='poster-type']:checked").value;
-      const prefix = type === "ciel" ? "carte-du-ciel" : "traditions-natales";
+      const prefix = type === "ciel" ? "carte-du-ciel" : type === "matrice" ? "matrice-destinee" : "traditions-natales";
       const prenom = slugPourFichier((DERNIER_RESULTAT._identite || {}).prenoms);
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -1779,13 +1842,13 @@ document.getElementById("tableaux-theme").addEventListener("toggle", (e) => {
   if (e.target.classList && e.target.classList.contains("theme-section-acc")) majBoutonToggle("tableaux-theme");
 }, true);
 window.addEventListener("beforeprint", () => {
-  document.querySelectorAll("details.theme-section-acc:not([open])").forEach(d => {
+  document.querySelectorAll("details.theme-section-acc:not([open]), details.hol-details:not([open]), details.hol-methode:not([open]), details.carte-point:not([open])").forEach(d => {
     d.dataset.printAuto = "1";
     d.open = true;
   });
 });
 window.addEventListener("afterprint", () => {
-  document.querySelectorAll("details.theme-section-acc[data-print-auto]").forEach(d => {
+  document.querySelectorAll("details[data-print-auto]").forEach(d => {
     d.open = false;
     delete d.dataset.printAuto;
   });
@@ -1804,6 +1867,7 @@ async function rechargerTheme() {
     _ASPECT_FILTRE = "tous";
     renderRoue(_THEME_CACHE);
     renderTableaux(_THEME_CACHE);
+    synchroniserCarte();
     renderPoster();
   } catch (e) {
     if (tb) tb.innerHTML = `<p class="sous" style="color:var(--danger);margin:.4rem 0">${I18N[LANGUE].theme_erreur}</p>`;
@@ -1926,7 +1990,7 @@ function renderRoue(tc) {
     if (!typesVus.has(asp)) continue;
     const sw = document.createElement("span");
     sw.className = "swatch";
-    sw.innerHTML = `<i style="background:${col}"></i>${NOMS_ASPECTS_TR[asp] || asp}`;
+    sw.innerHTML = `<i style="background:${col}"></i>${nomAspect(asp)}`;
     fSet.appendChild(sw);
   }
   leg.appendChild(fSet);
@@ -2088,17 +2152,18 @@ function renderTableaux(tc, { reset = false } = {}) {
   asps = trierAspects(asps, _ASPECT_TRI);
   const secAspects = sectionDetails(c, "aspects", t.ts_aspects, "theme_aspects", estOuverte("aspects", 4));
   secAspects.insertAdjacentHTML("beforeend", sectionIntro("theme_aspects"));
+  secAspects.insertAdjacentHTML("beforeend", `<p>${LANGUE === "fr" ? "Aspects majeurs" : "Major aspects"}${icGlossaire("theme_aspects_majeurs")} · ${LANGUE === "fr" ? "Aspects mineurs" : "Minor aspects"}${icGlossaire("theme_aspects_mineurs")}</p><div class="cartes-grille">${Object.entries(_ASPECT_GLOSS).map(([key, gid]) => `<details class="carte-point"><summary>${nomAspect(key)}${icGlossaire(gid)}</summary><p>${GLOSSAIRE[gid] || ""}</p></details>`).join("")}</div>`);
   const aspContainer = document.createElement("div");
   aspContainer.className = "theme-asp";
   aspContainer.innerHTML = `<table><caption>${t.t_aspects}</caption><thead><tr>
     <th data-col="aspect">${t.th_aspect}<span class="sort-ind">↕</span></th>
-    <th data-col="type">${t.th_type}<span class="sort-ind">↕</span></th>
+    <th data-col="type">${t.th_type}${icGlossaire("theme_aspects_majeurs")}<span class="sort-ind">↕</span></th>
     <th>${t.th_pointa}</th><th>${t.th_pointb}</th>
-    <th class="num" data-col="orb">${t.th_orb}<span class="sort-ind">↕</span></th>
-    <th class="num" data-col="exactitude">${t.th_exact}<span class="sort-ind">↕</span></th>
+    <th class="num" data-col="orb">${t.th_orb}${icGlossaire("theme_orbe")}<span class="sort-ind">↕</span></th>
+    <th class="num" data-col="exactitude">${t.th_exact}${icGlossaire("theme_exactitude")}<span class="sort-ind">↕</span></th>
     </tr></thead><tbody>${asps.map(a => `<tr class="asp-row" data-type="${a.type}">
-      <td>${NOMS_ASPECTS_TR[a.aspect] || a.aspect}${icGlossaire(_ASPECT_GLOSS[a.aspect])}</td>
-      <td>${a.type}</td>
+      <td>${nomAspect(a.aspect)}${icGlossaire(_ASPECT_GLOSS[a.aspect])}</td>
+      <td>${LANGUE === "en" ? (a.type === "majeur" ? "major" : "minor") : a.type}${icGlossaire(a.type === "majeur" ? "theme_aspects_majeurs" : "theme_aspects_mineurs")}</td>
       <td>${a.point_a}</td><td>${a.point_b}</td>
       <td class="num">${a.orb.toFixed(2)}°</td>
       <td class="num">${(a.exactitude * 100).toFixed(0)}%</td>
@@ -2202,7 +2267,7 @@ function trierAspects(asps, tri) {
     return node && node.closest && node.closest(".glossaire-ic");
   }
 
-  document.addEventListener("mouseover", (e) => { if (isIc(e.target)) ouvrir(isIc(e.target)); });
+  document.addEventListener("mouseover", (e) => { if (isIc(e.target) && matchMedia("(hover: hover)").matches) ouvrir(isIc(e.target)); });
   document.addEventListener("mouseout", (e) => {
     const from = isIc(e.relatedTarget);
     if (!from && isIc(e.target) === courant) fermer();
@@ -2218,7 +2283,7 @@ function trierAspects(asps, tri) {
       if (courant === ic) fermer(); else { fermer(); ouvrir(ic); } }
     if (e.key === "Escape" && courant) fermer();
   });
-  document.addEventListener("focusin", (e) => { const ic = isIc(e.target); if (ic) ouvrir(ic); });
+  document.addEventListener("focusin", (e) => { const ic = isIc(e.target); if (ic && ic.matches(":focus-visible")) ouvrir(ic); });
   document.addEventListener("focusout", (e) => {
     if (isIc(e.relatedTarget)) return;
     fermer();
@@ -2226,6 +2291,7 @@ function trierAspects(asps, tri) {
   window.addEventListener("scroll", fermer, { passive: true });
   window.addEventListener("resize", fermer, { passive: true });
 })();
+__HOLISTIQUE_JS__
 </script>
 <script>
 (function () {

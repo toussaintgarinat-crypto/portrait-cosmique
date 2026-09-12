@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Moteur (synchronisé depuis Workplace, cf. scripts/export-portrait-cosmique.sh) — aplati
 # à la racine de /app pour que `main.py` l'importe comme des modules normaux (pas de
 # sys.path à gérer en prod ; le repo garde engine/ en sous-dossier pour la clarté du dépôt).
-COPY engine/traditions.py engine/synthese.py engine/significations.py ./
+COPY engine/*.py ./
 
 COPY main.py llm.py ./
 COPY static/ ./static/

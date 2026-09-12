@@ -29,7 +29,7 @@ def _parse_naissance(fiche: dict) -> tuple[date | None, datetime | None, float, 
             naissance = date.fromisoformat(dn)
         except ValueError:
             naissance = None
-    he = (fiche.get("heure_naissance") or "").strip()
+    he = "" if fiche.get("heure_inconnue") else (fiche.get("heure_naissance") or "").strip()
     dt = None
     heure_valide = False
     if naissance and he:
@@ -65,7 +65,7 @@ def _construire(naissance, dt, off, lat, lon, heure_valide,
                 systeme_maisons, methode_dominantes, trad=None) -> dict:
     """Construction partagée entre theme_complet et theme_complet_depuis_traditions."""
     out: dict = {}
-    meta: dict = {"caveats": list(_CAVEATS)}
+    meta: dict = {"caveats": list(_CAVEATS), "heure_connue": heure_valide}
     if not naissance:
         out["meta"] = meta
         return out
@@ -78,12 +78,6 @@ def _construire(naissance, dt, off, lat, lon, heure_valide,
     # Lune (besoin de l'heure, mais on peut approximer à midi si pas d'heure)
     if dt is not None or heure_valide:
         lune_lon = T.lune_longitude(dt, off)
-        fondations["lune"] = {**T._signe_depuis_longitude(lune_lon),
-                              "longitude": round(lune_lon % 360, 4)}
-    elif naissance is not None:
-        # Approximation à midi
-        dt_midi = datetime(naissance.year, naissance.month, naissance.day, 12, 0)
-        lune_lon = T.lune_longitude(dt_midi, off)
         fondations["lune"] = {**T._signe_depuis_longitude(lune_lon),
                               "longitude": round(lune_lon % 360, 4)}
 

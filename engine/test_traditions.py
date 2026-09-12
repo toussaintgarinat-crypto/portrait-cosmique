@@ -88,7 +88,9 @@ def test_totem_amerindien_connu():
 def test_tzolkin_ancrage_4_ahau():
     """21/12/2012 = 4 Ahau (fin du 13e baktun) — vérifie la corrélation 584283."""
     t = T.tzolkin(date(2012, 12, 21))
-    assert t == {"glyphe": "Ahau", "tonalite": 4}
+    assert t["glyphe"] == "Ahau"
+    assert t["tonalite"] == 4
+    assert t["kin"] == 160
 
 
 def test_tzolkin_cycle_260():

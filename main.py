@@ -13,13 +13,13 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 _ENGINE_DIR = Path(__file__).parent / "engine"
 if _ENGINE_DIR.is_dir():   # dev local (repo tel quel) ; en Docker les fichiers sont aplatis
@@ -43,6 +43,9 @@ class Fiche(BaseModel):
     chaque champ manquant désactive juste la lecture qui en dépend (repli honnête)."""
     prenoms:        str = ""
     nom:            str = ""
+    nom_naissance:  str = ""
+    polarite: Literal["", "feminine", "masculine", "neutre"] = ""
+    heure_inconnue: bool = False
     date_naissance: str = ""               # "YYYY-MM-DD"
     heure_naissance: Optional[str] = None   # "HH:MM"
     latitude:       Optional[float] = None
@@ -54,10 +57,18 @@ class Fiche(BaseModel):
     methode_dominantes: str = "comptage_dignite"  # "comptage_dignite" | "score_complexe"
 
 
+    @model_validator(mode="after")
+    def normaliser_heure(self):
+        if self.heure_inconnue:
+            self.heure_naissance = None
+        return self
+
+
 class LectureApprofondieBody(BaseModel):
     """Bonus optionnel : réécriture IA du récit déjà calculé (pas de recalcul ici)."""
     portrait:  dict
     empreinte: list = []
+    donnees_synthetiques: dict = {}
     langue:    str = "français"     # texte libre pour le LLM (ex. "français"/"english")
     llm:       Optional[dict] = None
 
@@ -68,6 +79,8 @@ def accueil():
     # Widget « Guerre Cosmique » (stats boutique) : opt-in via l'environnement.
     # json.dumps produit un littéral JS sûr (guillemets échappés) — l'URL vient de
     # l'opérateur de l'instance, jamais de l'utilisateur.
+    html = html.replace("__HOLISTIQUE_CSS__", Path(__file__).parent.joinpath("static/holistique.css").read_text(encoding="utf-8"))
+    html = html.replace("__HOLISTIQUE_JS__", "\n".join(Path(__file__).parent.joinpath("static", name).read_text(encoding="utf-8") for name in ("holistique.js", "interface-support.js")))
     return (html
             .replace("__STATS_API_URL__", json.dumps(os.getenv("STATS_API_URL", "")))
             .replace("__BOUTIQUE_URL__", json.dumps(os.getenv("BOUTIQUE_URL", ""))))
@@ -140,7 +153,9 @@ def portrait(body: Fiche):
     tc = theme_complet.theme_complet_depuis_traditions(trad, body.model_dump())
     p = synthese.portrait(trad, theme_complet=tc, nom=body.prenoms or body.nom, langue=body.langue)
     en = (body.langue or "fr").lower().startswith("en")
-    return {"traditions": trad, "theme_complet": tc,
+    donnees = llm.donnees_synthetiques(body.model_dump(), trad, tc)
+    p["recit"] += llm.complement_symbolique(trad, body.langue)
+    return {"traditions": trad, "theme_complet": tc, "donnees_synthetiques": donnees,
             "portrait": p,
             "empreinte": significations.expliquer(trad, body.langue, theme_complet=tc),
             "glossaire": significations.glossaire(body.langue),
@@ -155,7 +170,7 @@ async def lecture_approfondie(body: LectureApprofondieBody):
     IA n'est configurée (ni clé par défaut de l'instance, ni BYO) ou si l'appel échoue, on
     renvoie le récit déterministe (`source="repli"`) — jamais d'erreur côté utilisateur."""
     try:
-        texte = await llm.approfondir_lecture(body.portrait, body.empreinte, body.langue, body.llm)
+        texte = await llm.approfondir_lecture(body.portrait, body.empreinte, body.langue, body.llm, body.donnees_synthetiques)
         if texte:
             return {"lecture": texte, "source": "llm"}
     except Exception as e:  # noqa: BLE001 — repli honnête

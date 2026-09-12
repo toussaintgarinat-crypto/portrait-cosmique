@@ -1453,6 +1453,42 @@ _GLOSSAIRE_THEMES = [
          "theme_dominante_element", "theme_dominante_mode", "theme_dominante_planete",
           "theme_dominante_signe", "theme_dominante_maison", "theme_dominantes"]),
 ]
+# Aides communes aux filtres, tableaux et légende exportée.
+_ASPECTS_PEDAGOGIE = {
+    "conjonction": ("Conjonction", "Conjunction", "0°", "Deux fonctions se concentrent au même endroit : elles coopèrent ou se confondent selon les planètes. Ce n'est pas automatiquement harmonieux. Exemple : Mercure–Vénus associe expression et sens de l'harmonie.", "Two functions concentrate in one place: they cooperate or merge depending on the planets. This is not automatically harmonious. Mercury–Venus, for example, links expression and a sense of harmony."),
+    "opposition": ("Opposition", "Opposition", "180°", "Deux pôles se font face. La lecture invite à leur donner chacun une place plutôt qu'à en choisir un. Exemple : Soleil–Lune peut symboliser une tension entre volonté et besoins émotionnels.", "Two poles face each other. The reading invites room for both. Sun–Moon can symbolize a tension between conscious aims and emotional needs."),
+    "trigone": ("Trigone", "Trine", "120°", "Une coopération spontanée, une aisance que l'on utilise souvent sans y penser. Exemple : Mercure–Jupiter associe idées et vision d'ensemble. Le défi est de cultiver cette facilité plutôt que de la laisser dormir.", "Spontaneous cooperation or ease used almost without thinking. Mercury–Jupiter links ideas and a broad perspective. The challenge is to develop this ease rather than leave it unused."),
+    "carre": ("Carré", "Square", "90°", "Deux fonctions se gênent et demandent un effort d'ajustement. Exemple : Mars–Saturne met en dialogue élan et retenue. La friction peut devenir discipline ; elle n'annonce pas un événement malheureux.", "Two functions get in each other's way and call for adjustment. Mars–Saturn brings drive and restraint into dialogue. Friction may become discipline; it does not predict misfortune."),
+    "sextile": ("Sextile", "Sextile", "60°", "Une possibilité de coopération à mettre en pratique. À la différence du trigone, souvent vécu comme une facilité spontanée, le sextile se lit comme une occasion à saisir. Exemple : Vénus–Mars invite à accorder désir et relation.", "A possibility for cooperation to put into practice. Unlike the trine's spontaneous ease, the sextile is read as an opportunity to activate. Venus–Mars invites alignment between desire and connection."),
+    "semi_sextile": ("Semi-sextile", "Semi-sextile", "30°", "Deux manières voisines mais différentes de fonctionner : petits ajustements et apprentissage de la complémentarité. Une nuance qui complète la lecture principale.", "Adjacent but different ways of functioning: small adjustments and learning complementarity. A nuance that supplements the main reading."),
+    "semi_carre": ("Semi-carré", "Semi-square", "45°", "Une friction discrète, une irritation récurrente qui demande un changement d'habitude. À lire comme un détail de fonctionnement, sans dramatiser.", "A subtle friction or recurring irritation calling for a change of habit. Read as a detail of functioning, without dramatizing it."),
+    "quintile": ("Quintile", "Quintile", "72°", "Une association symbolique à la créativité, au savoir-faire et à une manière personnelle d'organiser les choses. Un potentiel à exercer, pas la preuve d'un don exceptionnel.", "Symbolically associated with creativity, craft and a personal way of organizing things. A potential to practise, not proof of an exceptional gift."),
+    "sesquicarre": ("Sesqui-carré", "Sesquiquadrate", "135°", "Une tension indirecte ou persistante qui invite à revoir sa réaction. Comme le semi-carré, il affine le tableau des frictions sans remplacer les aspects majeurs.", "An indirect or persistent tension inviting a review of one's response. Like the semi-square, it refines the picture of friction without replacing major aspects."),
+    "quinconce": ("Quinconce", "Quincunx", "150°", "Deux fonctions qui n'utilisent pas le même langage : besoin d'ajuster attentes et habitudes. Classé mineur ici, même si certaines écoles lui donnent davantage de poids.", "Two functions speaking different languages: expectations and habits need adjustment. Classified as minor here, although some schools give it more weight."),
+}
+for _key, (_fr, _en, _angle, _meaning_fr, _meaning_en) in _ASPECTS_PEDAGOGIE.items():
+    _id = "theme_aspect_" + _key
+    GLOSSAIRE_FR[_id] = f"{_fr} ({_angle}) — {_meaning_fr} Lecture symbolique, à replacer dans l'ensemble du thème."
+    GLOSSAIRE_EN[_id] = f"{_en} ({_angle}) — {_meaning_en} A symbolic reading in the context of the whole chart."
+    _GLOSSAIRE_LABELS[_id] = _fr
+    _GLOSSAIRE_LABELS_EN[_id] = _en
+    if _id not in _GLOSSAIRE_THEMES[-1][2]:
+        _GLOSSAIRE_THEMES[-1][2].append(_id)
+
+for _id, _fr, _en, _df, _de in [
+    ("theme_aspects_majeurs", "Aspects majeurs", "Major aspects", "Conjonction 0°, sextile 60°, carré 90°, trigone 120°, opposition 180°. Ils structurent la lecture astrologique. Majeur ne veut dire ni positif ni plus exact : c'est une famille d'angles.", "Conjunction 0°, sextile 60°, square 90°, trine 120°, opposition 180°. These structure the astrological reading. Major means neither positive nor more exact: it is a family of angles."),
+    ("theme_aspects_mineurs", "Aspects mineurs", "Minor aspects", "Semi-sextile 30°, semi-carré 45°, quintile 72°, sesqui-carré 135°, quinconce 150°. Ils ajoutent des nuances à la lecture. Mineur ne veut pas dire négligeable. Leur orbe est plus serré ici : 3°, contre 5 à 10° pour les majeurs selon les points reliés. Les classifications varient selon les écoles.", "Semi-sextile 30°, semi-square 45°, quintile 72°, sesquiquadrate 135°, quincunx 150°. They add nuances; minor does not mean negligible. Here their orb is tighter: 3°, versus 5–10° for major aspects depending on the points involved. Schools differ in classification."),
+    ("theme_orbe", "Orbe", "Orb", "L'écart entre l'angle observé et l'angle idéal. Exemple : 118° pour un trigone de 120° donne un orbe de 2°. Plus il est petit, plus la géométrie est proche de l'aspect exact ; ce n'est pas une mesure scientifique d'influence.", "The gap between the observed and ideal angle. A 118° separation for a 120° trine gives a 2° orb. A smaller orb means closer geometry, not a scientific measurement of influence."),
+    ("theme_exactitude", "Exactitude", "Exactness", "Le pourcentage indique la proximité de l'angle idéal dans l'orbe autorisé : 100 × (1 − orbe / orbe maximal). 100 % = angle exact ; 0 % = limite de tolérance. Ce n'est ni une probabilité ni un score de personnalité.", "The percentage measures proximity to the ideal angle within the allowed orb: 100 × (1 − orb / maximum orb). 100% is exact; 0% is the tolerance limit. It is neither a probability nor a personality score."),
+]:
+    GLOSSAIRE_FR[_id], GLOSSAIRE_EN[_id] = _df, _de
+    _GLOSSAIRE_LABELS[_id], _GLOSSAIRE_LABELS_EN[_id] = _fr, _en
+    _GLOSSAIRE_THEMES[-1][2].append(_id)
+GLOSSAIRE_FR["theme_aspects"] = "Un aspect est un angle entre deux points du thème, vus depuis la Terre. Il décrit symboliquement comment leurs fonctions interagissent. Les majeurs structurent la lecture ; les mineurs l'affinent. Un aspect harmonieux n'est pas une garantie, un aspect de tension n'est pas une condamnation."
+GLOSSAIRE_EN["theme_aspects"] = "An aspect is an angle between two chart points as seen from Earth. It symbolically describes how their functions interact. Major aspects structure the reading; minor ones refine it. Harmony is no guarantee, and tension is no sentence."
+DIDACTIQUE_FR["theme_aspects"]["domaines"] = ["Un angle relie deux fonctions : par exemple communication (Mercure) et action (Mars).", "Majeurs : les grandes dynamiques. Mineurs : les nuances, avec une tolérance angulaire plus serrée.", "Trigone : aisance spontanée. Sextile : coopération à activer. Carré et opposition : ajustements. Conjonction : concentration."]
+DIDACTIQUE_EN["theme_aspects"]["domaines"] = ["An angle links two functions, such as communication (Mercury) and action (Mars).", "Major aspects: broad dynamics. Minor aspects: nuances with a tighter angular tolerance.", "Trine: spontaneous ease. Sextile: cooperation to activate. Square and opposition: adjustment. Conjunction: concentration."]
+
 _GLOSSAIRE_THEMES_IDS = [i for *_, lst in _GLOSSAIRE_THEMES for i in lst]
 
 

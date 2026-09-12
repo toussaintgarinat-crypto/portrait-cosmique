@@ -178,7 +178,7 @@ def numerologie_nom(prenoms: str, nom: str, systeme: str = "classique") -> dict:
     `systeme` : "classique" (A=1…Z=26, défaut, comme le rapport) ou "pythagoricien"
     (A=1…I=9 puis cycle). Réduction théosophique dans les deux cas (maîtres 11/22/33)."""
     table = _VALEUR_PYTHAGORE if systeme == "pythagoricien" else _VALEUR_CLASSIQUE
-    lettres = [c for c in _sans_accents(f"{prenoms}{nom}") if c.isalpha()]
+    lettres = [c for c in _sans_accents(f"{prenoms}{nom}") if c in table]
     if not lettres:
         return {}
     total = sum(table[c] for c in lettres)
@@ -249,7 +249,10 @@ def tzolkin(naissance: date) -> dict:
     jours = jjn - _CORRELATION_GMT
     tonalite = ((jours + 3) % 13) + 1          # ancrage : jours=0 → 4
     glyphe = GLYPHES_MAYA[(jours + 19) % 20]   # ancrage : jours=0 → Ahau (index 19)
-    return {"glyphe": glyphe, "tonalite": tonalite}
+    kin = next(k for k in range(1, 261)
+               if (k - 1) % 13 + 1 == tonalite and GLYPHES_MAYA[(k - 1) % 20] == glyphe)
+    return {"glyphe": glyphe, "tonalite": tonalite, "kin": kin,
+            "convention": "Tzolkin traditionnel, corrélation GMT 584283 ; numérotation 1 Imix = 1, distincte du Dreamspell."}
 
 
 # ── Lune (série lunaire abrégée de Meeus, sans éphéméride) ───────
@@ -314,7 +317,8 @@ def nakshatra(lune_lon_tropicale: float, annee: int) -> dict:
     idx = int(sid // span)
     pada = int((sid % span) // (span / 4)) + 1
     return {"nakshatra": NAKSHATRAS[idx], "pada": pada,
-            "longitude_siderale": round(sid, 2)}
+            "longitude_siderale": round(sid, 2), "ayanamsa": round(_ayanamsa(annee), 4),
+            "precision": "Lune et ayanamsa Lahiri approchés ; pada et nakshatra à vérifier près des frontières."}
 
 
 # ── Astrologie védique (sidérale ≈ tropicale − ayanamsa) ─────────
@@ -419,14 +423,14 @@ def calculer(fiche: dict) -> dict:
         out["maya"] = tzolkin(naissance)
         out["pierre_du_mois"] = PIERRES.get(m)
 
-    if fiche.get("prenoms") or fiche.get("nom"):
-        num = numerologie_nom(fiche.get("prenoms") or "", fiche.get("nom") or "",
+    if fiche.get("prenoms") or fiche.get("nom_naissance") or fiche.get("nom"):
+        num = numerologie_nom(fiche.get("prenoms") or "", fiche.get("nom_naissance") or fiche.get("nom") or "",
                               fiche.get("systeme_numerologie") or "classique")
         if num:
             out["numerologie_nom"] = num
 
     # Heure → animal chinois de l'heure (n'exige pas les coordonnées).
-    he = (fiche.get("heure_naissance") or "").strip()
+    he = "" if fiche.get("heure_inconnue") else (fiche.get("heure_naissance") or "").strip()
     heure = None
     if he:
         try:
@@ -462,4 +466,6 @@ def calculer(fiche: dict) -> dict:
         except (ValueError, TypeError):
             pass
 
+    import holistique
+    out.update(holistique.calculer({**fiche, "heure_naissance": he}))
     return out
