@@ -106,3 +106,9 @@
 .hol-summary-titre .glossaire-ic,.hol-titre .glossaire-ic,.hol-cle .glossaire-ic { text-transform:none; letter-spacing:normal; }
 .resultats-onglets { flex-wrap:wrap; }
 #utc_fold[hidden], #utc-fold-label[hidden] { display:none !important; }
+.horoscope-entete { max-width:65ch; margin:1.2rem 0; }
+.horoscope-entete h2 { margin:.7rem 0; }
+.horoscope-lecture { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.8; }
+.horoscope-lecture:empty { display:none; }
+#onglet-horoscope .btns { flex-wrap:wrap; }
+#horoscope-statut,#horoscope-audio-statut { overflow-wrap:anywhere; }

@@ -85,6 +85,12 @@ détecte tout seul le sous-dossier `engine/` en local).
 - **Récit symbolique** qui tisse tout ça en une lecture cohérente.
 - **Français ou anglais** — même moteur, mêmes données, langue au choix (bouton FR/EN).
 
+## Horoscope du jour
+
+Un onglet dédié propose une lecture rapide par signe solaire (API gratuite, texte anglais) ou une lecture IA en français avec le Soleil, la Lune et l’ascendant disponibles. Le mode IA réutilise la configuration existante et ses éventuels frais ; il ne calcule pas les transits du jour. Les boutons Écouter/Arrêter utilisent la synthèse vocale native du navigateur en `fr-FR`, sans traduction du texte anglais.
+
+Les dates du fournisseur sont affichées telles quelles. Un changement de profil efface la lecture et arrête l’audio. Voir [les vérifications et leurs limites](docs/verification-horoscope-2026-09-12.md).
+
 ## Extensions holistiques
 
 La Matrice dispose de son propre onglet. BaZi, Arbre de Vie, Tzolkin maya, lecture védique, calendrier des 13 arbres et numérologie du nom sont réunis dans **Traditions natales**, avec les mêmes icônes d’explication que les autres traditions. Le formulaire distingue les prénoms du **nom de famille à la naissance** (ex. Dupont-Martin).

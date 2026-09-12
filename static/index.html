@@ -454,6 +454,7 @@ __HOLISTIQUE_CSS__
       <button class="onglet onglet-actif" data-onglet="portrait" data-t="t_portrait">Portrait</button>
       <button class="onglet" data-onglet="theme" data-t="t_theme">Carte astro complète</button>
       <button class="onglet" data-onglet="matrice" data-t="t_matrice">Matrice de destinée</button>
+      <button class="onglet" data-onglet="horoscope" data-t="h_onglet">Horoscope du jour</button>
       <button class="onglet" data-onglet="poster" data-t="t_poster">Poster</button>
     </div>
 
@@ -472,6 +473,26 @@ __HOLISTIQUE_CSS__
         <p class="sous" data-t="l_approfondir_note">Optionnel : réécriture littéraire par une IA, à partir des mêmes données. Nécessite une clé (voir « Options avancées » du formulaire) ou une configuration par défaut sur cette instance.</p>
         <button type="button" class="btn secondary" onclick="approfondir()" data-t="b_approfondir">✨ Approfondir avec l'IA</button>
       </details>
+    </section>
+
+    <section id="onglet-horoscope" class="onglet-contenu" hidden>
+      <div class="horoscope-entete">
+        <span class="badge" data-t="h_badge">Une pause pour aujourd’hui</span>
+        <h2 data-t="h_onglet">Horoscope du jour</h2>
+        <p class="sous" data-t="h_intro">Une lecture symbolique : par signe solaire avec l’API, ou personnalisée avec ton Soleil, ta Lune et ton ascendant disponibles.</p>
+      </div>
+      <div class="btns">
+        <button type="button" class="btn secondary" data-horoscope-generation onclick="chargerHoroscopeAPI()" data-t="h_api">⚡ API rapide · anglais</button>
+        <button type="button" class="btn" data-horoscope-generation onclick="chargerHoroscopeIA()" data-t="h_ia">✨ IA personnalisée · français</button>
+      </div>
+      <p class="sous" data-t="h_note">L’API est gratuite. L’IA utilise ta configuration existante et les éventuels frais de ton fournisseur. Aucun transit du jour n’est calculé.</p>
+      <p id="horoscope-statut" class="sous" role="status" aria-live="polite"></p>
+      <div id="horoscope-texte" class="recit horoscope-lecture"></div>
+      <div class="btns hol-controls">
+        <button type="button" id="horoscope-ecouter" class="btn secondary" onclick="lireHoroscopeAudio()" data-t="h_ecouter" disabled>🔊 Écouter</button>
+        <button type="button" id="horoscope-arreter" class="btn ghost" onclick="arreterAudio()" data-t="h_arreter" disabled>⏹ Arrêter</button>
+      </div>
+      <p id="horoscope-audio-statut" class="sous" role="status"></p>
     </section>
 
     <section id="onglet-matrice" class="onglet-contenu" hidden><div id="r-matrice"></div></section>
@@ -894,6 +915,7 @@ function lireChampsForm() {
 
 function ecrireChampsForm(p) {
   if (!p) return;
+  reinitialiserHoroscope();
   document.getElementById("prenoms").value = p.prenoms || "";
   document.getElementById("nom").value = p.nom || "";
   document.getElementById("nom_naissance").value = p.nom_naissance || "";
@@ -1202,6 +1224,7 @@ function setLangue(l) {
 
 
 function aleatoire() {
+  reinitialiserHoroscope();
   document.getElementById("heure_inconnue").checked = false;
   document.getElementById("heure_naissance").disabled = false;
   const an = 1960 + Math.floor(Math.random() * 60);
@@ -1230,6 +1253,8 @@ function md(txt) {
 }
 
 function afficherResultat(d) {
+  reinitialiserHoroscope();
+  etatHoroscope().profilSignature = JSON.stringify(lireChampsForm());
   const t = I18N[LANGUE];
   const p = d.portrait;
   chargerGlossaire(d.glossaire);
@@ -1828,6 +1853,7 @@ function exportPosterPNG() {
 document.getElementById("btn-export-poster").addEventListener("click", exportPosterPNG);
 
 function afficherOnglet(nom) {
+  if (nom !== "horoscope") arreterAudio();
   document.querySelectorAll(".onglet").forEach(b => b.classList.toggle("onglet-actif", b.dataset.onglet === nom));
   document.querySelectorAll(".onglet-contenu").forEach(s => {
     const actif = s.id === "onglet-" + nom;
