@@ -1489,6 +1489,12 @@ GLOSSAIRE_EN["theme_aspects"] = "An aspect is an angle between two chart points 
 DIDACTIQUE_FR["theme_aspects"]["domaines"] = ["Un angle relie deux fonctions : par exemple communication (Mercure) et action (Mars).", "Majeurs : les grandes dynamiques. Mineurs : les nuances, avec une tolérance angulaire plus serrée.", "Trigone : aisance spontanée. Sextile : coopération à activer. Carré et opposition : ajustements. Conjonction : concentration."]
 DIDACTIQUE_EN["theme_aspects"]["domaines"] = ["An angle links two functions, such as communication (Mercury) and action (Mars).", "Major aspects: broad dynamics. Minor aspects: nuances with a tighter angular tolerance.", "Trine: spontaneous ease. Sextile: cooperation to activate. Square and opposition: adjustment. Conjunction: concentration."]
 
+from aides_holistiques import AIDES as _AIDES_HOLISTIQUES
+for _id, (_label_fr, _label_en, _def_fr, _def_en) in _AIDES_HOLISTIQUES.items():
+    GLOSSAIRE_FR[_id], GLOSSAIRE_EN[_id] = _def_fr, _def_en
+    _GLOSSAIRE_LABELS[_id], _GLOSSAIRE_LABELS_EN[_id] = _label_fr, _label_en
+_GLOSSAIRE_THEMES.append(("Matrice et traditions natales", "Matrix and natal traditions", list(_AIDES_HOLISTIQUES)))
+
 _GLOSSAIRE_THEMES_IDS = [i for *_, lst in _GLOSSAIRE_THEMES for i in lst]
 
 

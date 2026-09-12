@@ -25,6 +25,7 @@ _ENGINE_DIR = Path(__file__).parent / "engine"
 if _ENGINE_DIR.is_dir():   # dev local (repo tel quel) ; en Docker les fichiers sont aplatis
     sys.path.insert(0, str(_ENGINE_DIR))
 
+import fuseaux
 import significations
 import synthese
 import theme_complet
@@ -46,6 +47,8 @@ class Fiche(BaseModel):
     nom_naissance:  str = ""
     polarite: Literal["", "feminine", "masculine", "neutre"] = ""
     heure_inconnue: bool = False
+    utc_auto: bool = False
+    utc_fold: Optional[Literal[0, 1]] = None
     date_naissance: str = ""               # "YYYY-MM-DD"
     heure_naissance: Optional[str] = None   # "HH:MM"
     latitude:       Optional[float] = None
@@ -80,7 +83,7 @@ def accueil():
     # json.dumps produit un littéral JS sûr (guillemets échappés) — l'URL vient de
     # l'opérateur de l'instance, jamais de l'utilisateur.
     html = html.replace("__HOLISTIQUE_CSS__", Path(__file__).parent.joinpath("static/holistique.css").read_text(encoding="utf-8"))
-    html = html.replace("__HOLISTIQUE_JS__", "\n".join(Path(__file__).parent.joinpath("static", name).read_text(encoding="utf-8") for name in ("holistique.js", "interface-support.js")))
+    html = html.replace("__HOLISTIQUE_JS__", "\n".join(Path(__file__).parent.joinpath("static", name).read_text(encoding="utf-8") for name in ("holistique.js", "interface-support.js", "fuseau-auto.js")))
     return (html
             .replace("__STATS_API_URL__", json.dumps(os.getenv("STATS_API_URL", "")))
             .replace("__BOUTIQUE_URL__", json.dumps(os.getenv("BOUTIQUE_URL", ""))))
@@ -117,6 +120,38 @@ async def geo(ville: str):
             "latitude": float(top["lat"]), "longitude": float(top["lon"])}
 
 
+@app.post("/fuseau", tags=["portrait"])
+def fuseau_naissance(body: Fiche):
+    try:
+        return fuseaux.resoudre(body.latitude, body.longitude, body.date_naissance, body.heure_naissance)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+def fiche_calcul(body: Fiche) -> dict:
+    fiche = body.model_dump()
+    if not fiche.get("heure_naissance"):
+        if body.utc_auto:
+            fiche["utc_offset"] = None
+        return fiche
+    coords = body.latitude is not None and body.longitude is not None
+    if body.utc_auto and not coords:
+        raise HTTPException(422, "Indique et localise le lieu de naissance pour calculer le fuseau automatiquement.")
+    if coords and (body.utc_auto or body.utc_offset is None):
+        resultat = fuseau_naissance(body)
+        if resultat["statut"] == "heure_ambigue":
+            choix = next((c for c in resultat["choix"] if c["fold"] == body.utc_fold), None)
+            if choix is None:
+                raise HTTPException(422, "Cette heure a eu lieu deux fois : choisis la première ou la seconde occurrence.")
+            fiche["utc_offset"] = choix["utc_offset"]
+        elif resultat["statut"] == "heure_inexistante":
+            raise HTTPException(422, "Cette heure locale n'existe pas à cette date (changement d'heure). Vérifie l'heure de naissance.")
+        else:
+            fiche["utc_offset"] = resultat["utc_offset"]
+        fiche["fuseau"] = resultat["fuseau"]
+    return fiche
+
+
 @app.get("/modeles", tags=["portrait"])
 async def modeles(cle: str = Query(...), base_url: str = Query("")):
     """Liste les modèles disponibles pour une API OpenAI-compatible (BYO)."""
@@ -136,7 +171,7 @@ def theme(body: Fiche):
     maisons, aspects, dominantes). Seule la date est absolument requise —
     sans heure/lieu, seules les fondations Soleil/Lune sont calculées
     (Lune approximative sans heure) ; le reste en repli honnête."""
-    tc = theme_complet.theme_complet(body.model_dump())
+    tc = theme_complet.theme_complet(fiche_calcul(body))
     if not tc.get("fondations", {}).get("soleil"):
         raise HTTPException(422, "Indique au moins une date de naissance valide.")
     return tc
@@ -147,13 +182,14 @@ def portrait(body: Fiche):
     """Fiche → traditions calculées → portrait (stats/archétype/forces/faiblesse/pierre/
     récit) → empreinte lisible. Étendu : inclut désormais `theme_complet` intégré
     pour que le récit déterministe et l'empreinte exploitent les nouvelles données."""
-    trad = traditions.calculer(body.model_dump())
+    fiche = fiche_calcul(body)
+    trad = traditions.calculer(fiche)
     if not trad.get("signe_solaire"):
         raise HTTPException(422, "Indique au moins une date de naissance valide.")
-    tc = theme_complet.theme_complet_depuis_traditions(trad, body.model_dump())
+    tc = theme_complet.theme_complet_depuis_traditions(trad, fiche)
     p = synthese.portrait(trad, theme_complet=tc, nom=body.prenoms or body.nom, langue=body.langue)
     en = (body.langue or "fr").lower().startswith("en")
-    donnees = llm.donnees_synthetiques(body.model_dump(), trad, tc)
+    donnees = llm.donnees_synthetiques(fiche, trad, tc)
     p["recit"] += llm.complement_symbolique(trad, body.langue)
     return {"traditions": trad, "theme_complet": tc, "donnees_synthetiques": donnees,
             "portrait": p,

@@ -1,4 +1,4 @@
-#r-holistique { --hol-gold: #e1a76c; display: grid; gap: 14px; }
+#r-holistique,#r-matrice { --hol-gold: #e1a76c; display: grid; gap: 14px; }
 .hol-entete { padding: 4px 2px 2px; }
 .hol-kicker { margin: 0; color: var(--accent2); font: 700 .74rem/1.2 system-ui,sans-serif; letter-spacing: .15em; text-transform: uppercase; }
 .hol-intro { max-width: 62ch; margin: .5rem 0 0; color: var(--muted); font-size: .88rem; line-height: 1.55; }
@@ -91,8 +91,18 @@
   .theme-asp { overflow:visible; }
   .hol-note,.hol-summary-note,.hol-convention { color:#454554; }
 }
-@media print { #r-holistique { --hol-gold:#80501d; } }
+@media print { #r-holistique,#r-matrice { --hol-gold:#80501d; } }
 /* Les quatre champs d'identité gardent une largeur de saisie lisible. */
 .row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
 .row > div { min-width:0; }
 @media (max-width:620px) { .row { grid-template-columns:1fr; } }
+
+/* L’aide des points reste indépendante du bouton de sélection de l’arcane. */
+.hol-arcane-item { min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:.35rem; }
+.hol-arcane-item .hol-arcane-bouton { width:100%; flex:1; }
+.hol-arcane-item > .glossaire-ic { align-self:flex-end; }
+.hol-summary > span:first-child { min-width:0; }
+.hol-summary-titre,.hol-summary-note,.hol-cle { overflow-wrap:anywhere; }
+.hol-summary-titre .glossaire-ic,.hol-titre .glossaire-ic,.hol-cle .glossaire-ic { text-transform:none; letter-spacing:normal; }
+.resultats-onglets { flex-wrap:wrap; }
+#utc_fold[hidden], #utc-fold-label[hidden] { display:none !important; }

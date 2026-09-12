@@ -87,3 +87,9 @@ Le 23 décembre est un jour intercalaire sans arbre. Pour conserver les mêmes b
 des années bissextiles, le 29 février répète le jour précédent dans la période du Frêne
 et porte `jour_bissextile=true`. Malgré la clé historique `celte_lunaire`, ces périodes
 fixes de 28 jours ne décrivent pas les lunaisons astronomiques d'environ 29,5 jours.
+
+## Résolution automatique du fuseau
+
+L’interface envoie `utc_auto: true`. `/fuseau` détermine la zone IANA avec `tzfpy` (frontières géographiques contemporaines), puis son décalage à la naissance avec les règles historiques du paquet `tzdata` épinglé. `/portrait` et `/theme` refont cette résolution côté serveur pour ne pas utiliser un décalage périmé. Les anciens clients peuvent conserver un décalage explicite avec `utc_auto: false`.
+
+Une heure répétée exige `utc_fold: 0` ou `1` ; une heure inexistante est rejetée. Sans heure, aucun décalage n’est nécessaire. Les limites géographiques sont celles du jeu de données actuel, pas une reconstitution historique des frontières des fuseaux.

@@ -10,7 +10,7 @@ function synchroniserHeure() {
   const heure = document.getElementById('heure_naissance');
   heure.disabled = inconnue;
   if (inconnue) heure.value = '';
-  document.getElementById('utc_offset').required = !inconnue && !!heure.value;
+  document.getElementById('utc_offset').required = false;
 }
 function synchroniserCarte() {
   const connue = !!(_THEME_CACHE && _THEME_CACHE.meta && _THEME_CACHE.meta.heure_connue);

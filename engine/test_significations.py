@@ -119,6 +119,7 @@ def test_glossaire_fr_structure():
         "Autres traditions", "Numérologie",
         "Statistiques de personnalité", "Synthèse du portrait",
         "Carte astro complète",
+        "Matrice et traditions natales",
     ]
     ids = {it["id"] for t in g for it in t["items"]}
     assert {"soleil", "lune", "ascendant", "chinoise", "animal_heure",

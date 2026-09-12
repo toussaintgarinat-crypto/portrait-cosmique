@@ -87,6 +87,10 @@ détecte tout seul le sous-dossier `engine/` en local).
 
 ## Extensions holistiques
 
+La Matrice dispose de son propre onglet. BaZi, Arbre de Vie, Tzolkin maya, lecture védique, calendrier des 13 arbres et numérologie du nom sont réunis dans **Traditions natales**, avec les mêmes icônes d’explication que les autres traditions. Le formulaire distingue les prénoms du **nom de famille à la naissance** (ex. Dupont-Martin).
+
+Le fuseau est calculé automatiquement depuis les coordonnées du lieu, la date et l’heure de naissance (`tzfpy` + règles historiques IANA `tzdata`). Lors d’une heure répétée au passage à l’heure d’hiver, le formulaire demande la première ou seconde occurrence ; une heure inexistante est signalée. Sans heure, les modules calendaires restent utilisables.
+
 - **Matrice de la destinée** : cinq points A–E calculés à partir de la date, arcanes de Marseille, octogramme interactif au clavier et au toucher. Exemple du 05/09/1990 : **5, 9, 19, 6, 12**. La réduction additionne les chiffres au-delà de 22 ; ce n'est pas un modulo. Les axes amour et finances restent des repères symboliques sans scores.
 - **BaZi** : quatre piliers, maître du jour, présence des cinq éléments et Yin/Yang. Nécessite heure civile et décalage UTC historique. Année à Li Chun, mois solaires, jour à minuit ; calcul approché près des frontières, sans correction en temps solaire vrai ni pondération saisonnière des forces.
 - **Arbre de Vie** : dix sephiroth avec correspondance personnelle explicitement moderne (alphabet latin cyclique et date), sans prétendre à une gématrie hébraïque universelle. Aucun résultat de nom n'est produit si aucune lettre n'est exploitable.

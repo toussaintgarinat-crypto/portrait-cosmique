@@ -114,6 +114,8 @@ def donnees_synthetiques(fiche: dict, traditions: dict, theme: dict) -> dict:
         "nom_naissance": fiche.get("nom_naissance") or fiche.get("nom") or "",
         "date_naissance": fiche.get("date_naissance"),
         "heure": fiche.get("heure_naissance") or None,
+        "utc_offset": fiche.get("utc_offset"),
+        "fuseau": fiche.get("fuseau"),
         "polarite": fiche.get("polarite") or None,
     }, "astrologie": {key: val["signe"] for key, val in theme.get("fondations", {}).items() if val.get("signe")}}
     points = traditions.get("matrice_destinee", {}).get("points", {})

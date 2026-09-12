@@ -365,8 +365,9 @@ __HOLISTIQUE_CSS__
           <label data-t="l_nom">Nom</label>
           <input id="nom" type="text" placeholder="Dupont">
         </div><div>
-          <label for="nom_naissance" data-t="l_nom_naissance">Nom complet de naissance</label>
-          <input id="nom_naissance" type="text" autocomplete="off">
+          <label for="nom_naissance" data-t="l_nom_naissance">Nom de famille à la naissance</label>
+          <input id="nom_naissance" type="text" autocomplete="off" placeholder="Dupont-Martin" aria-describedby="nom-naissance-aide">
+          <p id="nom-naissance-aide" class="sous" data-t="nom_naissance_exemple">Ex. Jean Paul Dupont-Martin : saisir Dupont-Martin ici, sans répéter les prénoms.</p>
         </div><div>
           <label for="polarite" data-t="l_polarite">Polarité de lecture (facultatif)</label>
           <select id="polarite"><option value="" data-t="pol_libre">Sans préférence</option><option value="feminine" data-t="pol_f">Féminine</option><option value="masculine" data-t="pol_m">Masculine</option><option value="neutre" data-t="pol_n">Neutre</option></select>
@@ -392,9 +393,10 @@ __HOLISTIQUE_CSS__
       <div id="coords-info" class="sous" style="margin-top:6px;"></div>
       <input type="hidden" id="latitude">
       <input type="hidden" id="longitude">
-      <label for="utc_offset" data-t="l_utc">Décalage UTC à la naissance</label>
-      <input type="number" id="utc_offset" min="-14" max="14" step="0.25" placeholder="+2" aria-describedby="utc-aide">
-      <p id="utc-aide" class="sous" data-t="l_utc_aide">Ex. France métropolitaine : généralement +1 en hiver, +2 en été. Renseigne le décalage historique du lieu et de la date ; localiser la ville ne le détermine pas.</p>
+      <input type="hidden" id="utc_offset">
+      <p id="fuseau-info" class="sous" role="status" aria-live="polite"></p>
+      <label id="utc-fold-label" for="utc_fold" hidden>Heure répétée lors du changement d’heure / Repeated clock time</label>
+      <select id="utc_fold" hidden></select>
       <p class="sous" data-t="l_nom_aide">Pour les calculs du nom, utilise tous les prénoms et le nom de naissance. À défaut, le nom affiché est utilisé. La polarité ne modifie aucun calcul.</p>
 
       <details class="avance">
@@ -451,6 +453,7 @@ __HOLISTIQUE_CSS__
     <div class="resultats-onglets" id="r-onglets">
       <button class="onglet onglet-actif" data-onglet="portrait" data-t="t_portrait">Portrait</button>
       <button class="onglet" data-onglet="theme" data-t="t_theme">Carte astro complète</button>
+      <button class="onglet" data-onglet="matrice" data-t="t_matrice">Matrice de destinée</button>
       <button class="onglet" data-onglet="poster" data-t="t_poster">Poster</button>
     </div>
 
@@ -460,7 +463,6 @@ __HOLISTIQUE_CSS__
 
       <div id="r-stats" style="margin-top:16px;"></div>
 
-      <div id="r-holistique"></div>
       <div id="r-empreinte" style="margin-top:18px;"></div>
 
       <div class="recit" id="r-recit" style="margin-top:18px;"></div>
@@ -472,8 +474,10 @@ __HOLISTIQUE_CSS__
       </details>
     </section>
 
+    <section id="onglet-matrice" class="onglet-contenu" hidden><div id="r-matrice"></div></section>
+
     <section id="onglet-theme" class="onglet-contenu" hidden>
-      <p id="theme-heure-inconnue" class="section-intro" hidden data-t="theme_sans_heure">L’heure est inconnue : la carte du ciel est masquée. La matrice, la numérologie et les traditions calendaires restent disponibles dans le Portrait.</p>
+      <p id="theme-heure-inconnue" class="section-intro" hidden data-t="theme_sans_heure">L’heure est inconnue : la carte du ciel est masquée. La matrice, la numérologie et les traditions calendaires restent disponibles dans leurs onglets.</p>
       <div class="fil-rouge" data-t="fil_rouge">Planète = quoi · Signe = comment · Maison = où · Aspect = comment ça interagit</div>
       <div class="theme-options">
         <fieldset>
@@ -596,7 +600,7 @@ const I18N = {
     approfondi_titre: "✨ Lecture approfondie",
     llm_langue: "français",
     identite_ne: "né(e) le", identite_a: "à", identite_anonyme: "Portrait cosmique",
-    t_portrait: "Portrait", t_theme: "Carte astro complète",
+    t_matrice: "Matrice de destinée", nom_naissance_exemple: "Ex. Jean Paul Dupont-Martin : saisir Dupont-Martin ici, sans répéter les prénoms.", t_portrait: "Portrait", t_theme: "Carte astro complète",
     l_sys_maisons: "Système de maisons", l_meth_dom: "Méthode des dominantes",
     o_comptage: "Comptage + dignités", o_score: "Score complexe",
     caveat_precis: "Précision : VSOP87 (Soleil→Neptune <1″), Pluton/Chiron formule approchée (~0,1-1°). Sans Swiss Ephemeris.",
@@ -797,22 +801,22 @@ function majBoutonToggle(containerId) {
 
 // ── Découpage theme-section de l'empreinte (onglet Portrait) ──────
 Object.assign(I18N.fr, {
-  l_nom: "Nom affiché", l_nom_naissance: "Nom complet de naissance", l_polarite: "Polarité de lecture (facultatif)",
+  l_nom: "Nom affiché", l_nom_naissance: "Nom de famille à la naissance", l_polarite: "Polarité de lecture (facultatif)",
   pol_libre: "Sans préférence", pol_f: "Féminine", pol_m: "Masculine", pol_n: "Neutre",
   l_heure_inconnue: "Je ne connais pas mon heure", l_utc: "Décalage UTC à la naissance",
   l_utc_aide: "Ex. France métropolitaine : généralement +1 en hiver, +2 en été. Renseigne le décalage historique du lieu et de la date ; localiser la ville ne le détermine pas.",
   l_nom_aide: "Pour les calculs du nom, utilise tous les prénoms et le nom de naissance. À défaut, le nom affiché est utilisé. La polarité ne modifie aucun calcul.",
-  theme_sans_heure: "L’heure est inconnue : la carte du ciel est masquée. La matrice, la numérologie et les traditions calendaires restent disponibles dans le Portrait.",
+  theme_sans_heure: "L’heure est inconnue : la carte du ciel est masquée. La matrice, la numérologie et les traditions calendaires restent disponibles dans leurs onglets.",
   o_poster_matrice: "Matrice de la destinée", b_export_svg: "Télécharger le SVG",
   poster_resolution: "SVG vectoriel sans limite de résolution · PNG 3 000 × 3 000 px, 25,4 × 25,4 cm à 300 DPI."
 });
 Object.assign(I18N.en, {
-  l_nom: "Display surname", l_nom_naissance: "Full birth surname", l_polarite: "Reading polarity (optional)",
+  t_matrice: "Destiny matrix", nom_naissance_exemple: "For Jean Paul Dupont-Martin, enter Dupont-Martin here without repeating given names.", l_nom: "Display surname", l_nom_naissance: "Birth surname", l_polarite: "Reading polarity (optional)",
   pol_libre: "No preference", pol_f: "Feminine", pol_m: "Masculine", pol_n: "Neutral",
   l_heure_inconnue: "I don't know my birth time", l_utc: "UTC offset at birth",
   l_utc_aide: "Enter the historical UTC offset for the birth date and place, including daylight saving time. Locating a city does not determine its offset.",
   l_nom_aide: "Name calculations use all given names and the birth surname, falling back to the display surname. Polarity does not change calculations.",
-  theme_sans_heure: "Birth time is unknown: the sky chart is hidden. The matrix, numerology and calendar traditions remain available in the Portrait.",
+  theme_sans_heure: "Birth time is unknown: the sky chart is hidden. The matrix, numerology and calendar traditions remain available in their tabs.",
   o_poster_matrice: "Destiny matrix", b_export_svg: "Download SVG",
   poster_resolution: "Resolution-independent vector SVG · PNG 3,000 × 3,000 px, 10 × 10 in at 300 DPI."
 });
@@ -883,6 +887,7 @@ function lireChampsForm() {
     latitude: document.getElementById("latitude").value || null,
     longitude: document.getElementById("longitude").value || null,
     utc_offset: document.getElementById("utc_offset").value || null,
+    utc_fold: document.getElementById("utc_fold").value || null,
     systeme_numerologie: document.getElementById("systeme_numerologie").value,
   };
 }
@@ -897,9 +902,10 @@ function ecrireChampsForm(p) {
   document.getElementById("date_naissance").value = p.date_naissance || "";
   document.getElementById("heure_naissance").value = p.heure_naissance || "";
   document.getElementById("ville").value = p.ville || "";
-  document.getElementById("latitude").value = p.latitude || "";
-  document.getElementById("longitude").value = p.longitude || "";
-  document.getElementById("utc_offset").value = p.utc_offset ?? "";
+  document.getElementById("latitude").value = p.latitude ?? "";
+  document.getElementById("longitude").value = p.longitude ?? "";
+  document.getElementById("utc_offset").value = "";
+  actualiserFuseau(p.utc_fold);
   document.getElementById("systeme_numerologie").value = p.systeme_numerologie || "classique";
   document.getElementById("coords-info").textContent = p.ville ? p.ville : "";
   synchroniserHeure();
@@ -1128,6 +1134,7 @@ document.getElementById("select-profil").addEventListener("change", (e) => {
     document.getElementById("utc_offset").value = "";
     document.getElementById("coords-info").textContent = "";
     synchroniserHeure();
+    actualiserFuseau();
     const d = chargerProfils();
     d.profil_actif = null;
     sauvegarderProfils(d);
@@ -1189,24 +1196,10 @@ function setLangue(l) {
   // Un résultat déjà affiché a été calculé dans l'ANCIENNE langue (stats/archétype/
   // récit) : le rafraîchir plutôt que de ré-afficher des données périmées.
   if (DERNIER_RESULTAT) calculerPortrait();
+  else actualiserFuseau();
   rafraichirSelectProfil();
 }
 
-async function localiser() {
-  const ville = document.getElementById("ville").value.trim();
-  if (!ville) return;
-  try {
-    const r = await fetch("/geo?ville=" + encodeURIComponent(ville));
-    if (!r.ok) throw new Error();
-    const d = await r.json();
-    document.getElementById("latitude").value = d.latitude;
-    document.getElementById("longitude").value = d.longitude;
-
-    document.getElementById("coords-info").textContent = `${d.ville} (${d.latitude.toFixed(2)}, ${d.longitude.toFixed(2)})`;
-  } catch (e) {
-    document.getElementById("coords-info").textContent = LANGUE === "fr" ? "Ville introuvable." : "City not found.";
-  }
-}
 
 function aleatoire() {
   document.getElementById("heure_inconnue").checked = false;
@@ -1223,6 +1216,7 @@ function aleatoire() {
   const noms = ["Aria","Kalen","Sora","Ilian","Noa","Vesna","Rin","Malo"];
   document.getElementById("prenoms").value = noms[Math.floor(Math.random()*noms.length)];
   synchroniserHeure();
+  actualiserFuseau();
 }
 
 function md(txt) {
@@ -1270,7 +1264,7 @@ function afficherResultat(d) {
     ` <span class="badge">${t.pierre_titre} : ${p.pierre_equilibrage.pierre}${icGlossaire("pierre")}</span>`;
   const sectionsEmpreinte = EMPREINTE_SECTIONS
     .map(sec => ({ sec, items: d.empreinte.filter(e => sectionDeEntree(e) === sec.key && !["soleil", "lune", "ascendant", "milieu_du_ciel", "expression", "celte", "maya", "nakshatra", "vedique"].includes(e.id)) }))
-    .filter(x => x.sec.key === "traditions" && x.items.length);
+    .filter(x => x.sec.key === "traditions");
   document.getElementById("r-empreinte").innerHTML =
     (sectionsEmpreinte.length ? boutonToggleTout("r-empreinte") : "") +
     sectionsEmpreinte.map(({ sec, items }, idx) => {
@@ -1283,7 +1277,7 @@ function afficherResultat(d) {
         <div class="valeur">${e.valeur}</div>
         <div class="sens">${e.sens}</div>
       </div>`).join("");
-    return `<details class="theme-section-acc" data-section="${sec.key}"${ouverte}>${header}${intro}${body}</details>`;
+    return `<details class="theme-section-acc" data-section="${sec.key}"${ouverte}>${header}${intro}${body}<div id="r-holistique"></div></details>`;
   }).join("");
   majBoutonToggle("r-empreinte");
   rendreRecit(d);
@@ -1309,7 +1303,14 @@ function rendreRecit(d) {
 async function calculerPortrait() {
   const err = document.getElementById("erreur");
   err.textContent = "";
+  if (document.getElementById("ville").value.trim() && document.getElementById("latitude").value === "") await localiser();
+  if (!await actualiserFuseau()) {
+    err.textContent = document.getElementById("fuseau-info").textContent;
+    return;
+  }
   const body = {
+    utc_auto: true,
+    utc_fold: document.getElementById("utc_fold").value === "" ? null : Number(document.getElementById("utc_fold").value),
     prenoms: document.getElementById("prenoms").value,
     nom: document.getElementById("nom").value,
     nom_naissance: document.getElementById("nom_naissance").value,
