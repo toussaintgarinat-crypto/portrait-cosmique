@@ -1288,7 +1288,7 @@ function afficherResultat(d) {
     ` · ${t.faiblesse_titre} : ${p.faiblesse}${icGlossaire("faiblesse")}` +
     ` <span class="badge">${t.pierre_titre} : ${p.pierre_equilibrage.pierre}${icGlossaire("pierre")}</span>`;
   const sectionsEmpreinte = EMPREINTE_SECTIONS
-    .map(sec => ({ sec, items: d.empreinte.filter(e => sectionDeEntree(e) === sec.key && !["soleil", "lune", "ascendant", "milieu_du_ciel", "expression", "celte", "maya", "nakshatra", "vedique"].includes(e.id)) }))
+    .map(sec => ({ sec, items: d.empreinte.filter(e => sectionDeEntree(e) === sec.key && !["milieu_du_ciel", "expression", "celte", "maya", "nakshatra", "vedique"].includes(e.id)) }))
     .filter(x => x.sec.key === "traditions");
   document.getElementById("r-empreinte").innerHTML =
     (sectionsEmpreinte.length ? boutonToggleTout("r-empreinte") : "") +
@@ -1296,9 +1296,13 @@ function afficherResultat(d) {
     const ouverte = idx === 0 ? " open" : "";
     const header = `<summary class="theme-section"><span>${t[sec.titleKey]}</span>${sec.gid ? icGlossaire(sec.gid) : ""}<span class="tsa-chevron">▶</span></summary>`;
     const intro = sec.gid ? sectionIntro(sec.gid) : "";
-    const body = items.map(e => `
+    const fondamentaux = ["soleil", "lune", "ascendant"];
+    const body = [...items].sort((a, b) => {
+      const rang = e => fondamentaux.includes(e.id) ? fondamentaux.indexOf(e.id) : fondamentaux.length;
+      return rang(a) - rang(b);
+    }).map(e => `
       <div class="empreinte-item">
-        <div class="cle">${e.cle}${e.role ? " · " + e.role : ""}${icGlossaire(e.id)}</div>
+        <div class="cle">${e.id === "soleil" ? (LANGUE === "en" ? "Sun sign" : "Signe solaire") : e.id === "lune" ? (LANGUE === "en" ? "Moon sign" : "Signe lunaire") : e.cle}${e.role ? " · " + e.role : ""}${icGlossaire(e.id)}</div>
         <div class="valeur">${e.valeur}</div>
         <div class="sens">${e.sens}</div>
       </div>`).join("");

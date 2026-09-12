@@ -98,15 +98,17 @@
     parent.append(d);
   }
 
-  function detailsCarte(titre, note, ouverte = false) {
+  function detailsCarte(titre, note, ouverte = false, resultat = "", lecture = "") {
     const d = el("details", "hol-carte hol-details");
     d.open = ouverte;
     const s = el("summary", "hol-summary");
     const bloc = el("span");
     bloc.append(aide(el("span", "hol-summary-titre", titre), aideLibelle(titre)));
-    if (note) bloc.append(el("span", "hol-summary-note", note));
+    if (resultat) bloc.append(el("strong", "hol-summary-resultat", resultat));
+    if (lecture) bloc.append(el("span", "hol-summary-lecture", lecture));
     s.append(bloc, el("span", "hol-chevron", "›"));
     d.append(s);
+    if (note) d.append(el("p", "hol-convention", note));
     return d;
   }
 
@@ -198,7 +200,8 @@
   }
 
   function carteBazi(b) {
-    const d=detailsCarte(T().bazi,tr(b.convention,"Civil birth time and UTC offset; solar year at Li Chun, months at jie, day rollover at midnight, no apparent solar-time correction."));
+    const maitre=b.maitre_du_jour||{};
+    const d=detailsCarte(T().bazi,tr(b.convention,"Civil birth time and UTC offset; solar year at Li Chun, months at jie, day rollover at midnight, no apparent solar-time correction."),false,`${valeur(maitre.caractere)} ${valeur(maitre.nom)} · ${element(maitre.element)}`,tr("Maître du jour","Day master"));
     const grille=el("div","hol-piliers"); ["annee","mois","jour","heure"].forEach(k=>{const p=(b.piliers||{})[k]||{}, c=el("div","hol-pilier"); c.append(aide(el("span","hol-cle",T()[k]),"bazi_piliers"),el("strong","hol-ganzhi",valeur(p.gan_zhi)),el("span","",valeur(p.romanise)),el("small","",`${element(p.tige&&p.tige.element)} · ${valeur(p.tige&&p.tige.polarite)}`)); grille.append(c);});
     d.append(grille); const master=el("div","hol-master"); paire(master,T().maitre,`${valeur(b.maitre_du_jour&&b.maitre_du_jour.caractere)} ${valeur(b.maitre_du_jour&&b.maitre_du_jour.nom)} · ${element(b.maitre_du_jour&&b.maitre_du_jour.element)} ${valeur(b.maitre_du_jour&&b.maitre_du_jour.polarite)}`); d.append(master);
     const counts=el("div","hol-counts"); counts.append(aide(el("h4","",T().elements),"bazi_elements"),el("p","hol-note",T().elementsNote)); Object.entries(b.elements||{}).forEach(([k,v])=>{const row=el("div","hol-count-row"); row.append(el("span","",element(k)),el("span","hol-dots",Array(Math.max(0,Number(v))+1).join("●")),el("strong","",v)); counts.append(row);});
@@ -206,9 +209,9 @@
     if(b.precision){const p=el("p","hol-convention"); p.textContent=`${tr(valeur(b.precision.termes_solaires),"Approximate solar longitude; verify near a boundary")} · ${valeur(b.precision.longitude_solaire)}°${b.precision.limite_proche?tr(" · frontière proche : pilier à vérifier"," · near a boundary: verify this pillar"):""}`; d.append(p);} return d;
   }
 
-  function carteArbre(a) { const d=detailsCarte(T().arbre,T().arbreNote); const svg=$svg("svg",{class:"hol-svg hol-arbre-svg"}); dessinerArbre(svg,a); d.append(svg); const ul=el("ul","hol-seph-list"); (a.sephiroth||[]).forEach(s=>{const li=el("li",s.active_par&&s.active_par.length?"active":""); li.append(aide(el("strong","",`${s.numero}. ${s.nom} · ${sephLabel(s)}`),"arbre_sephiroth"),el("span","",`${T().potentiel} : ${valeur(sephSens(s))}`)); if(s.active_par&&s.active_par.length)li.append(el("em","",`${T().active} : ${s.active_par.map(sourceLabel).join(", ")}`)); ul.append(li);}); d.append(ul,el("p","hol-convention",tr(valeur(a.convention),"Modern symbolic mapping: reduce the date and Latin-alphabet name to 1–10, using the cyclic 1–9 alphabet. This is not a universal Kabbalistic method or Hebrew gematria. Lines show a schematic layout, not calculated personal trials."))); return d; }
+  function carteArbre(a) { const active=(a.sephiroth||[]).find(s=>s.active_par&&s.active_par.length); const d=detailsCarte(T().arbre,T().arbreNote,false,active?`${active.nom} · ${sephLabel(active)}`:"",active?sephSens(active):""); const svg=$svg("svg",{class:"hol-svg hol-arbre-svg"}); dessinerArbre(svg,a); d.append(svg); const ul=el("ul","hol-seph-list"); (a.sephiroth||[]).forEach(s=>{const li=el("li",s.active_par&&s.active_par.length?"active":""); li.append(aide(el("strong","",`${s.numero}. ${s.nom} · ${sephLabel(s)}`),"arbre_sephiroth"),el("span","",`${T().potentiel} : ${valeur(sephSens(s))}`)); if(s.active_par&&s.active_par.length)li.append(el("em","",`${T().active} : ${s.active_par.map(sourceLabel).join(", ")}`)); ul.append(li);}); d.append(ul,el("p","hol-convention",tr(valeur(a.convention),"Modern symbolic mapping: reduce the date and Latin-alphabet name to 1–10, using the cyclic 1–9 alphabet. This is not a universal Kabbalistic method or Hebrew gematria. Lines show a schematic layout, not calculated personal trials."))); return d; }
 
-  function carteSimple(titre,note,items,convention) { const d=detailsCarte(titre,note); const g=el("div","hol-faits"); items.filter(x=>x[1]!==undefined&&x[1]!==null&&x[1]!=="").forEach(x=>paire(g,x[0],x[1])); d.append(g); if(convention)d.append(el("p","hol-convention",convention)); return d; }
+  function carteSimple(titre,note,items,convention,resultat,lecture) { const d=detailsCarte(titre,note,false,resultat,lecture); const g=el("div","hol-faits"); items.filter(x=>x[1]!==undefined&&x[1]!==null&&x[1]!=="").forEach(x=>paire(g,x[0],x[1])); d.append(g); if(convention)d.append(el("p","hol-convention",convention)); return d; }
 
   function rendreHolistique(d) {
     const racine=document.getElementById("r-holistique");
@@ -222,16 +225,16 @@
     const sens = id => ((d.empreinte||[]).find(e=>e.id===id)||{}).sens || "";
     const maya=trad.maya;
     if(maya){
-      const card=carteSimple(T().maya,T().mayaNote,[[T().kin,maya.kin],[T().glyphe,maya.glyphe],[T().tonalite,`${maya.tonalite} / 13`],[tr("Lecture du glyphe","Glyph reading"),sens("maya")]],tr(maya.convention,T().mayaNote));
+      const card=carteSimple(T().maya,T().mayaNote,[[T().kin,maya.kin],[T().glyphe,maya.glyphe],[T().tonalite,`${maya.tonalite} / 13`]],tr(maya.convention,T().mayaNote),`${maya.tonalite} ${maya.glyphe}`,`${tr("Lecture du glyphe","Glyph reading")} : ${sens("maya")}`);
       const tones=el("div","hol-cycle");tones.setAttribute("aria-label",T().tonalite);
       for(let i=1;i<=13;i++){const n=el("span",i===maya.tonalite?"active":"",i);if(i===maya.tonalite)n.setAttribute("aria-current","true");tones.append(n);} card.append(tones);
       const glyphes=["Imix","Ik","Akbal","Kan","Chicchan","Cimi","Manik","Lamat","Muluc","Oc","Chuen","Eb","Ben","Ix","Men","Cib","Caban","Etznab","Cauac","Ahau"];
       const grid=el("div","hol-glyphes");glyphes.forEach((g,i)=>{const n=el("span",g===maya.glyphe?"active":"",`${i+1} · ${g}`);if(g===maya.glyphe)n.setAttribute("aria-current","true");grid.append(n);});card.append(grid);racine.append(card);
     }
-    const nk=trad.nakshatra, ved=trad.vedique; if(nk||ved)racine.append(carteSimple(T().vedique,T().vediqueNote,[["Nakshatra",nk&&nk.nakshatra],[T().pada,nk&&nk.pada!=null?`${nk.pada} / 4`:null],[tr("Lecture symbolique","Symbolic reading"),sens("nakshatra")],[T().longitude,nk&&nk.longitude_siderale!=null?`${nk.longitude_siderale}°`:null],[T().rashi,ved&&ved.rashi],[T().ayanamsa,nk&&nk.ayanamsa!=null?`${nk.ayanamsa}° (Lahiri ≈)`:null],[T().precision,nk?tr(nk.precision,T().vediqueNote):null]],nk&&nk.convention));
+    const nk=trad.nakshatra, ved=trad.vedique; if(nk||ved)racine.append(carteSimple(T().vedique,T().vediqueNote,[["Nakshatra",nk&&nk.nakshatra],[T().pada,nk&&nk.pada!=null?`${nk.pada} / 4`:null],[T().longitude,nk&&nk.longitude_siderale!=null?`${nk.longitude_siderale}°`:null],[T().rashi,ved&&ved.rashi],[T().ayanamsa,nk&&nk.ayanamsa!=null?`${nk.ayanamsa}° (Lahiri ≈)`:null],[T().precision,nk?tr(nk.precision,T().vediqueNote):null]],nk&&nk.convention,nk&&nk.nakshatra?`${nk.nakshatra} · ${T().pada} ${nk.pada}`:ved&&ved.rashi,sens("nakshatra")||sens("vedique")));
     else racine.append(aide(el("p","hol-omission",tr("Nakshatra indisponible sans heure de naissance : aucune position lunaire n’est inventée.","Nakshatra unavailable without birth time: no lunar position is invented.")),"vedique"));
-    const cel=hol.celte_lunaire; if(cel)racine.append(carteSimple(T().celte,T().celteNote,[[tr("Arbre","Tree"),cel.arbre?`${cel.arbre}${langue()==="en"&&cel.nom_en?` · ${cel.nom_en}`:""}`:T().intercalaire],[T().periode,cel.periode],[T().cycle,cel.jour_cycle],[tr("Autre convention : 21 arbres (synthèse)","Other convention: 21 trees (synthesis)"),trad.celte],[tr("Lecture de cette autre convention","Reading for this other convention"),sens("celte")]],tr(cel.convention,T().celteNote)));
-    const num=trad.numerologie_nom; if(num)racine.append(carteSimple(T().numero,T().numeroNote,[[T().expression,num.expression],[tr("Sens de l’expression","Expression reading"),sens("expression")],[T().ame,num.ame],[T().personnalite,num.personnalite],[T().systeme,num.systeme]]));
+    const cel=hol.celte_lunaire; if(cel)racine.append(carteSimple(T().celte,T().celteNote,[[tr("Arbre","Tree"),cel.arbre?`${cel.arbre}${langue()==="en"&&cel.nom_en?` · ${cel.nom_en}`:""}`:T().intercalaire],[T().periode,cel.periode],[T().cycle,cel.jour_cycle],[tr("Autre convention : 21 arbres (synthèse)","Other convention: 21 trees (synthesis)"),trad.celte]],tr(cel.convention,T().celteNote),cel.arbre||T().intercalaire,sens("celte")));
+    const num=trad.numerologie_nom; if(num)racine.append(carteSimple(T().numero,T().numeroNote,[[T().expression,num.expression],[T().ame,num.ame],[T().personnalite,num.personnalite],[T().systeme,num.systeme]],"",`${T().expression} ${num.expression}`,sens("expression")));
   }
 
   window.rendreHolistique=rendreHolistique;

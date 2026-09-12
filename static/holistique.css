@@ -25,6 +25,10 @@
 .hol-summary::-webkit-details-marker { display:none; }
 .hol-summary-titre,.hol-summary-note { display: block; }
 .hol-summary-titre { color: var(--text); font: 700 1rem/1.3 Georgia,"Times New Roman",serif; }
+.hol-summary-resultat,.hol-summary-lecture { display:block; }
+.hol-summary-titre { color:var(--accent2); }
+.hol-summary-resultat { margin-top:.38rem; color:var(--text); font:700 1.02rem/1.35 Georgia,"Times New Roman",serif; }
+.hol-summary-lecture { max-width:62ch; margin-top:.3rem; color:var(--muted); font-size:.83rem; line-height:1.5; }
 .hol-summary-note { margin-top: .25rem; }
 .hol-chevron { color: var(--accent); font-size: 1.5rem; transition: transform .18s; }
 .hol-details[open] .hol-chevron { transform: rotate(90deg); }
