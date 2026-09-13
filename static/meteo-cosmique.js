@@ -89,8 +89,8 @@ function meteoRendre(data) {
 
   const fenetres = Array.isArray(data.fenetres) ? data.fenetres : [];
   if (fenetres.length) {
-    const windows = document.createElement('details'); windows.className = 'meteo-detail';
-    const summary = document.createElement('summary'); summary.textContent = meteoTexte('Fenêtres de la journée', 'Today’s windows'); windows.append(summary);
+    const windows = document.createElement('details'); windows.className = 'meteo-detail'; windows.open = true;
+    const summary = document.createElement('summary'); summary.textContent = meteoTexte('Conseils par tranche horaire', 'Advice by time slot'); windows.append(summary);
     const list = document.createElement('ul');
     meteoAppendText(windows, 'p', `${data.date_locale} · ${data.fuseau} · ${meteoTexte('Horaires dans le fuseau de ton navigateur.', 'Times in your browser time zone.')}`);
     const horloge = new Intl.DateTimeFormat(LANGUE==='en'?'en-GB':'fr-FR', {hour:'2-digit', minute:'2-digit',timeZone:data.fuseau,timeZoneName:'short'});
@@ -112,7 +112,7 @@ function meteoRendre(data) {
     meteoAppendText(limits, 'summary', meteoTexte('Méthode et limites du calcul', 'Method and limitations'));
     meteoListe(limits, data.limites); result.append(limits);
   }
-  result.querySelectorAll('details').forEach((d,i)=>{ d.open=ouverts[i] || false; });
+  result.querySelectorAll('details').forEach((d,i)=>{ d.open=ouverts[i] ?? d.open; });
 }
 function viderResultatMeteo() {
   meteoEl('meteo-resultat').replaceChildren(); meteoEl('meteo-resultat').hidden = true;

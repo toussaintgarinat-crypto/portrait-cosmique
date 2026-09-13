@@ -298,6 +298,16 @@ async def horoscope_du_jour(body: HoroscopeBody):
             return {'texte': texte.strip(), 'date': jour, 'source': source, 'langue': langue}
     except HTTPException:
         raise
+    except httpx.HTTPStatusError as exc:
+        messages = {
+            401: 'Le fournisseur IA refuse la clé API. Vérifie la clé et le fournisseur dans les options avancées.',
+            403: 'Le fournisseur IA refuse l’accès. Vérifie les autorisations de la clé et du modèle.',
+            402: 'Le fournisseur IA demande du crédit. Vérifie le solde de ton compte.',
+            429: 'Le fournisseur IA signale une limite de requêtes ou de quota. Vérifie ton quota ou réessaie plus tard.',
+            404: 'Le modèle ou l’URL de l’API est introuvable. Vérifie les options avancées.',
+        }
+        detail = messages.get(exc.response.status_code) if body.mode == 'ia' else None
+        raise HTTPException(502, detail or 'Le service d’horoscope est indisponible. Réessaie plus tard.') from None
     except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError, AttributeError):
         # Ne jamais exposer au navigateur la réponse fournisseur ou des secrets.
         raise HTTPException(502, 'Le service d’horoscope est indisponible. Réessaie plus tard.')

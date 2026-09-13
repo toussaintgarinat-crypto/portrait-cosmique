@@ -3,8 +3,8 @@ const fs = require('node:fs');
 const test = require('node:test');
 const vm = require('node:vm');
 
-function element() {
-  return {hidden:false, disabled:false, textContent:'', value:'', children:[],
+function element(tag) {
+  return {tag, open:false, querySelectorAll(selector) { return this.children.flatMap(n => [...(n.tag===selector?[n]:[]), ...(n.querySelectorAll?.(selector)||[])]); }, hidden:false, disabled:false, textContent:'', value:'', children:[],
     addEventListener() {}, append(...nodes) { this.children.push(...nodes); },
     appendChild(node) { this.children.push(node); return node; }, replaceChildren(...nodes) { this.children = nodes; }};
 }
@@ -13,7 +13,7 @@ function charger() {
   elements['onglet-horoscope'].hidden = true;
   const ctx = {window:{}, LANGUE:'fr', DERNIER_RESULTAT:null, AbortController, Date, JSON, Number, Object, String, Array, Error,
     Intl, setTimeout, clearTimeout, setInterval() {}, navigator:{},
-    document:{visibilityState:'visible', getElementById:id => elements[id], addEventListener() {}, createElement:() => element()},
+    document:{visibilityState:'visible', getElementById:id => elements[id], addEventListener() {}, createElement:tag => element(tag)},
     profilHoroscope:() => ({date:'2026-09-13'}), dateLocaleHoroscope:() => '2026-09-13', lireChampsForm:() => ({utc_fold:'0', latitude:'1.2', longitude:'3.4'})};
   ctx.window = ctx;
   vm.createContext(ctx);
@@ -90,4 +90,15 @@ test('failed refresh keeps the last valid reading and reports its timestamp', as
   assert.equal(elements['meteo-resultat'].hidden,false);
   assert.match(elements['meteo-statut'].textContent,/Dernier calcul conservé/);
   assert.equal(elements['meteo-generer'].disabled,false);
+});
+
+ test('hourly advice is visible immediately and keeps the user choice on refresh', () => {
+  const {ctx,elements} = charger();
+  const data={natal_complet:true,date_locale:'2026-09-13',fuseau:'Europe/Paris',instant_utc:'2026-09-13T12:00:00Z',fenetres:[{debut:'2026-09-13T10:00:00Z',fin:'2026-09-13T14:00:00Z',conseil:'Prends une pause.'}]};
+  ctx.meteoRendre(data);
+  let windows=elements['meteo-resultat'].querySelectorAll('details')[0];
+  assert.equal(windows.open,true);
+  windows.open=false;
+  ctx.meteoRendre(data);
+  assert.equal(elements['meteo-resultat'].querySelectorAll('details')[0].open,false);
 });

@@ -1016,7 +1016,7 @@ const FOURNISSEURS = {
   custom:     { base_url: "", label: "Personnalisé" },
 };
 
-function changerFournisseur() {
+function changerFournisseur({sauvegarder = true} = {}) {
   const f = document.getElementById("llm_fournisseur").value;
   const baseInput = document.getElementById("llm_base_url");
   const baseGroup = document.getElementById("llm_base_url_group");
@@ -1032,7 +1032,7 @@ function changerFournisseur() {
   document.getElementById("llm_modele_select").style.display = "none";
   document.getElementById("llm_modele").style.display = "";
   document.getElementById("llm-modeles-status").textContent = "";
-  sauvegarderConfigLLM();
+  if (sauvegarder) sauvegarderConfigLLM();
 }
 
 function updateModeleDisplay() {
@@ -1077,7 +1077,7 @@ function chargerConfigLLM() {
   try {
     const cfg = JSON.parse(raw);
     if (cfg.fournisseur) document.getElementById("llm_fournisseur").value = cfg.fournisseur;
-    changerFournisseur();
+    changerFournisseur({sauvegarder:false});
     if (cfg.base_url) document.getElementById("llm_base_url").value = cfg.base_url;
     if (cfg.cle) document.getElementById("llm_cle").value = cfg.cle;
     if (cfg.modele) {
@@ -1107,7 +1107,7 @@ function sauvegarderConfigLLM() {
 function effacerConfigLLM() {
   localStorage.removeItem(LLM_STORAGE_KEY);
   document.getElementById("llm_fournisseur").value = "openrouter";
-  changerFournisseur();
+  changerFournisseur({sauvegarder:false});
   document.getElementById("llm_base_url").value = FOURNISSEURS.openrouter.base_url;
   document.getElementById("llm_cle").value = "";
   document.getElementById("llm_modele").value = "";
@@ -1137,7 +1137,7 @@ document.getElementById("llm_cle").addEventListener("input", sauvegarderConfigDe
 document.getElementById("llm_modele").addEventListener("input", sauvegarderConfigDebounced);
 document.getElementById("llm_modele_select").addEventListener("change", () => { updateModeleDisplay(); sauvegarderConfigLLM(); });
 
-changerFournisseur();
+changerFournisseur({sauvegarder:false});
 chargerConfigLLM();
 
 // ── Multi-profils : peuplement select + chargement initial ───────

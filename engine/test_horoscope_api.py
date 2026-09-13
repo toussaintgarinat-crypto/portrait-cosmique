@@ -81,3 +81,13 @@ def test_api_does_not_mislabel_provider_date(monkeypatch):
     r=client.post('/horoscope-du-jour',json={'mode':'api','date':'2026-09-12','soleil':'Vierge'})
     assert r.status_code==200
     assert r.json()['date']=='2026-09-11'
+
+
+def test_ia_provider_errors_are_actionable_without_leaking_response(monkeypatch):
+    config = {'base_url':'https://example.test/v1','cle':'test-secret','modele':'model'}
+    for status, indication in ((401, 'clé API'), (403, 'accès'), (402, 'crédit'), (429, 'limite'), (404, 'modèle')):
+        fake_provider(monkeypatch, {'error':'test-secret'}, status)
+        r = client.post('/horoscope-du-jour', json={'mode':'ia','date':'2026-09-12','soleil':'Vierge','llm':config})
+        assert r.status_code == 502
+        assert indication in r.json()['detail']
+        assert 'test-secret' not in r.text
