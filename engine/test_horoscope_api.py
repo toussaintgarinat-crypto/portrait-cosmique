@@ -91,3 +91,57 @@ def test_ia_provider_errors_are_actionable_without_leaking_response(monkeypatch)
         assert r.status_code == 502
         assert indication in r.json()['detail']
         assert 'test-secret' not in r.text
+
+
+def test_api_translation_preserves_provider_date_and_translates_source(monkeypatch):
+    calls = fake_provider(monkeypatch, {'data':{'date':'2026-09-11','horoscope':'Take time to rest.'}})
+    seen = []
+    async def translate(text, config):
+        seen.append((text, config))
+        return 'Prends le temps de te reposer.'
+    monkeypatch.setattr(main.llm, 'traduire_horoscope', translate, raising=False)
+    config = {'base_url':'https://example.test/v1','cle':'test-key','modele':'test-model'}
+    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','traduire_fr':True,'llm':config})
+    assert r.status_code == 200
+    assert r.json()['texte'] == 'Prends le temps de te reposer.'
+    assert r.json()['langue'] == 'fr'
+    assert r.json()['date'] == '2026-09-11'
+    assert r.json()['source'] == 'api'
+    assert seen == [('Take time to rest.', config)]
+
+
+def test_translation_failure_keeps_english_and_reports_fallback(monkeypatch):
+    fake_provider(monkeypatch, {'data':{'date':'2026-09-12','horoscope':'Take time to rest.'}})
+    async def translate(*args):
+        raise RuntimeError('private-provider-secret')
+    monkeypatch.setattr(main.llm, 'traduire_horoscope', translate, raising=False)
+    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','traduire_fr':True})
+    assert r.status_code == 200
+    assert r.json()['texte'] == 'Take time to rest.'
+    assert r.json()['langue'] == 'en'
+    assert 'traduction' in r.json()['avertissement'].lower()
+    assert 'private-provider-secret' not in r.text
+
+
+def test_translation_adapter_uses_config_and_source_only(monkeypatch):
+    import asyncio
+    calls = fake_provider(monkeypatch, {'choices':[{'message':{'content':'  Prends une pause.  '}}]})
+    config = {'base_url':'https://example.test/v1','cle':'test-key','modele':'test-model'}
+    result = asyncio.run(main.llm.traduire_horoscope('Take a break.', config))
+    assert result == 'Prends une pause.'
+    url, request = calls[0]
+    assert url == 'https://example.test/v1/chat/completions'
+    assert request['headers']['Authorization'] == 'Bearer test-key'
+    assert request['json']['model'] == 'test-model'
+    assert request['json']['messages'][1]['content'] == 'Take a break.'
+
+
+def test_empty_translation_keeps_source(monkeypatch):
+    fake_provider(monkeypatch, {'data':{'date':'2026-09-12','horoscope':'Take a break.'}})
+    async def translate(*args):
+        return '   '
+    monkeypatch.setattr(main.llm, 'traduire_horoscope', translate)
+    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','traduire_fr':True})
+    assert r.json()['texte'] == 'Take a break.'
+    assert r.json()['langue'] == 'en'
+    assert r.json()['avertissement']

@@ -64,14 +64,14 @@ async function genererHoroscope(mode) {
   const controller = new AbortController();
   etat.requete = controller;
   const statut = document.getElementById('horoscope-statut');
-  const timeout = setTimeout(() => controller.abort(), 70000);
+  const timeout = setTimeout(() => controller.abort(), 130000);
   try {
     const profil = profilHoroscope();
     boutonsHoroscope(true);
-    statut.textContent = hTexte('Génération en cours…', 'Generating…');
+    statut.textContent = mode === 'api' && LANGUE === 'fr' ? 'Chargement et traduction en français…' : hTexte('Génération en cours…', 'Generating…');
     const response = await fetch('/horoscope-du-jour', {
       method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-      body:JSON.stringify({...profil, mode, llm:mode === 'ia' ? configurationHoroscopeIA() : null})
+      body:JSON.stringify({...profil, mode, traduire_fr:mode === 'api' && LANGUE === 'fr', llm:mode === 'ia' || LANGUE === 'fr' ? configurationHoroscopeIA() : null})
     });
     const data = await response.json();
     if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : hTexte('La génération a échoué.', 'Generation failed.'));
@@ -82,12 +82,13 @@ async function genererHoroscope(mode) {
     const lecture = document.getElementById('horoscope-texte');
     lecture.textContent = data.texte;
     lecture.lang = data.langue === 'en' ? 'en' : 'fr';
-    statut.textContent = `${data.date || profil.date} · ${profil.soleil} · ${mode === 'ia' ? hTexte('IA personnalisée', 'Personalized AI') : hTexte('API · texte anglais', 'API · English text')}`;
+    statut.textContent = `${data.date || profil.date} · ${profil.soleil} · ${mode === 'ia' ? hTexte('IA personnalisée', 'Personalized AI') : (data.langue === 'fr' ? 'API · traduction française' : hTexte('API · texte anglais', 'API · English text'))}`;
     if (mode === 'api' && data.date !== profil.date) statut.textContent += hTexte(' · Date du fournisseur différente du jour local.', ' · Provider date differs from your local date.');
+    if (typeof data.avertissement === 'string') statut.textContent += ' · ' + data.avertissement;
     document.getElementById('horoscope-ecouter').disabled = !audioHoroscopeDisponible();
     document.getElementById('horoscope-audio-statut').textContent = !audioHoroscopeDisponible()
       ? hTexte('La lecture audio est indisponible dans ce navigateur.', 'Speech is unavailable in this browser.')
-      : mode === 'api' ? hTexte('La voix française ne traduit pas le texte anglais.', 'The French voice does not translate English text.') : '';
+      : data.langue === 'en' ? hTexte('La voix française ne traduit pas le texte anglais.', 'The French voice does not translate English text.') : '';
   } catch (e) {
     if (version !== etat.version) return;
     statut.textContent = e.name === 'AbortError'
@@ -139,8 +140,8 @@ document.getElementById('form-fiche').addEventListener('input', reinitialiserHor
 document.getElementById('form-fiche').addEventListener('change', reinitialiserHoroscope);
 Object.assign(I18N.fr, {h_onglet:'Horoscope du jour', h_badge:'Une pause pour aujourd’hui',
   h_intro:'Une lecture symbolique : par signe solaire avec l’API, ou personnalisée avec ton Soleil, ta Lune et ton ascendant disponibles.',
-  h_api:'⚡ API rapide · anglais', h_ia:'✨ IA personnalisée · français', h_ecouter:'🔊 Écouter', h_arreter:'⏹ Arrêter',
-  h_note:'L’API est gratuite. L’IA utilise ta configuration existante et les éventuels frais de ton fournisseur. Ces deux lectures complémentaires n’utilisent pas les transits calculés ci-dessus.'});
+  h_api:'⚡ Horoscope · traduit en français', h_ia:'✨ IA personnalisée · français', h_ecouter:'🔊 Écouter', h_arreter:'⏹ Arrêter',
+  h_note:'L’horoscope source est gratuit. Sa traduction française et l’IA personnalisée utilisent ta configuration IA et les éventuels frais de ton fournisseur. Ces deux lectures complémentaires n’utilisent pas les transits calculés ci-dessus.'});
 Object.assign(I18N.en, {h_onglet:'Daily horoscope', h_badge:'A moment for today',
   h_intro:'A symbolic reading: by Sun sign through the API, or personalized with your available Sun, Moon and rising signs.',
   h_api:'⚡ Quick API · English', h_ia:'✨ Personalized AI · French', h_ecouter:'🔊 Listen', h_arreter:'⏹ Stop',

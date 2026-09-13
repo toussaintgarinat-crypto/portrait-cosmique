@@ -228,6 +228,7 @@ _SIGNES_HOROSCOPE = dict(zip(
 
 class HoroscopeBody(BaseModel):
     mode: Literal['api', 'ia']
+    traduire_fr: bool = False
     date: str
     soleil: str
     ascendant: Optional[str] = None
@@ -295,7 +296,19 @@ async def horoscope_du_jour(body: HoroscopeBody):
                 jour, source, langue = body.date, 'ia', 'fr'
             if not isinstance(texte, str) or not texte.strip():
                 raise ValueError('Texte vide.')
-            return {'texte': texte.strip(), 'date': jour, 'source': source, 'langue': langue}
+            resultat = {'texte': texte.strip(), 'date': jour, 'source': source, 'langue': langue}
+            if body.mode == 'api' and body.traduire_fr:
+                try:
+                    traduction = await llm.traduire_horoscope(texte.strip(), body.llm)
+                    if not isinstance(traduction, str) or not traduction.strip():
+                        raise ValueError('Traduction vide.')
+                    resultat.update(texte=traduction.strip(), langue='fr')
+                except Exception:
+                    resultat['avertissement'] = (
+                        'Traduction française indisponible : texte anglais conservé. '
+                        'Vérifie le fournisseur, la clé, le modèle et le quota dans les options avancées.'
+                    )
+            return resultat
     except HTTPException:
         raise
     except httpx.HTTPStatusError as exc:
