@@ -19,13 +19,14 @@ import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 _ENGINE_DIR = Path(__file__).parent / "engine"
 if _ENGINE_DIR.is_dir():   # dev local (repo tel quel) ; en Docker les fichiers sont aplatis
     sys.path.insert(0, str(_ENGINE_DIR))
 
 import fuseaux
+import meteo_cosmique
 import significations
 import synthese
 import theme_complet
@@ -83,7 +84,7 @@ def accueil():
     # json.dumps produit un littéral JS sûr (guillemets échappés) — l'URL vient de
     # l'opérateur de l'instance, jamais de l'utilisateur.
     html = html.replace("__HOLISTIQUE_CSS__", Path(__file__).parent.joinpath("static/holistique.css").read_text(encoding="utf-8"))
-    html = html.replace("__HOLISTIQUE_JS__", "\n".join(Path(__file__).parent.joinpath("static", name).read_text(encoding="utf-8") for name in ("holistique.js", "interface-support.js", "fuseau-auto.js", "horoscope.js")))
+    html = html.replace("__HOLISTIQUE_JS__", "\n".join(Path(__file__).parent.joinpath("static", name).read_text(encoding="utf-8") for name in ("holistique.js", "interface-support.js", "fuseau-auto.js", "horoscope.js", "meteo-cosmique.js")))
     return (html
             .replace("__STATS_API_URL__", json.dumps(os.getenv("STATS_API_URL", "")))
             .replace("__BOUTIQUE_URL__", json.dumps(os.getenv("BOUTIQUE_URL", ""))))
@@ -300,3 +301,51 @@ async def horoscope_du_jour(body: HoroscopeBody):
     except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError, AttributeError):
         # Ne jamais exposer au navigateur la réponse fournisseur ou des secrets.
         raise HTTPException(502, 'Le service d’horoscope est indisponible. Réessaie plus tard.')
+
+
+class LocalisationMeteo(BaseModel):
+    latitude: float = Field(ge=-90, le=90, allow_inf_nan=False)
+    longitude: float = Field(ge=-180, le=180, allow_inf_nan=False)
+
+
+class MeteoBody(BaseModel):
+    fiche: Fiche
+    fuseau: str = Field(min_length=1, max_length=100)
+    localisation: Optional[LocalisationMeteo] = None
+
+    @model_validator(mode='after')
+    def valider(self):
+        import math
+        import re
+        from datetime import date, time
+        from zoneinfo import ZoneInfoNotFoundError
+        try:
+            fuseaux._charger_fuseau(self.fuseau)
+        except (ZoneInfoNotFoundError, ValueError, OSError) as exc:
+            raise ValueError('Fuseau IANA invalide.') from exc
+        birth = date.fromisoformat(self.fiche.date_naissance)
+        if not 1800 <= birth.year <= 2100:
+            raise ValueError('Naissance attendue entre 1800 et 2100 pour ce moteur approché.')
+        if self.fiche.heure_naissance:
+            if not re.fullmatch(r'[0-9]{2}:[0-9]{2}', self.fiche.heure_naissance):
+                raise ValueError('Heure de naissance attendue au format HH:MM.')
+            heure = time.fromisoformat(self.fiche.heure_naissance)
+            if heure.tzinfo is not None or heure.second or heure.microsecond:
+                raise ValueError('Heure de naissance locale attendue au format HH:MM.')
+        for valeur, borne in ((self.fiche.utc_offset, 14), (self.fiche.latitude,90), (self.fiche.longitude,180)):
+            if valeur is not None and (not math.isfinite(valeur) or abs(valeur)>borne):
+                raise ValueError('Coordonnées ou décalage de naissance invalides.')
+        if (self.fiche.latitude is None) != (self.fiche.longitude is None):
+            raise ValueError('Les deux coordonnées de naissance sont nécessaires.')
+        if self.fiche.heure_naissance and self.fiche.utc_offset is None and self.fiche.latitude is None:
+            raise ValueError('Indique le décalage UTC ou le lieu de naissance pour utiliser cette heure.')
+        return self
+
+
+@app.post('/meteo-cosmique', tags=['portrait'])
+def meteo(body: MeteoBody):
+    try:
+        return meteo_cosmique.calculer(fiche_calcul(body.fiche), body.fuseau,
+                                      body.localisation.model_dump() if body.localisation else None)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc

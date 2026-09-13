@@ -477,15 +477,42 @@ __HOLISTIQUE_CSS__
 
     <section id="onglet-horoscope" class="onglet-contenu" hidden>
       <div class="horoscope-entete">
+        <span class="badge">Transits du moment</span>
+        <h2 id="meteo-titre">Météo cosmique</h2>
+        <p class="sous">Une lecture symbolique de tes transits personnels, calculée à l’instant présent.</p>
+      </div>
+      <section id="meteo-cosmique" class="meteo-cosmique" aria-labelledby="meteo-titre">
+        <div class="meteo-actions">
+          <button type="button" id="meteo-generer" class="btn">Actualiser la météo cosmique</button>
+          <button type="button" id="meteo-lieu-ouvrir" class="btn ghost">Activer la météo cosmique locale</button>
+        </div>
+        <p id="meteo-statut" class="sous" role="status" aria-live="polite"></p>
+        <div id="meteo-lieu" class="meteo-lieu" hidden>
+          <p class="meteo-note">Le lieu est facultatif et utilisé seulement pour cette session : il permet d’ajouter l’Ascendant, le Milieu du Ciel et les maisons du moment. Les coordonnées sont envoyées au serveur pour le calcul, sans être conservées dans un profil.</p>
+          <div class="btns">
+            <button type="button" id="meteo-gps" class="btn secondary">Utiliser ma position dans ce navigateur</button>
+            <button type="button" id="meteo-lieu-reset" class="btn ghost" hidden>Retirer le lieu</button>
+          </div>
+          <label for="meteo-ville">Ou chercher une ville</label>
+          <div class="ville-row meteo-ville-row">
+            <input id="meteo-ville" type="search" autocomplete="off" placeholder="Castres, Tarn, France">
+            <button type="button" id="meteo-ville-chercher" class="btn secondary">Chercher</button>
+          </div>
+          <div id="meteo-ville-candidat" class="meteo-candidat" hidden></div>
+        </div>
+        <div id="meteo-lieu-actif" class="meteo-lieu-actif" hidden></div>
+        <div id="meteo-resultat" class="meteo-resultat" hidden></div>
+      </section>
+      <div class="horoscope-legacy" aria-label="Lectures complémentaires">
         <span class="badge" data-t="h_badge">Une pause pour aujourd’hui</span>
-        <h2 data-t="h_onglet">Horoscope du jour</h2>
+        <h3 data-t="h_onglet">Horoscope du jour</h3>
         <p class="sous" data-t="h_intro">Une lecture symbolique : par signe solaire avec l’API, ou personnalisée avec ton Soleil, ta Lune et ton ascendant disponibles.</p>
       </div>
       <div class="btns">
         <button type="button" class="btn secondary" data-horoscope-generation onclick="chargerHoroscopeAPI()" data-t="h_api">⚡ API rapide · anglais</button>
         <button type="button" class="btn" data-horoscope-generation onclick="chargerHoroscopeIA()" data-t="h_ia">✨ IA personnalisée · français</button>
       </div>
-      <p class="sous" data-t="h_note">L’API est gratuite. L’IA utilise ta configuration existante et les éventuels frais de ton fournisseur. Aucun transit du jour n’est calculé.</p>
+      <p class="sous" data-t="h_note">L’API est gratuite. L’IA utilise ta configuration existante et les éventuels frais de ton fournisseur. Ces deux lectures complémentaires n’utilisent pas les transits calculés ci-dessus.</p>
       <p id="horoscope-statut" class="sous" role="status" aria-live="polite"></p>
       <div id="horoscope-texte" class="recit horoscope-lecture"></div>
       <div class="btns hol-controls">

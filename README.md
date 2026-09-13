@@ -85,7 +85,17 @@ détecte tout seul le sous-dossier `engine/` en local).
 - **Récit symbolique** qui tisse tout ça en une lecture cohérente.
 - **Français ou anglais** — même moteur, mêmes données, langue au choix (bouton FR/EN).
 
-## Horoscope du jour
+## Horoscope du jour et météo cosmique
+
+Le panneau **Météo cosmique** calcule les transits personnels à l’instant UTC serveur et affiche la journée dans le fuseau IANA du navigateur. Trois tendances qualitatives — Focus, Élan, Sociabilité — indiquent une intensité symbolique (discret/modéré/marqué), avec les aspects et orbes explicatifs. Le bouton d’actualisation fonctionne sans clé ni LLM.
+
+**Activer la météo cosmique locale** propose la position du navigateur (permission demandée uniquement au clic) ou la recherche puis confirmation d’une ville. Le lieu est gardé en mémoire de session, séparé de la naissance ; les coordonnées sont envoyées au serveur pour le calcul, sans stockage applicatif. Refus ou indisponibilité : les transits restent utilisables. Le bouton **Analyser ici & maintenant** ajoute les angles et maisons locales en signes entiers, ainsi que les fenêtres de la journée aux changements du signe ascendant. Les horaires restent dans le fuseau navigateur, même si la ville choisie est ailleurs. Le fuseau du lieu est également affiché.
+
+Les éphémérides globales sont approchées (moteur existant), échantillonnées chaque heure et interpolées à la minute ; un cache mémoire borné à huit journées UTC ne contient aucune donnée personnelle. L’orbe des cinq aspects majeurs est fixé à 3°. Le niveau de chaque tendance dépend de l’aspect le plus proche touchant Mercure (Focus), Soleil/Mars (Élan), Vénus/Jupiter (Sociabilité), côté transit ou natal ; les aspects des angles locaux peuvent contribuer lorsque le lieu est actif. Une intensité marquée ne signifie pas nécessairement une ambiance favorable. Sans heure natale, seul le Soleil approximé à midi est utilisé et la lecture est signalée comme partielle. À partir de 66° de latitude, le ciel local est désactivé avec explication, les transits personnels sont conservés.
+
+Le rafraîchissement minute est limité au panneau visible après une première lecture, sans suivi GPS. Modifier le profil annule les requêtes et efface les résultats. Les limites du moteur restent accessibles dans le panneau. Voir [la vérification de cette livraison](docs/verification-meteo-2026-09-13.md).
+
+### Lectures complémentaires
 
 Un onglet dédié propose une lecture rapide par signe solaire (API gratuite, texte anglais) ou une lecture IA en français avec le Soleil, la Lune et l’ascendant disponibles. Le mode IA réutilise la configuration existante et ses éventuels frais ; il ne calcule pas les transits du jour. Les boutons Écouter/Arrêter utilisent la synthèse vocale native du navigateur en `fr-FR`, sans traduction du texte anglais.
 

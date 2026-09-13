@@ -116,3 +116,39 @@
 .horoscope-lecture:empty { display:none; }
 #onglet-horoscope .btns { flex-wrap:wrap; }
 #horoscope-statut,#horoscope-audio-statut { overflow-wrap:anywhere; }
+
+/* Météo cosmique : le transit prime ; le lieu reste un consentement ponctuel. */
+.meteo-cosmique { display:grid; gap:.85rem; margin:1rem 0 1.65rem; padding:1rem; border:1px solid rgba(225,167,108,.5); border-radius:12px; background:linear-gradient(145deg,rgba(225,167,108,.09),rgba(30,35,56,.22)); }
+.meteo-actions,.meteo-lieu .btns { display:flex; flex-wrap:wrap; gap:.6rem; }
+.meteo-lieu { display:grid; gap:.5rem; padding-top:.25rem; }
+.meteo-note,.meteo-lieu-actif,.meteo-limites { margin:0; color:var(--muted); font-size:.82rem; line-height:1.5; }
+.meteo-lieu-actif { padding:.55rem .7rem; border-left:2px solid var(--accent2); background:rgba(110,231,195,.06); }
+.meteo-ville-row { align-items:center; }
+.meteo-ville-row .btn { white-space:nowrap; }
+.meteo-candidat { display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding:.6rem .7rem; border:1px solid var(--border); border-radius:8px; background:var(--panel2); color:var(--muted); font-size:.84rem; }
+.meteo-resultat { display:grid; gap:.9rem; }
+.meteo-lecture { margin:0; line-height:1.65; white-space:pre-wrap; }
+.meteo-trends { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
+.meteo-tendance { min-width:0; padding:.7rem; border:1px solid var(--border); border-radius:9px; background:var(--panel2); }
+.meteo-tendance h4 { margin:0 0 .3rem; color:var(--accent2); font-size:.86rem; overflow-wrap:anywhere; }
+.meteo-tendance p,.meteo-tendance ul { margin:.25rem 0 0; font-size:.78rem; line-height:1.45; color:var(--muted); }
+.meteo-tendance ul { padding-left:1rem; }
+.meteo-detail { padding:.75rem; border:1px solid var(--border); border-radius:9px; background:rgba(255,255,255,.02); }
+.meteo-detail summary { cursor:pointer; color:var(--accent2); font-size:.85rem; }
+.meteo-detail p,.meteo-detail ul { margin:.65rem 0 0; color:var(--muted); font-size:.8rem; line-height:1.5; }
+.meteo-detail ul { padding-left:1.1rem; }
+.horoscope-legacy { margin-top:1.4rem; padding-top:1.2rem; border-top:1px dashed var(--border); }
+.horoscope-legacy h3 { margin:.55rem 0; font-size:1.05rem; }
+@media (max-width:620px) { .meteo-cosmique { padding:.8rem; } .meteo-trends { grid-template-columns:1fr; } .meteo-candidat { align-items:flex-start; flex-direction:column; } .meteo-ville-row { align-items:stretch; flex-direction:column; } }
+
+.meteo-repere { display:flex; gap:5px; margin:.8rem 0; }
+.meteo-repere span { height:5px; flex:1; border-radius:3px; background:var(--border); }
+.meteo-repere span.actif { background:var(--accent); }
+.meteo-facteurs { font-size:.84rem; color:var(--muted); }
+.meteo-facteurs summary { cursor:pointer; line-height:1.5; }
+.meteo-facteurs li { margin:.4rem 0; }
+.meteo-detail li p { margin:.25rem 0; }
+.meteo-detail li { padding:.55rem .3rem; }
+.meteo-fenetre-actuelle { border-left:3px solid var(--accent); padding-left:.8rem !important; background:rgba(155,122,229,.08); }
+
+#meteo-cosmique [hidden] { display:none !important; }

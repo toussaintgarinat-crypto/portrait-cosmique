@@ -24,7 +24,8 @@ function arreterAudio() {
     !document.getElementById('horoscope-texte').textContent.trim();
   document.getElementById('horoscope-audio-statut').textContent = '';
 }
-function reinitialiserHoroscope() {
+function reinitialiserHoroscope({conserverMeteo = false} = {}) {
+  if (!conserverMeteo) window.reinitialiserMeteoCosmique?.();
   const etat = etatHoroscope();
   etat.version++;
   etat.requete?.abort();
@@ -56,7 +57,7 @@ function configurationHoroscopeIA() {
   return cle ? {base_url, cle, modele} : null;
 }
 async function genererHoroscope(mode) {
-  reinitialiserHoroscope();
+  reinitialiserHoroscope({conserverMeteo:true});
   const etat = etatHoroscope();
   const version = etat.version;
   const resultat = DERNIER_RESULTAT;
@@ -139,8 +140,8 @@ document.getElementById('form-fiche').addEventListener('change', reinitialiserHo
 Object.assign(I18N.fr, {h_onglet:'Horoscope du jour', h_badge:'Une pause pour aujourd’hui',
   h_intro:'Une lecture symbolique : par signe solaire avec l’API, ou personnalisée avec ton Soleil, ta Lune et ton ascendant disponibles.',
   h_api:'⚡ API rapide · anglais', h_ia:'✨ IA personnalisée · français', h_ecouter:'🔊 Écouter', h_arreter:'⏹ Arrêter',
-  h_note:'L’API est gratuite. L’IA utilise ta configuration existante et les éventuels frais de ton fournisseur. Aucun transit du jour n’est calculé.'});
+  h_note:'L’API est gratuite. L’IA utilise ta configuration existante et les éventuels frais de ton fournisseur. Ces deux lectures complémentaires n’utilisent pas les transits calculés ci-dessus.'});
 Object.assign(I18N.en, {h_onglet:'Daily horoscope', h_badge:'A moment for today',
   h_intro:'A symbolic reading: by Sun sign through the API, or personalized with your available Sun, Moon and rising signs.',
   h_api:'⚡ Quick API · English', h_ia:'✨ Personalized AI · French', h_ecouter:'🔊 Listen', h_arreter:'⏹ Stop',
-  h_note:'The API is free. AI uses your existing configuration and any provider charges. Current transits are not calculated.'});
+  h_note:'The API is free. AI uses your existing configuration and any provider charges. These two additional readings do not use the transits calculated above.'});
