@@ -54,7 +54,7 @@ async function actualiserFuseau(foldRestaure) {
     return true;
   } catch (e) {
     if (seq !== etat.sequence) return false;
-    info.textContent = texteFuseau('Calcul du fuseau impossible. ', 'Unable to calculate time zone. ') + e.message;
+    info.textContent = texteFuseau('Calcul du fuseau impossible. Vérifie le lieu, la date et l’heure, puis réessaie.', 'Unable to calculate time zone. Check the place, date and time, then try again.');
     return !body.heure_naissance;
   }
 }

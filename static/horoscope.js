@@ -61,6 +61,7 @@ async function genererHoroscope(mode) {
   const etat = etatHoroscope();
   const version = etat.version;
   const resultat = DERNIER_RESULTAT;
+  const langue = LANGUE;
   const controller = new AbortController();
   etat.requete = controller;
   const statut = document.getElementById('horoscope-statut');
@@ -71,24 +72,25 @@ async function genererHoroscope(mode) {
     statut.textContent = mode === 'api' && LANGUE === 'fr' ? 'Chargement et traduction en français…' : hTexte('Génération en cours…', 'Generating…');
     const response = await fetch('/horoscope-du-jour', {
       method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-      body:JSON.stringify({...profil, mode, traduire_fr:mode === 'api' && LANGUE === 'fr', llm:mode === 'ia' || LANGUE === 'fr' ? configurationHoroscopeIA() : null})
+      body:JSON.stringify({...profil, mode, langue, llm:mode === 'ia' ? configurationHoroscopeIA() : null})
     });
     const data = await response.json();
     if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : hTexte('La génération a échoué.', 'Generation failed.'));
     if (typeof data.texte !== 'string' || !data.texte.trim()) throw new Error(hTexte('Le service a renvoyé un texte vide.', 'The service returned empty text.'));
-    if (version !== etat.version || resultat !== DERNIER_RESULTAT) return;
+    if (version !== etat.version || resultat !== DERNIER_RESULTAT || langue !== LANGUE) return;
     if (profil.date !== dateLocaleHoroscope()) throw new Error(hTexte('Le jour a changé. Relance la génération.', 'The day has changed. Generate a new reading.'));
+    if (data.langue !== langue) throw new Error(hTexte('La lecture reçue n’est pas en français. Réessaie.', 'The received reading is not in English. Please try again.'));
     etat.date = profil.date;
     const lecture = document.getElementById('horoscope-texte');
     lecture.textContent = data.texte;
     lecture.lang = data.langue === 'en' ? 'en' : 'fr';
-    statut.textContent = `${data.date || profil.date} · ${profil.soleil} · ${mode === 'ia' ? hTexte('IA personnalisée', 'Personalized AI') : (data.langue === 'fr' ? 'API · traduction française' : hTexte('API · texte anglais', 'API · English text'))}`;
+    statut.textContent = `${data.date || profil.date} · ${typeof traduireValeur === 'function' ? traduireValeur(profil.soleil) : profil.soleil} · ${mode === 'ia' ? hTexte('IA personnalisée', 'Personalized AI') : (data.langue === 'fr' ? 'API · traduction française' : hTexte('API · texte anglais', 'API · English text'))}`;
     if (mode === 'api' && data.date !== profil.date) statut.textContent += hTexte(' · Date du fournisseur différente du jour local.', ' · Provider date differs from your local date.');
     if (typeof data.avertissement === 'string') statut.textContent += ' · ' + data.avertissement;
     document.getElementById('horoscope-ecouter').disabled = !audioHoroscopeDisponible();
     document.getElementById('horoscope-audio-statut').textContent = !audioHoroscopeDisponible()
       ? hTexte('La lecture audio est indisponible dans ce navigateur.', 'Speech is unavailable in this browser.')
-      : data.langue === 'en' ? hTexte('La voix française ne traduit pas le texte anglais.', 'The French voice does not translate English text.') : '';
+      : '';
   } catch (e) {
     if (version !== etat.version) return;
     statut.textContent = e.name === 'AbortError'
@@ -112,11 +114,12 @@ function lireHoroscopeAudio() {
   if (!texte) return;
   arreterAudio();
   const utterance = new SpeechSynthesisUtterance(texte);
-  utterance.lang = 'fr-FR';
+  const langueAudio = document.getElementById('horoscope-texte').lang === 'en' ? 'en' : 'fr';
+  utterance.lang = langueAudio === 'en' ? 'en-GB' : 'fr-FR';
   utterance.rate = 0.95;
   const voix = window.speechSynthesis.getVoices();
-  const francaise = voix.find(v => v.lang === 'fr-FR') || voix.find(v => v.lang.toLowerCase().startsWith('fr'));
-  if (francaise) utterance.voice = francaise;
+  const voixChoisie = voix.find(v => v.lang === utterance.lang) || voix.find(v => v.lang.toLowerCase().startsWith(langueAudio));
+  if (voixChoisie) utterance.voice = voixChoisie;
   etat.voix = utterance;
   document.getElementById('horoscope-ecouter').disabled = true;
   document.getElementById('horoscope-arreter').disabled = false;
@@ -140,9 +143,9 @@ document.getElementById('form-fiche').addEventListener('input', reinitialiserHor
 document.getElementById('form-fiche').addEventListener('change', reinitialiserHoroscope);
 Object.assign(I18N.fr, {h_onglet:'Horoscope du jour', h_badge:'Une pause pour aujourd’hui',
   h_intro:'Une lecture symbolique : par signe solaire avec l’API, ou personnalisée avec ton Soleil, ta Lune et ton ascendant disponibles.',
-  h_api:'⚡ Horoscope · traduit en français', h_ia:'✨ IA personnalisée · français', h_ecouter:'🔊 Écouter', h_arreter:'⏹ Arrêter',
-  h_note:'L’horoscope source est gratuit. Sa traduction française et l’IA personnalisée utilisent ta configuration IA et les éventuels frais de ton fournisseur. Ces deux lectures complémentaires n’utilisent pas les transits calculés ci-dessus.'});
+  h_api:'⚡ Horoscope gratuit · français', h_ia:'✨ IA personnalisée · français', h_ecouter:'🔊 Écouter', h_arreter:'⏹ Arrêter',
+  h_note:'L’horoscope et sa traduction française sont gratuits, sans clé API. Seule la lecture IA personnalisée utilise ta configuration et les éventuels frais de ton fournisseur. Ces deux lectures complémentaires n’utilisent pas les transits calculés ci-dessus.'});
 Object.assign(I18N.en, {h_onglet:'Daily horoscope', h_badge:'A moment for today',
   h_intro:'A symbolic reading: by Sun sign through the API, or personalized with your available Sun, Moon and rising signs.',
-  h_api:'⚡ Quick API · English', h_ia:'✨ Personalized AI · French', h_ecouter:'🔊 Listen', h_arreter:'⏹ Stop',
-  h_note:'The API is free. AI uses your existing configuration and any provider charges. These two additional readings do not use the transits calculated above.'});
+  h_api:'⚡ Quick API · English', h_ia:'✨ Personalized AI · English', h_ecouter:'🔊 Listen', h_arreter:'⏹ Stop',
+  h_note:'The horoscope is free and requires no API key. Only personalized AI uses your configuration and any provider charges. These two additional readings do not use the transits calculated above.'});

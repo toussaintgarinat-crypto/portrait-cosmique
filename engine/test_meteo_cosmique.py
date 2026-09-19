@@ -15,7 +15,7 @@ def test_meteo_without_location_calculates_real_transits():
     assert len(d['positions']) == 10
     assert d['local'] is None and d['fenetres'] == []
     assert d['natal_complet']
-    assert [t['nom'] for t in d['tendances']] == ['Focus', 'Élan', 'Sociabilité']
+    assert [t['nom'] for t in d['tendances']] == ['Concentration', 'Élan', 'Sociabilité']
     assert all(t['niveau'] in ('discret', 'modéré', 'marqué') for t in d['tendances'])
     assert d['lecture'] and d['limites']
 
@@ -116,3 +116,29 @@ def test_polar_location_keeps_personal_transits_with_explanation():
     assert d['local'] is None and d['fenetres']==[]
     assert d['positions'] and d['natal_complet']
     assert any('66°' in s for s in d['limites'])
+
+
+def test_english_weather_translates_reading_without_changing_calculations(monkeypatch):
+    import meteo_cosmique as M
+    monkeypatch.setattr(M, 'maintenant', lambda: datetime(2026,9,13,12,tzinfo=timezone.utc))
+    location = {'latitude':43.6, 'longitude':1.44}
+    fr = M.calculer(_FICHE, 'Europe/Paris', location)
+    en = M.calculer(_FICHE, 'Europe/Paris', location, langue='en')
+    assert [t['nom'] for t in en['tendances']] == ['Focus', 'Drive', 'Sociability']
+    assert [t['intensite'] for t in en['tendances']] == [t['intensite'] for t in fr['tendances']]
+    assert [t['orb'] for t in en['transits']] == [t['orb'] for t in fr['transits']]
+    assert {k:v['longitude'] for k,v in en['positions'].items()} == {k:v['longitude'] for k,v in fr['positions'].items()}
+    assert 'Sun in local house' in en['lecture']
+    assert 'Symbolic reading' in en['limites'][0]
+    assert en['local']['ascendant']['signe'] in M.SIGNES_EN.values()
+    for a,b in zip(fr['fenetres'], en['fenetres']):
+        assert a['debut'] == b['debut'] and a['maison_solaire'] == b['maison_solaire']
+        assert a['conseil'] != b['conseil']
+    assert all(t['niveau'] in ('subtle', 'moderate', 'strong') for t in en['tendances'])
+
+
+def test_english_partial_and_polar_limits():
+    import meteo_cosmique as M
+    d = M.calculer({**_FICHE, 'heure_inconnue':True}, 'Europe/Paris', {'latitude':80,'longitude':10}, langue='en')
+    assert any('Birth time unknown' in s for s in d['limites'])
+    assert any('beyond 66°' in s for s in d['limites'])

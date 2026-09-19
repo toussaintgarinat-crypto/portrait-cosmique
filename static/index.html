@@ -395,7 +395,7 @@ __HOLISTIQUE_CSS__
       <input type="hidden" id="longitude">
       <input type="hidden" id="utc_offset">
       <p id="fuseau-info" class="sous" role="status" aria-live="polite"></p>
-      <label id="utc-fold-label" for="utc_fold" hidden>Heure répétée lors du changement d’heure / Repeated clock time</label>
+      <label id="utc-fold-label" for="utc_fold" hidden data-t="utc_fold_label">Heure répétée lors du changement d’heure</label>
       <select id="utc_fold" hidden></select>
       <p class="sous" data-t="l_nom_aide">Pour les calculs du nom, utilise tous les prénoms et le nom de naissance. À défaut, le nom affiché est utilisé. La polarité ne modifie aucun calcul.</p>
 
@@ -477,42 +477,42 @@ __HOLISTIQUE_CSS__
 
     <section id="onglet-horoscope" class="onglet-contenu" hidden>
       <div class="horoscope-entete">
-        <span class="badge">Transits du moment</span>
-        <h2 id="meteo-titre">Météo cosmique</h2>
-        <p class="sous">Une lecture symbolique de tes transits personnels, calculée à l’instant présent.</p>
+        <span class="badge" data-t="m_transits">Transits du moment</span>
+        <h2 id="meteo-titre" data-t="m_titre">Météo cosmique</h2>
+        <p class="sous" data-t="m_intro">Une lecture symbolique de tes transits personnels, calculée à l’instant présent.</p>
       </div>
       <section id="meteo-cosmique" class="meteo-cosmique" aria-labelledby="meteo-titre">
         <div class="meteo-actions">
-          <button type="button" id="meteo-generer" class="btn">Actualiser la météo cosmique</button>
-          <button type="button" id="meteo-lieu-ouvrir" class="btn ghost">Activer la météo cosmique locale</button>
+          <button type="button" id="meteo-generer" class="btn" data-t="m_generer">Actualiser la météo cosmique</button>
+          <button type="button" id="meteo-lieu-ouvrir" class="btn ghost" data-t="m_lieu">Activer la météo cosmique locale</button>
         </div>
         <p id="meteo-statut" class="sous" role="status" aria-live="polite"></p>
         <div id="meteo-lieu" class="meteo-lieu" hidden>
-          <p class="meteo-note">Le lieu est facultatif et utilisé seulement pour cette session : il permet d’ajouter l’Ascendant, le Milieu du Ciel et les maisons du moment. Les coordonnées sont envoyées au serveur pour le calcul, sans être conservées dans un profil.</p>
+          <p class="meteo-note" data-t="m_note">Le lieu est facultatif et utilisé seulement pour cette session : il permet d’ajouter l’Ascendant, le Milieu du Ciel et les maisons du moment. Les coordonnées sont envoyées au serveur pour le calcul, sans être conservées dans un profil.</p>
           <div class="btns">
-            <button type="button" id="meteo-gps" class="btn secondary">Utiliser ma position dans ce navigateur</button>
-            <button type="button" id="meteo-lieu-reset" class="btn ghost" hidden>Retirer le lieu</button>
+            <button type="button" id="meteo-gps" class="btn secondary" data-t="m_gps">Utiliser ma position dans ce navigateur</button>
+            <button type="button" id="meteo-lieu-reset" class="btn ghost" hidden data-t="m_reset">Retirer le lieu</button>
           </div>
-          <label for="meteo-ville">Ou chercher une ville</label>
+          <label for="meteo-ville" data-t="m_ville">Ou chercher une ville</label>
           <div class="ville-row meteo-ville-row">
             <input id="meteo-ville" type="search" autocomplete="off" placeholder="Castres, Tarn, France">
-            <button type="button" id="meteo-ville-chercher" class="btn secondary">Chercher</button>
+            <button type="button" id="meteo-ville-chercher" class="btn secondary" data-t="m_chercher">Chercher</button>
           </div>
           <div id="meteo-ville-candidat" class="meteo-candidat" hidden></div>
         </div>
         <div id="meteo-lieu-actif" class="meteo-lieu-actif" hidden></div>
         <div id="meteo-resultat" class="meteo-resultat" hidden></div>
       </section>
-      <div class="horoscope-legacy" aria-label="Lectures complémentaires">
+      <div class="horoscope-legacy" aria-label="Lectures complémentaires" data-t-aria="m_complement">
         <span class="badge" data-t="h_badge">Une pause pour aujourd’hui</span>
         <h3 data-t="h_onglet">Horoscope du jour</h3>
         <p class="sous" data-t="h_intro">Une lecture symbolique : par signe solaire avec l’API, ou personnalisée avec ton Soleil, ta Lune et ton ascendant disponibles.</p>
       </div>
       <div class="btns">
-        <button type="button" class="btn secondary" data-horoscope-generation onclick="chargerHoroscopeAPI()" data-t="h_api">⚡ Horoscope · traduit en français</button>
+        <button type="button" class="btn secondary" data-horoscope-generation onclick="chargerHoroscopeAPI()" data-t="h_api">⚡ Horoscope gratuit · français</button>
         <button type="button" class="btn" data-horoscope-generation onclick="chargerHoroscopeIA()" data-t="h_ia">✨ IA personnalisée · français</button>
       </div>
-      <p class="sous" data-t="h_note">L’horoscope source est gratuit. Sa traduction française et l’IA personnalisée utilisent ta configuration IA et les éventuels frais de ton fournisseur. Ces deux lectures complémentaires n’utilisent pas les transits calculés ci-dessus.</p>
+      <p class="sous" data-t="h_note">L’horoscope et sa traduction française sont gratuits, sans clé API. Seule la lecture IA personnalisée utilise ta configuration et les éventuels frais de ton fournisseur. Ces deux lectures complémentaires n’utilisent pas les transits calculés ci-dessus.</p>
       <p id="horoscope-statut" class="sous" role="status" aria-live="polite"></p>
       <div id="horoscope-texte" class="recit horoscope-lecture"></div>
       <div class="btns hol-controls">
@@ -530,20 +530,20 @@ __HOLISTIQUE_CSS__
       <div class="theme-options">
         <fieldset>
           <legend data-t="l_sys_maisons">Système de maisons</legend>
-          <label><input type="radio" name="systeme-maisons" value="whole_sign" checked> Whole Sign</label>
+          <label><input type="radio" name="systeme-maisons" value="whole_sign" checked> <span data-t="o_whole">Signes entiers</span></label>
           <label><input type="radio" name="systeme-maisons" value="placidus"> Placidus</label>
-          <label><input type="radio" name="systeme-maisons" value="equal_house"> Equal House</label>
+          <label><input type="radio" name="systeme-maisons" value="equal_house"> <span data-t="o_equal">Maisons égales</span></label>
         </fieldset>
         <fieldset>
           <legend data-t="l_meth_dom">Méthode des dominantes</legend>
-          <label><input type="radio" name="methode-dominantes" value="comptage_dignite" checked data-t="o_comptage"> Comptage + dignités</label>
-          <label><input type="radio" name="methode-dominantes" value="score_complexe" data-t="o_score"> Score complexe</label>
+          <label><input type="radio" name="methode-dominantes" value="comptage_dignite" checked> <span data-t="o_comptage">Comptage + dignités</span></label>
+          <label><input type="radio" name="methode-dominantes" value="score_complexe"> <span data-t="o_score">Score complexe</span></label>
         </fieldset>
       </div>
 
       <div class="theme-layout">
         <div class="theme-roue">
-          <svg id="roue-svg" viewBox="-200 -200 400 400" role="img" aria-label="Roue zodiacale"></svg>
+          <svg id="roue-svg" viewBox="-200 -200 400 400" role="img" aria-label="Roue zodiacale" data-t-aria="roue_label"></svg>
           <div class="theme-legend" id="theme-legend"></div>
           <p class="theme-caveat" data-t="caveat_precis">Précision : VSOP87 (Soleil→Neptune &lt;1″), Pluton/Chiron formule approchée (~0,1-1°). Sans Swiss Ephemeris.</p>
         </div>
@@ -589,14 +589,14 @@ __HOLISTIQUE_CSS__
   </div>
 
     <section id="guerre-cosmique" class="guerre-cosmique" hidden>
-      <h2 class="gc-titre">⚔️ La Guerre Cosmique</h2>
-      <p class="gc-sous">Les posters les plus commandés, signe par signe.</p>
+      <h2 class="gc-titre" data-t="gc_titre">⚔️ La Guerre Cosmique</h2>
+      <p class="gc-sous" data-t="gc_intro">Les posters les plus commandés, signe par signe.</p>
       <div class="gc-grille">
         <div class="gc-bloc" id="gc-podium"></div>
         <div class="gc-bloc" id="gc-duel"></div>
       </div>
       <p class="gc-total" id="gc-total"></p>
-      <a id="gc-lien" class="btn secondary" href="#" target="_blank" rel="noopener noreferrer">Voir les posters les plus achetés →</a>
+      <a id="gc-lien" class="btn secondary" href="#" target="_blank" rel="noopener noreferrer" data-t="gc_lien">Voir les posters les plus achetés →</a>
     </section>
   <footer class="mentions" data-t="mentions">Lecture symbolique — divertissement, pas un fait. Aucune donnée n'est conservée par ce service.</footer>
   <div id="glossaire-pop" class="glossaire-pop" role="tooltip" aria-hidden="true"></div>
@@ -820,7 +820,7 @@ function chargerGlossaire(groups) {
 function icGlossaire(id) {
   if (!id || !GLOSSAIRE[id]) return "";
   return ` <span class="glossaire-ic" data-glossaire="${id}" role="button"
-    tabindex="0" aria-label="Définition : ${GLOSSAIRE_LABELS[id] || id}">ℹ️</span>`;
+    tabindex="0" aria-label="${LANGUE === "en" ? "Definition" : "Définition"} : ${GLOSSAIRE_LABELS[id] || id}">ℹ️</span>`;
 }
 
 // ── Accordéon des sections (bouton tout déplier/replier) ──────────
@@ -1229,8 +1229,12 @@ function actionSous() {
   rafraichirSelectProfil();
 }
 
+Object.assign(I18N.fr, {"utc_fold_label": "Heure répétée lors du changement d’heure", "m_titre": "Météo cosmique", "m_generer": "Actualiser la météo cosmique", "m_lieu": "Activer la météo cosmique locale", "m_gps": "Utiliser ma position dans ce navigateur", "m_reset": "Retirer le lieu", "m_chercher": "Chercher", "gc_lien": "Voir les posters les plus achetés →", "m_transits": "Transits du moment", "m_intro": "Une lecture symbolique de tes transits personnels, calculée à l’instant présent.", "m_note": "Le lieu est facultatif et utilisé seulement pour cette session : il permet d’ajouter l’Ascendant, le Milieu du Ciel et les maisons du moment. Les coordonnées sont envoyées au serveur pour le calcul, sans être conservées dans un profil.", "m_ville": "Ou chercher une ville", "gc_titre": "⚔️ La Guerre Cosmique", "gc_intro": "Les posters les plus commandés, signe par signe.", "o_whole": "Signes entiers", "o_equal": "Maisons égales", "m_complement": "Lectures complémentaires", "roue_label": "Roue zodiacale"});
+Object.assign(I18N.en, {"utc_fold_label": "Repeated clock time", "m_titre": "Cosmic weather", "m_generer": "Refresh cosmic weather", "m_lieu": "Enable local cosmic weather", "m_gps": "Use my location in this browser", "m_reset": "Remove location", "m_chercher": "Search", "gc_lien": "View the best-selling posters →", "m_transits": "Current transits", "m_intro": "A symbolic reading of your personal transits, calculated for this moment.", "m_note": "Location is optional and used only for this session: it adds the current Ascendant, Midheaven and houses. Coordinates are sent to the server for calculation without being saved in a profile.", "m_ville": "Or search for a city", "gc_titre": "⚔️ Cosmic Battle", "gc_intro": "The most ordered posters, sign by sign.", "o_whole": "Whole Sign", "o_equal": "Equal House", "m_complement": "Additional readings", "roue_label": "Zodiac wheel"});
+
 function setLangue(l) {
   LANGUE = l;
+  reinitialiserHoroscope();
   document.getElementById("btn-fr").classList.toggle("on", l === "fr");
   document.getElementById("btn-en").classList.toggle("on", l === "en");
   document.documentElement.lang = l;
@@ -1238,6 +1242,11 @@ function setLangue(l) {
     const cle = el.getAttribute("data-t");
     if (I18N[l][cle]) el.textContent = I18N[l][cle];
   });
+  document.querySelectorAll('[data-t-aria]').forEach(el => el.setAttribute('aria-label', I18N[l][el.getAttribute('data-t-aria')]));
+  document.title = I18N[l].titre;
+  document.getElementById('erreur').textContent = '';
+  window.dispatchEvent(new Event('portrait-language-change'));
+  if (typeof actualiserLangueMeteo === 'function') actualiserLangueMeteo();
   const hasConfig = !!localStorage.getItem(LLM_STORAGE_KEY);
   document.getElementById("llm-status").textContent = hasConfig ? I18N[l].l_llm_sauvegarde : I18N[l].l_llm_vide;
   const nbModeles = document.getElementById("llm_modele_select").options.length - 1;
@@ -1387,9 +1396,10 @@ async function calculerPortrait() {
     const r = await fetch("/portrait", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
     if (!r.ok) {
       const d = await r.json().catch(() => ({}));
-      throw new Error(d.detail || I18N[LANGUE].erreur_generique);
+      throw new Error(I18N[LANGUE].erreur_generique);
     }
     const d = await r.json();
+    if (body.langue !== LANGUE) return;
     d._identite = {
       prenoms: body.prenoms, nom: body.nom,
       date_naissance: body.date_naissance, heure_naissance: body.heure_naissance,
@@ -1418,7 +1428,7 @@ async function calculerPortrait() {
       viderTheme();
     }
   } catch (e) {
-    err.textContent = e.message || I18N[LANGUE].erreur_generique;
+    err.textContent = I18N[LANGUE].erreur_generique;
   }
 }
 
@@ -1652,7 +1662,7 @@ function renderPosterCiel(tc, identite, densite) {
   const svg = document.getElementById("poster-svg");
   svg.innerHTML = "";
   const ns = "http://www.w3.org/2000/svg";
-  svg.setAttribute("aria-label", `Poster carte du ciel de ${(identite.prenoms || "").trim() || "—"}, mode ${densite}`);
+  svg.setAttribute("aria-label", `${LANGUE === "en" ? "Birth chart poster for" : "Poster carte du ciel de"} ${(identite.prenoms || "").trim() || "—"}`);
 
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
   const defs = elNS(ns, "defs");
@@ -1770,7 +1780,7 @@ function renderPosterTraditions(traditions, identite) {
   svg.innerHTML = "";
   const ns = "http://www.w3.org/2000/svg";
   const t = I18N[LANGUE];
-  svg.setAttribute("aria-label", `Poster traditions natales de ${(identite.prenoms || "").trim() || "—"}`);
+  svg.setAttribute("aria-label", `${LANGUE === "en" ? "Birth traditions poster for" : "Poster traditions natales de"} ${(identite.prenoms || "").trim() || "—"}`);
 
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
   const defs = elNS(ns, "defs");
@@ -1801,8 +1811,8 @@ function renderPosterTraditions(traditions, identite) {
     const sym = champ.symbole(val);
     if (sym) card.appendChild(elNS(ns, "text", { class: "poster-trad-sym", x: cw / 2, y: 30, "text-anchor": "middle" }, sym));
     card.appendChild(elNS(ns, "text", { class: "poster-trad-label", x: cw / 2, y: sym ? 46 : 26, "text-anchor": "middle" }, t[champ.labelKey]));
-    card.appendChild(elNS(ns, "text", { class: "poster-trad-valeur", x: cw / 2, y: sym ? 64 : 46, "text-anchor": "middle" }, String(champ.valeur(val))));
-    const sous = champ.sous(val);
+    card.appendChild(elNS(ns, "text", { class: "poster-trad-valeur", x: cw / 2, y: sym ? 64 : 46, "text-anchor": "middle" }, String(traduireValeur(champ.valeur(val)))));
+    const sous = champ.sous(val).split(" · ").map(traduireValeur).join(" · ");
     if (sous) card.appendChild(elNS(ns, "text", { class: "poster-trad-sous", x: cw / 2, y: sym ? 78 : 60, "text-anchor": "middle" }, sous));
     svg.appendChild(card);
   });
@@ -2085,7 +2095,7 @@ function cartePoint(symbole, nom, gid, valeur) {
   const d = DIDACTIQUE[gid] || {};
   const domaines = (d.domaines || []).map(x => `<li>${x}</li>`).join("");
   const parts = [];
-  if (valeur.signe) parts.push(`<strong>${valeur.signe}</strong>`);
+  if (valeur.signe) parts.push(`<strong>${traduireValeur(valeur.signe)}</strong>`);
   if (valeur.degre != null) parts.push(fmtDeg(valeur.degre));
   if (valeur.maison) parts.push(`${t.th_maison} ${valeur.maison}`);
   if (valeur.retro) parts.push("℞");
@@ -2096,7 +2106,7 @@ function cartePoint(symbole, nom, gid, valeur) {
     ? `<div class="cp-conclusion">${t.donc} : ${d.conclusion}</div>` : "";
   return `<div class="carte-point">
     <div class="cp-tete"><span class="cp-sym">${symbole || ""}</span>
-      <span class="cp-nom">${nom}</span>${icGlossaire(gid)}
+      <span class="cp-nom">${traduireValeur(nom)}</span>${icGlossaire(gid)}
       ${d.question ? `<span class="cp-q">« ${d.question} »</span>` : ""}</div>
     ${domaines ? `<ul class="cp-domaines">${domaines}</ul>` : ""}
     ${valeurHtml}${conclusion}
@@ -2199,7 +2209,7 @@ function renderTableaux(tc, { reset = false } = {}) {
   const mais = (tc.maisons || []).map(m => ({ n: m.maison, cuspe: m.cuspe, signe: m.signe, symbole: m.symbole }));
   secMaisons.insertAdjacentHTML("beforeend", tableHTML(t.t_maisons,
     [t.th_n, t.th_cuspe, t.th_signe, t.th_symbole],
-    mais.map(r => `<tr><td class="num">${r.n}${icGlossaire("maison_" + r.n)}</td><td class="num">${fmtDeg(r.cuspe)}</td><td>${r.signe}</td><td>${r.symbole || ""}</td></tr>`),
+    mais.map(r => `<tr><td class="num">${r.n}${icGlossaire("maison_" + r.n)}</td><td class="num">${fmtDeg(r.cuspe)}</td><td>${traduireValeur(r.signe)}</td><td>${r.symbole || ""}</td></tr>`),
     false));
   secMaisons.insertAdjacentHTML("beforeend", legendeChiffres(
     `${t.leg_maison_num} · ${t.leg_degre}`));
@@ -2222,7 +2232,7 @@ function renderTableaux(tc, { reset = false } = {}) {
     </tr></thead><tbody>${asps.map(a => `<tr class="asp-row" data-type="${a.type}">
       <td>${nomAspect(a.aspect)}${icGlossaire(_ASPECT_GLOSS[a.aspect])}</td>
       <td>${LANGUE === "en" ? (a.type === "majeur" ? "major" : "minor") : a.type}${icGlossaire(a.type === "majeur" ? "theme_aspects_majeurs" : "theme_aspects_mineurs")}</td>
-      <td>${a.point_a}</td><td>${a.point_b}</td>
+      <td>${traduireValeur(a.point_a)}</td><td>${traduireValeur(a.point_b)}</td>
       <td class="num">${a.orb.toFixed(2)}°</td>
       <td class="num">${(a.exactitude * 100).toFixed(0)}%</td>
     </tr>`).join("")}</tbody></table>`;
@@ -2259,10 +2269,10 @@ function renderTableaux(tc, { reset = false } = {}) {
     const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
     const card = document.createElement("div");
     card.className = "dominante-carte";
-    card.innerHTML = `<h4>${c2.titre}${icGlossaire(c2.gid)}</h4><div class="dom-nom">${dominant}</div>` +
+    card.innerHTML = `<h4>${c2.titre}${icGlossaire(c2.gid)}</h4><div class="dom-nom">${traduireValeur(dominant)}</div>` +
       entries.map(([k, v]) => {
         const pct = maxVal > 0 ? (v / maxVal * 100) : 0;
-        return `<div class="dominante-barre"><div class="dl">${k}</div><div class="bar-bg"><div class="bar-fg" style="width:${pct.toFixed(1)}%"></div></div><div class="dv">${typeof v === "number" ? v : ""}</div></div>`;
+        return `<div class="dominante-barre"><div class="dl">${traduireValeur(k)}</div><div class="bar-bg"><div class="bar-fg" style="width:${pct.toFixed(1)}%"></div></div><div class="dv">${typeof v === "number" ? v : ""}</div></div>`;
       }).join("");
     domCont.appendChild(card);
   }
@@ -2377,10 +2387,13 @@ __HOLISTIQUE_JS__
       if (!stats || stats.statut !== "ok" || !Array.isArray(stats.podiumZodiaque)
           || stats.podiumZodiaque.length === 0) return;
 
+      const render = () => {
       const podium = document.getElementById("gc-podium");
-      podium.appendChild(texte("h3", "Podium du mois"));
+      podium.replaceChildren();
+      document.getElementById("gc-duel").replaceChildren();
+      podium.appendChild(texte("h3", LANGUE === "en" ? "This month’s podium" : "Podium du mois"));
       stats.podiumZodiaque.forEach((p, i) => {
-        const ligne = texte("div", (i + 1) + ". " + p.signe + " — " + p.part + "%");
+        const ligne = texte("div", (i + 1) + ". " + traduireValeur(p.signe) + " — " + p.part + "%");
         ligne.className = "gc-ligne";
         podium.appendChild(ligne);
       });
@@ -2388,13 +2401,16 @@ __HOLISTIQUE_JS__
       const duel = (stats.duels || [])[0];
       if (duel) {
         const bloc = document.getElementById("gc-duel");
-        bloc.appendChild(texte("h3", "Duel le plus serré"));
-        bloc.appendChild(texte("div", duel.a + " " + duel.partA + "%"));
-        bloc.appendChild(texte("div", duel.b + " " + duel.partB + "%"));
+        bloc.appendChild(texte("h3", LANGUE === "en" ? "Closest duel" : "Duel le plus serré"));
+        bloc.appendChild(texte("div", traduireValeur(duel.a) + " " + duel.partA + "%"));
+        bloc.appendChild(texte("div", traduireValeur(duel.b) + " " + duel.partB + "%"));
       }
 
       document.getElementById("gc-total").textContent =
-        stats.totalCommandes + " posters commandés à ce jour";
+        stats.totalCommandes + (LANGUE === "en" ? " posters ordered so far" : " posters commandés à ce jour");
+      };
+      render();
+      window.addEventListener("portrait-language-change", render);
 
       const lien = document.getElementById("gc-lien");
       lien.href = BOUTIQUE_URL;

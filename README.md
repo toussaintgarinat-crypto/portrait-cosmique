@@ -87,17 +87,29 @@ détecte tout seul le sous-dossier `engine/` en local).
 
 ## Horoscope du jour et météo cosmique
 
-Le panneau **Météo cosmique** calcule les transits personnels à l’instant UTC serveur et affiche la journée dans le fuseau IANA du navigateur. Trois tendances qualitatives — Focus, Élan, Sociabilité — indiquent une intensité symbolique (discret/modéré/marqué), avec les aspects et orbes explicatifs. Le bouton d’actualisation fonctionne sans clé ni LLM.
+Le panneau **Météo cosmique** calcule les transits personnels à l’instant UTC serveur et affiche la journée dans le fuseau IANA du navigateur. Trois tendances qualitatives — Concentration, Élan, Sociabilité — indiquent une intensité symbolique (discret/modéré/marqué), avec les aspects et orbes explicatifs. Le bouton d’actualisation fonctionne sans clé ni LLM.
 
 **Activer la météo cosmique locale** propose la position du navigateur (permission demandée uniquement au clic) ou la recherche puis confirmation d’une ville. Le lieu est gardé en mémoire de session, séparé de la naissance ; les coordonnées sont envoyées au serveur pour le calcul, sans stockage applicatif. Refus ou indisponibilité : les transits restent utilisables. Le bouton **Analyser ici & maintenant** ajoute les angles et maisons locales en signes entiers, ainsi que les fenêtres de la journée aux changements du signe ascendant. Les horaires restent dans le fuseau navigateur, même si la ville choisie est ailleurs. Le fuseau du lieu est également affiché.
 
-Les éphémérides globales sont approchées (moteur existant), échantillonnées chaque heure et interpolées à la minute ; un cache mémoire borné à huit journées UTC ne contient aucune donnée personnelle. L’orbe des cinq aspects majeurs est fixé à 3°. Le niveau de chaque tendance dépend de l’aspect le plus proche touchant Mercure (Focus), Soleil/Mars (Élan), Vénus/Jupiter (Sociabilité), côté transit ou natal ; les aspects des angles locaux peuvent contribuer lorsque le lieu est actif. Une intensité marquée ne signifie pas nécessairement une ambiance favorable. Sans heure natale, seul le Soleil approximé à midi est utilisé et la lecture est signalée comme partielle. À partir de 66° de latitude, le ciel local est désactivé avec explication, les transits personnels sont conservés.
+Les éphémérides globales sont approchées (moteur existant), échantillonnées chaque heure et interpolées à la minute ; un cache mémoire borné à huit journées UTC ne contient aucune donnée personnelle. L’orbe des cinq aspects majeurs est fixé à 3°. Le niveau de chaque tendance dépend de l’aspect le plus proche touchant Mercure (Concentration), Soleil/Mars (Élan), Vénus/Jupiter (Sociabilité), côté transit ou natal ; les aspects des angles locaux peuvent contribuer lorsque le lieu est actif. Une intensité marquée ne signifie pas nécessairement une ambiance favorable. Sans heure natale, seul le Soleil approximé à midi est utilisé et la lecture est signalée comme partielle. À partir de 66° de latitude, le ciel local est désactivé avec explication, les transits personnels sont conservés.
 
 Le rafraîchissement minute est limité au panneau visible après une première lecture, sans suivi GPS. Modifier le profil annule les requêtes et efface les résultats. Les limites du moteur restent accessibles dans le panneau. Voir [la vérification de cette livraison](docs/verification-meteo-2026-09-13.md).
 
 ### Lectures complémentaires
 
-Un onglet dédié propose une lecture rapide par signe solaire (API gratuite, texte anglais) ou une lecture IA en français avec le Soleil, la Lune et l’ascendant disponibles. Le mode IA réutilise la configuration existante et ses éventuels frais ; il ne calcule pas les transits du jour. Les boutons Écouter/Arrêter utilisent la synthèse vocale native du navigateur en `fr-FR`, sans traduction du texte anglais.
+Le sélecteur FR/EN s’applique à l’interface, aux interprétations, à la météo, aux conseils horaires et à la voix. L’horoscope gratuit est récupéré en anglais puis traduit localement en français en mode FR, sans clé API. En mode EN, le texte original reste en anglais. L’IA personnalisée optionnelle suit elle aussi la langue choisie, avec ses frais éventuels. La voix utilise `fr-FR` ou `en-GB` selon le texte.
+
+La traduction utilise le modèle Argos/OPUS EN→FR 1.9 via CTranslate2 sur CPU. L’image Docker installe le modèle lors de sa construction ; aucun téléchargement à l’exécution. Un cache mémoire de 128 textes publics évite les traductions répétées, sans base de données. Si le modèle manque, une erreur dans la langue sélectionnée remplace la lecture : pas de texte anglais présenté comme français.
+
+Installation locale (Python 3.11 ou 3.12) :
+
+```sh
+pip install -r requirements.txt -r requirements-translation.txt
+python scripts/installer_traduction.py
+uvicorn main:app --port 8410
+```
+
+Le modèle est installé dans `models/en-fr/` (ignoré par Git). `PORTRAIT_TRANSLATION_DIR` permet de choisir un autre répertoire, identique à l’installation et au démarrage. Le téléchargement officiel est contrôlé par SHA-256. Modèle OPUS-MT de Jörg Tiedemann et Santhosh Thottingal, sous CC-BY 4.0 ; sa notice est conservée dans le répertoire du modèle.
 
 Les dates du fournisseur sont affichées telles quelles. Un changement de profil efface la lecture et arrête l’audio. Voir [les vérifications et leurs limites](docs/verification-horoscope-2026-09-12.md).
 

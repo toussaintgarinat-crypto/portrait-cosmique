@@ -55,7 +55,7 @@ function meteoRendre(data) {
       if (niveau) meteoAppendText(card, 'p', niveau);
       const repere = document.createElement('div'); repere.className = 'meteo-repere';
       repere.setAttribute('aria-hidden', 'true');
-      const intensite = ['discret','modéré','marqué'].indexOf(t.niveau)+1;
+      const intensite = Number.isInteger(t.intensite) ? Math.max(0, Math.min(3, t.intensite)) : ['discret','modéré','marqué'].indexOf(t.niveau)+1;
       for (let i=0; i<3; i++) { const segment=document.createElement('span'); segment.className=i<intensite?'actif':''; repere.append(segment); }
       card.append(repere);
       const detail = document.createElement('details'); detail.className='meteo-facteurs';
@@ -63,7 +63,7 @@ function meteoRendre(data) {
       if (t?.explication) meteoAppendText(detail, 'p', t.explication);
       const facteurs = Array.isArray(t?.facteurs) ? t.facteurs.map(f => {
         if (typeof f === 'string') return f;
-        return `${[f?.mobile, f?.aspect, f?.natal].filter(Boolean).join(' ')} natal · ${Number(f.orb).toFixed(2)}° d’orbe`;
+        return `${[f?.mobile, f?.aspect, f?.natal].filter(Boolean).join(' ')} natal · ${Number(f.orb).toFixed(2)}° ${meteoTexte('d’orbe', 'orb')}`;
       }) : [];
       meteoListe(detail, facteurs);
       card.append(detail);
@@ -76,8 +76,8 @@ function meteoRendre(data) {
     const local = document.createElement('details'); local.className = 'meteo-detail';
     const summary = document.createElement('summary'); summary.textContent = meteoTexte('Ici et maintenant', 'Here and now'); local.append(summary);
     const angles = [
-      data.local.ascendant && `Ascendant : ${data.local.ascendant.signe || ''}`,
-      data.local.milieu_du_ciel && `Milieu du Ciel : ${data.local.milieu_du_ciel.signe || ''}`
+      data.local.ascendant && `${meteoTexte('Ascendant', 'Rising sign')} : ${data.local.ascendant.signe || ''}`,
+      data.local.milieu_du_ciel && `${meteoTexte('Milieu du Ciel', 'Midheaven')} : ${data.local.milieu_du_ciel.signe || ''}`
     ].filter(Boolean).join(' · ');
     if (angles) meteoAppendText(local, 'p', angles);
     const maisons = Array.isArray(data.local.maisons) ? data.local.maisons.map(m => `${meteoTexte('Maison', 'House')} ${m.maison} : ${m.signe || ''}`) : [];
@@ -129,6 +129,10 @@ function annulerGPSMeteo() { const etat = etatMeteoCosmique(); etat.gpsVersion++
 function reinitialiserMeteoCosmique() {
   invaliderMeteo(); invaliderCandidatMeteo(); annulerGPSMeteo(); meteoStatut('');
 }
+function actualiserLangueMeteo() {
+  reinitialiserMeteoCosmique();
+  rendreLieuActif();
+}
 function nombreMeteo(value) { if (value === '' || value == null) return null; const n = Number(value); return Number.isFinite(n) ? n : null; }
 function normaliserFicheMeteo(fiche) {
   const normalisee = {...fiche, utc_auto:true};
@@ -150,7 +154,7 @@ async function chargerMeteoCosmique() {
   const fuseau = meteoFuseau(); const jour = meteoJourLocal(); const resultat = DERNIER_RESULTAT; const localisation = etat.localisation;
   try {
     const response = await fetch('/meteo-cosmique', {method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-      body:JSON.stringify({fiche:normaliserFicheMeteo(lireChampsForm()), fuseau, localisation:localisation?{latitude:localisation.latitude,longitude:localisation.longitude}:null})});
+      body:JSON.stringify({langue:LANGUE, fiche:normaliserFicheMeteo(lireChampsForm()), fuseau, localisation:localisation?{latitude:localisation.latitude,longitude:localisation.longitude}:null})});
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : meteoTexte('La météo cosmique est indisponible.', 'Cosmic weather is unavailable.'));
     if (version !== etat.version || resultat !== DERNIER_RESULTAT || profil.date !== dateLocaleHoroscope() || fuseau !== meteoFuseau() || localisation !== etat.localisation) return;
@@ -167,8 +171,9 @@ function rendreLieuActif() {
   meteoEl('meteo-lieu-ouvrir').textContent = etat.localisation ? meteoTexte('Changer de lieu', 'Change location') : meteoTexte('Activer la météo cosmique locale', 'Enable local cosmic weather');
   meteoEl('meteo-generer').textContent = etat.localisation ? meteoTexte('Analyser ici & maintenant', 'Analyse here & now') : meteoTexte('Actualiser mes transits', 'Refresh my transits');
   if (!etat.localisation) { target.hidden = true; target.textContent = ''; meteoEl('meteo-lieu-reset').hidden = true; return; }
-  const {label, latitude, longitude, date} = etat.localisation;
-  target.textContent = `${meteoTexte('Lieu de cette session', 'Session location')} : ${label || `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`} · ${meteoDate(date)}`;
+  const {label, latitude, longitude, date, source} = etat.localisation;
+  const libelle = source === 'gps' ? meteoTexte('Position du navigateur', 'Browser location') : label;
+  target.textContent = `${meteoTexte('Lieu de cette session', 'Session location')} : ${libelle || `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`} · ${meteoDate(date)}`;
   target.hidden = false; meteoEl('meteo-lieu-reset').hidden = false;
 }
 function appliquerLieuMeteo(candidate) {
@@ -207,7 +212,7 @@ function demanderPositionMeteo() {
   meteoStatut(meteoTexte('Demande de position au navigateur…', 'Requesting browser location…'));
   navigator.geolocation.getCurrentPosition(pos => {
     if (version !== etat.gpsVersion) return;
-    etat.gpsEnCours = false; meteoBoutons(); appliquerLieuMeteo({label:meteoTexte('Position du navigateur', 'Browser location'), latitude:pos.coords.latitude, longitude:pos.coords.longitude});
+    etat.gpsEnCours = false; meteoBoutons(); appliquerLieuMeteo({source:'gps', label:meteoTexte('Position du navigateur', 'Browser location'), latitude:pos.coords.latitude, longitude:pos.coords.longitude});
   }, err => {
     if (version !== etat.gpsVersion) return;
     etat.gpsEnCours = false; meteoBoutons(); meteoStatut(err.code === err.PERMISSION_DENIED ? meteoTexte('Position non autorisée. La météo de base reste disponible.', 'Location was not allowed. Base weather remains available.') : meteoTexte('Position indisponible. La météo de base reste disponible.', 'Location unavailable. Base weather remains available.'));

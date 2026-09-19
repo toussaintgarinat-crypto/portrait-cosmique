@@ -1,0 +1,4 @@
+# Inférence CPU du modèle Argos/OPUS EN→FR, sans service distant.
+ctranslate2==4.8.2
+sentencepiece==0.2.0
+numpy==1.26.4

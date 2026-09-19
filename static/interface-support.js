@@ -1,5 +1,20 @@
+// Translate presentation values while preserving canonical calculation keys.
+function traduireValeur(value) {
+  if (LANGUE !== 'en' || value == null) return value;
+  const names = {
+    'Bélier':'Aries','Taureau':'Taurus','Gémeaux':'Gemini','Lion':'Leo','Vierge':'Virgo','Balance':'Libra','Scorpion':'Scorpio','Sagittaire':'Sagittarius','Capricorne':'Capricorn','Verseau':'Aquarius','Poissons':'Pisces',
+    'Soleil':'Sun','Lune':'Moon','Mercure':'Mercury','Vénus':'Venus','Saturne':'Saturn','Neptune':'Neptune','Pluton':'Pluto','Ascendant':'Ascendant','Descendant':'Descendant','Milieu du Ciel':'Midheaven','Fond du Ciel':'Imum Coeli','Noeud Nord':'North Node','Nœud Nord':'North Node','Noeud Sud':'South Node','Nœud Sud':'South Node','Part de Fortune':'Part of Fortune','Lune Noire':'Black Moon',
+    'Conjonction':'Conjunction','Trigone':'Trine','Carré':'Square','Semi-carré':'Semi-square','Sesquicarré':'Sesquiquadrate','Quinconce':'Quincunx','Feu':'Fire','Terre':'Earth','Air':'Air','Eau':'Water','Bois':'Wood','Métal':'Metal','Fixe':'Fixed',
+    'Buffle':'Ox','Tigre':'Tiger','Lapin':'Rabbit','Serpent':'Snake','Cheval':'Horse','Chèvre':'Goat','Singe':'Monkey','Coq':'Rooster','Chien':'Dog','Cochon':'Pig',
+    'Bouleau':'Birch','Sorbier':'Rowan','Frêne':'Ash','Aulne':'Alder','Saule':'Willow','Aubépine':'Hawthorn','Chêne':'Oak','Houx':'Holly','Noisetier':'Hazel','Vigne':'Vine','Lierre':'Ivy','Roseau':'Reed','Sureau':'Elder','Olivier':'Olive','Hêtre':'Beech','Érable':'Maple','Noyer':'Walnut','Peuplier':'Poplar','Châtaignier':'Chestnut','Charme':'Hornbeam','Figuier':'Fig','Pommier':'Apple','If':'Yew','Orme':'Elm','Cyprès':'Cypress','Micocoulier':'Hackberry','Pin':'Pine','Tilleul':'Linden',
+    'Oie':'Goose','Loutre':'Otter','Loup':'Wolf','Faucon':'Falcon','Castor':'Beaver','Cerf':'Deer','Pic-vert':'Woodpecker','Saumon':'Salmon','Ours':'Bear','Corbeau':'Raven','Hibou':'Owl',
+    'Grenat':'Garnet','Améthyste':'Amethyst','Aigue-marine':'Aquamarine','Diamant':'Diamond','Émeraude':'Emerald','Perle':'Pearl','Rubis':'Ruby','Péridot':'Peridot','Saphir':'Sapphire','Opale':'Opal','Topaze':'Topaz',
+    'Le Nil':'The Nile','Amon-Rê':'Amun-Ra','Mout':'Mut','Thot':'Thoth','classique':'Classical','pythagoricien':'Pythagorean','Jour intercalaire':'Intercalary day'
+  };
+  return names[value] || value;
+}
 function nomAspect(key) {
-  return GLOSSAIRE_LABELS[_ASPECT_GLOSS[key]] || NOMS_ASPECTS_TR[key] || key;
+  return GLOSSAIRE_LABELS[_ASPECT_GLOSS[key]] || traduireValeur(NOMS_ASPECTS_TR[key] || key);
 }
 // Form state and clean poster exports shared by the existing interface.
 function echapperIdentite(value) {

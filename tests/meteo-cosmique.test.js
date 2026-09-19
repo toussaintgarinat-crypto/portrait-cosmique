@@ -102,3 +102,32 @@ test('failed refresh keeps the last valid reading and reports its timestamp', as
   ctx.meteoRendre(data);
   assert.equal(elements['meteo-resultat'].querySelectorAll('details')[0].open,false);
 });
+
+test('weather sends the selected language', async () => {
+  const {ctx} = charger(); ctx.LANGUE='en'; let body;
+  ctx.fetch=async(url,options)=>{body=JSON.parse(options.body); return {ok:true,json:async()=>({})};};
+  await ctx.chargerMeteoCosmique();
+  assert.equal(body.langue,'en');
+});
+
+test('English weather renders English angles, aspect units and active trend segments', () => {
+  const {ctx,elements}=charger(); ctx.LANGUE='en';
+  ctx.document.createElement=tag=>({...element(tag),setAttribute(){}});
+  ctx.meteoRendre({natal_complet:true,tendances:[{nom:'Drive',niveau:'strong',intensite:3,facteurs:[{mobile:'Sun',aspect:'square',natal:'Moon',orb:1}]}],local:{ascendant:{signe:'Aries'},milieu_du_ciel:{signe:'Capricorn'}}});
+  const result=elements['meteo-resultat'];
+  const texts=node=>[node.textContent,...node.children.flatMap(texts)];
+  const rendered=texts(result).join(' ');
+  assert.match(rendered,/Midheaven/); assert.match(rendered,/orb/); assert.doesNotMatch(rendered,/Milieu du Ciel|d’orbe/);
+  assert.equal(result.querySelectorAll('span').filter(n=>n.className==='actif').length,3);
+});
+
+test('language switch clears old weather and relabels a GPS session', () => {
+  const {ctx,elements}=charger();
+  Object.assign(ctx.etatMeteoCosmique(),{generee:true,localisation:{source:'gps',label:'Position du navigateur',latitude:1,longitude:2,date:'2026-09-13T12:00:00Z'}});
+  elements['meteo-resultat'].children=[element('p')];
+  ctx.LANGUE='en'; ctx.actualiserLangueMeteo();
+  assert.equal(elements['meteo-resultat'].hidden,true);
+  assert.match(elements['meteo-lieu-actif'].textContent,/Browser location/);
+  assert.doesNotMatch(elements['meteo-lieu-actif'].textContent,/Position du navigateur/);
+  assert.equal(elements['meteo-generer'].textContent,'Analyse here & now');
+});

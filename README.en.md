@@ -162,3 +162,12 @@ copy, synced from the source. `main.py`, `llm.py`, and `static/` are specific to
 ## License
 
 Apache-2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+
+### Language and free horoscope translation
+
+FR/EN applies to the interface, readings, cosmic weather, hourly advice and speech. The free English horoscope is translated locally into French in FR mode, without an API key. EN mode keeps the original English text. Optional personalized AI also follows the chosen language.
+
+The Docker image includes the Argos/OPUS EN→FR 1.9 model, running on CPU with CTranslate2. Downloads happen at build time only; a bounded 128-text memory cache needs no database. A missing model produces an explicit error instead of displaying the wrong language.
+
+For local Python 3.11/3.12: install `requirements.txt` and `requirements-translation.txt`, then run `python scripts/installer_traduction.py`. The default model directory is `models/en-fr/`; set `PORTRAIT_TRANSLATION_DIR` at installation and runtime to override it. The official download is verified with SHA-256. OPUS-MT model by Jörg Tiedemann and Santhosh Thottingal, licensed CC-BY 4.0; its attribution is retained alongside the model.

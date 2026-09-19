@@ -93,55 +93,57 @@ def test_ia_provider_errors_are_actionable_without_leaking_response(monkeypatch)
         assert 'test-secret' not in r.text
 
 
-def test_api_translation_preserves_provider_date_and_translates_source(monkeypatch):
+
+def test_api_french_uses_local_translation_without_key(monkeypatch):
     calls = fake_provider(monkeypatch, {'data':{'date':'2026-09-11','horoscope':'Take time to rest.'}})
     seen = []
-    async def translate(text, config):
-        seen.append((text, config))
+    def translate(text):
+        seen.append(text)
         return 'Prends le temps de te reposer.'
-    monkeypatch.setattr(main.llm, 'traduire_horoscope', translate, raising=False)
-    config = {'base_url':'https://example.test/v1','cle':'test-key','modele':'test-model'}
-    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','traduire_fr':True,'llm':config})
+    monkeypatch.setattr(main.traduction, 'traduire_horoscope', translate)
+    monkeypatch.setattr(main.llm, '_config', lambda cfg: (_ for _ in ()).throw(AssertionError('No LLM allowed')))
+    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','langue':'fr'})
     assert r.status_code == 200
-    assert r.json()['texte'] == 'Prends le temps de te reposer.'
-    assert r.json()['langue'] == 'fr'
-    assert r.json()['date'] == '2026-09-11'
-    assert r.json()['source'] == 'api'
-    assert seen == [('Take time to rest.', config)]
+    assert r.json() == {'texte':'Prends le temps de te reposer.','langue':'fr','date':'2026-09-11','source':'api'}
+    assert seen == ['Take time to rest.']
+    assert len(calls) == 1
 
 
-def test_translation_failure_keeps_english_and_reports_fallback(monkeypatch):
+def test_french_translation_failure_never_shows_english(monkeypatch):
     fake_provider(monkeypatch, {'data':{'date':'2026-09-12','horoscope':'Take time to rest.'}})
-    async def translate(*args):
+    def translate(*args):
         raise RuntimeError('private-provider-secret')
-    monkeypatch.setattr(main.llm, 'traduire_horoscope', translate, raising=False)
-    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','traduire_fr':True})
-    assert r.status_code == 200
-    assert r.json()['texte'] == 'Take time to rest.'
-    assert r.json()['langue'] == 'en'
-    assert 'traduction' in r.json()['avertissement'].lower()
+    monkeypatch.setattr(main.traduction, 'traduire_horoscope', translate)
+    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','langue':'fr'})
+    assert r.status_code == 503
+    assert 'texte' not in r.json()
+    assert 'traduction' in r.json()['detail'].lower()
     assert 'private-provider-secret' not in r.text
 
 
-def test_translation_adapter_uses_config_and_source_only(monkeypatch):
-    import asyncio
-    calls = fake_provider(monkeypatch, {'choices':[{'message':{'content':'  Prends une pause.  '}}]})
-    config = {'base_url':'https://example.test/v1','cle':'test-key','modele':'test-model'}
-    result = asyncio.run(main.llm.traduire_horoscope('Take a break.', config))
-    assert result == 'Prends une pause.'
-    url, request = calls[0]
-    assert url == 'https://example.test/v1/chat/completions'
-    assert request['headers']['Authorization'] == 'Bearer test-key'
-    assert request['json']['model'] == 'test-model'
-    assert request['json']['messages'][1]['content'] == 'Take a break.'
-
-
-def test_empty_translation_keeps_source(monkeypatch):
+def test_english_does_not_translate(monkeypatch):
     fake_provider(monkeypatch, {'data':{'date':'2026-09-12','horoscope':'Take a break.'}})
-    async def translate(*args):
-        return '   '
-    monkeypatch.setattr(main.llm, 'traduire_horoscope', translate)
-    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','traduire_fr':True})
+    def translate(*args):
+        raise AssertionError('No translation needed')
+    monkeypatch.setattr(main.traduction, 'traduire_horoscope', translate)
+    r = client.post('/horoscope-du-jour', json={'mode':'api','date':'2026-09-12','soleil':'Vierge','langue':'en'})
+    assert r.status_code == 200
     assert r.json()['texte'] == 'Take a break.'
     assert r.json()['langue'] == 'en'
-    assert r.json()['avertissement']
+
+
+def test_ia_english_prompt_and_metadata(monkeypatch):
+    monkeypatch.setattr(main.llm, '_config', lambda cfg: ('https://example.test/v1','test-key','test-model'))
+    calls = fake_provider(monkeypatch, {'choices':[{'message':{'content':'Take a break.'}}]})
+    r = client.post('/horoscope-du-jour', json={'mode':'ia','date':'2026-09-12','soleil':'Vierge','langue':'en'})
+    assert r.status_code == 200
+    assert r.json()['langue'] == 'en'
+    assert 'English' in calls[0][1]['json']['messages'][0]['content']
+
+
+def test_english_error_is_english(monkeypatch):
+    monkeypatch.setattr(main.llm, '_config', lambda cfg: ('','',''))
+    r = client.post('/horoscope-du-jour', json={'mode':'ia','date':'2026-09-12','soleil':'Vierge','langue':'en'})
+    assert r.status_code == 503
+    assert 'Configure' in r.json()['detail']
+    assert 'provider' in r.json()['detail']

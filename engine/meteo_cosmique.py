@@ -79,14 +79,14 @@ def transits(mobiles: dict, natal: dict, origine='transit'):
 
 def tendances(aspects: list):
     result = []
-    for nom, corps in [('Focus', {'Mercure'}), ('Élan', {'Soleil','Mars'}),
+    for nom, corps in [('Concentration', {'Mercure'}), ('Élan', {'Soleil','Mars'}),
                        ('Sociabilité', {'Vénus','Jupiter'})]:
         facteurs = [a for a in aspects if a['mobile'] in corps or a['natal'] in corps]
         force = max((1-a['orb']/ORBE for a in facteurs), default=0)
         niveau = 'marqué' if force >= 2/3 else 'modéré' if force >= 1/3 else 'discret'
         tons = {a['tonalite'] for a in facteurs}
         tonalite = next(iter(tons)) if len(tons)==1 else 'contrastée' if tons else 'sans aspect retenu'
-        result.append({'nom':nom, 'niveau':niveau, 'tonalite':tonalite,
+        result.append({'nom':nom, 'niveau':niveau, 'intensite':('discret', 'modéré', 'marqué').index(niveau)+1, 'tonalite':tonalite,
                        'explication':('Intensité symbolique de l’aspect le plus proche : '
                                       'discret au-delà de 2° d’orbe ou sans aspect, modéré de 1° à 2°, marqué jusqu’à 1°. '
                                       'Un niveau marqué peut indiquer de la tension comme de la fluidité.'),
@@ -134,7 +134,7 @@ def fenetres_jour(instant, fuseau, latitude, longitude):
     return result
 
 
-def calculer(fiche, fuseau, localisation=None):
+def calculer(fiche, fuseau, localisation=None, langue='fr'):
     zone = fuseaux._charger_fuseau(fuseau)
     now = maintenant().astimezone(timezone.utc).replace(second=0, microsecond=0)
     theme = theme_complet.theme_complet(fiche)
@@ -144,7 +144,7 @@ def calculer(fiche, fuseau, localisation=None):
     if not natal:
         sun = theme.get('fondations', {}).get('soleil')
         if not sun:
-            raise ValueError('Indique une date de naissance valide.')
+            raise ValueError('Enter a valid birth date.' if langue == 'en' else 'Indique une date de naissance valide.')
         natal = {'Soleil':sun}
         limites.append('Heure de naissance inconnue : seul le Soleil natal approximé à midi est utilisé. Aucun angle natal ni position lunaire natale n’est inventé.')
     else:
@@ -180,7 +180,84 @@ def calculer(fiche, fuseau, localisation=None):
         domaine, conseil = DOMAINES[sun_house-1]
         lecture += f" Ici : Soleil en maison locale {sun_house}, thème symbolique « {domaine} ». {conseil}"
         limites.append('Fenêtres : changement de signe de l’ascendant local, maisons en signes entiers. Le domaine correspond à la maison locale du Soleil au début du créneau, pas à une promesse de réussite.')
-    return {'instant_utc':now.isoformat(), 'date_locale':now.astimezone(zone).date().isoformat(),
+    data = {'instant_utc':now.isoformat(), 'date_locale':now.astimezone(zone).date().isoformat(),
             'fuseau':fuseau, 'positions':positions, 'transits':aspects,
             'tendances':indicateurs, 'lecture':lecture, 'limites':limites,
-            'natal_complet':complet, 'local':local, 'fenetres':fenetres}
+            'natal_complet':complet, 'local':local, 'fenetres':fenetres, 'langue':langue}
+    if langue == 'en':
+        data = _presentation_anglaise(data)
+        data['lecture'] = _lecture_anglaise(data)
+    return data
+
+
+SIGNES_EN = dict(zip((s[0] for s in T.SIGNES), (
+    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra',
+    'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces')))
+DOMAINES_EN = (
+    ('Initiative', 'Choose a first action within your reach.'),
+    ('Resources', 'Review your resources and priorities.'),
+    ('Communication', 'Clarify an idea before sharing it.'),
+    ('Grounding', 'Make time to regain your bearings.'),
+    ('Creativity', 'Give a creative impulse a concrete form.'),
+    ('Organisation', 'Adjust your pace and simplify a task.'),
+    ('Relationships', 'Make room for listening and reciprocity.'),
+    ('Transformation', 'Identify what you would like to let evolve.'),
+    ('Exploration', 'Step back or discover another point of view.'),
+    ('Contribution', 'Clarify what you want to contribute to a project.'),
+    ('Community', 'Share an idea with the people involved.'),
+    ('Reflection', 'Keep some quiet space before your next action.'),
+)
+LIMITES_EN = [
+    'Symbolic reading: these trends measure neither your mental state nor your physical energy.',
+    'Approximate ephemerides from the existing engine: some planetary positions may differ by several degrees. Aspects close to the threshold are indicative.',
+    'Positions are interpolated between hourly UTC samples; angles and time windows are calculated in one-minute steps, without a guarantee of astronomical accuracy to the minute.',
+]
+LIBELLES_EN = {
+    **SIGNES_EN,
+    'Soleil':'Sun', 'Lune':'Moon', 'Mercure':'Mercury', 'Vénus':'Venus',
+    'Mars':'Mars', 'Jupiter':'Jupiter', 'Saturne':'Saturn', 'Uranus':'Uranus',
+    'Neptune':'Neptune', 'Pluton':'Pluto', 'Ascendant':'Ascendant',
+    'Milieu du Ciel':'Midheaven', 'Ascendant local':'Local Ascendant',
+    'Milieu du Ciel local':'Local Midheaven',
+    'conjonction':'conjunction', 'sextile':'sextile', 'carré':'square',
+    'trigone':'trine', 'opposition':'opposition',
+    'mobilisation':'activation', 'fluidité':'ease', 'tension':'tension',
+    'contrastée':'mixed', 'sans aspect retenu':'no qualifying aspect',
+    'discret':'subtle', 'modéré':'moderate', 'marqué':'strong',
+    'Concentration':'Focus', 'Élan':'Drive', 'Sociabilité':'Sociability',
+    **{fr:en for pair_fr,pair_en in zip(DOMAINES, DOMAINES_EN) for fr,en in zip(pair_fr,pair_en)},
+    **dict(zip(LIMITES, LIMITES_EN)),
+    'Heure de naissance inconnue : seul le Soleil natal approximé à midi est utilisé. Aucun angle natal ni position lunaire natale n’est inventé.':
+        'Birth time unknown: only the natal Sun estimated at noon is used. No natal angle or natal Moon position is invented.',
+    'Ciel local non proposé au-delà de 66° de latitude : les levers des signes deviennent irréguliers. Les transits personnels restent disponibles.':
+        'Local sky is unavailable beyond 66° latitude: rising signs become irregular. Personal transits remain available.',
+    'Fenêtres : changement de signe de l’ascendant local, maisons en signes entiers. Le domaine correspond à la maison locale du Soleil au début du créneau, pas à une promesse de réussite.':
+        'Time windows follow changes in the local rising sign, using whole-sign houses. The domain corresponds to the local house of the Sun at the start of the window and is not a promise of success.',
+    'Intensité symbolique de l’aspect le plus proche : discret au-delà de 2° d’orbe ou sans aspect, modéré de 1° à 2°, marqué jusqu’à 1°. Un niveau marqué peut indiquer de la tension comme de la fluidité.':
+        'Symbolic intensity of the closest aspect: subtle beyond a 2° orb or with no aspect, moderate from 1° to 2°, strong up to 1°. A strong level may indicate tension or ease.',
+}
+
+
+def _presentation_anglaise(value):
+    """Translate display values after calculation; dictionary keys remain stable."""
+    if isinstance(value, dict):
+        return {key: _presentation_anglaise(item) for key,item in value.items()}
+    if isinstance(value, list):
+        return [_presentation_anglaise(item) for item in value]
+    return LIBELLES_EN.get(value, value) if isinstance(value, str) else value
+
+
+def _lecture_anglaise(data):
+    lecture = ' · '.join(f"{t['nom']}: {t['niveau']} ({t['tonalite']})" for t in data['tendances']) + '.'
+    if data['transits']:
+        a = min(data['transits'], key=lambda x:x['orb'])
+        lecture += f" Current reference: {a['mobile']} {a['aspect']} natal {a['natal']} (orb {a['orb']:.2f}°)."
+        lecture += (' Take time to check your expectations before acting.' if a['tonalite']=='tension'
+                    else ' Choose a concrete action and observe what it produces.')
+    else:
+        lecture += ' No major aspect within the selected 3° orb; this does not determine how your day will unfold.'
+    if data['local']:
+        house = (int(data['positions']['Soleil']['longitude']//30)-int(data['local']['ascendant']['longitude']//30)) % 12+1
+        domain, advice = DOMAINES_EN[house-1]
+        lecture += f' Here: Sun in local house {house}, symbolic theme “{domain}”. {advice}'
+    return lecture
