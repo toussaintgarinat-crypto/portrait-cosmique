@@ -104,7 +104,7 @@ La traduction utilise le modèle Argos/OPUS EN→FR 1.9 via CTranslate2 sur CPU.
 Installation locale (Python 3.11 ou 3.12) :
 
 ```sh
-pip install -r requirements.txt -r requirements-translation.txt
+pip install -r requirements.txt
 python scripts/installer_traduction.py
 uvicorn main:app --port 8410
 ```

@@ -2,8 +2,8 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt requirements-translation.txt ./
-RUN pip install --no-cache-dir -r requirements.txt -r requirements-translation.txt
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Moteur (synchronisé depuis Workplace, cf. scripts/export-portrait-cosmique.sh) — aplati
 # à la racine de /app pour que `main.py` l'importe comme des modules normaux (pas de

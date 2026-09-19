@@ -6,3 +6,7 @@ httpx==0.28.1
 # Résolution locale des fuseaux et règles historiques (heure d'été incluse).
 tzfpy==2.0.0
 tzdata==2026.4
+# Traduction locale EN→FR, utilisée aussi dans le runtime Python Vercel.
+ctranslate2==4.8.2
+sentencepiece==0.2.0
+numpy==1.26.4

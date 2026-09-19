@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "python scripts/installer_traduction.py",
+  "functions": {
+    "main.py": {
+      "includeFiles": "models/en-fr/**",
+      "maxDuration": 60
+    }
+  }
+}
