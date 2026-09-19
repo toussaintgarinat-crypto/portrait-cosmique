@@ -14,7 +14,10 @@
 - Playwright visible, vrai serveur : calcul portrait, GPS, conseils horaires, horoscope API réel traduit localement, transitions FR → EN → FR, clé vide, vue mobile 390 px, aucune erreur JavaScript ni débordement horizontal.
 - Noms de signes conservés en anglais par le modèle normalisés en français (test ajouté après contrôle du résultat réel).
 - `git diff --check` : propre.
+- Déploiement Vercel du commit `bb8bcf2` : fonction FastAPI prête (103,81 Mo) et alias `portrait-cosmique.vercel.app` mis à jour.
+- `POST https://portrait-cosmique.vercel.app/horoscope-du-jour` en mode `api`, langue `fr`, signe `Vierge` : HTTP 200, texte français non vide et `"langue":"fr"`.
+- Playwright visible sur l’URL publique : bouton « Horoscope gratuit · français », texte rendu de 696 caractères, attribut `lang="fr"`, statut « API · traduction française ».
 
 ## Limite de vérification
 
-Docker n’était pas démarré sur cette machine : l’image complète n’a pas été construite ici. Le téléchargement du modèle, son empreinte, l’inférence locale et les parcours serveur/navigateur ont été exécutés. Une reconstruction de l’image est nécessaire pour livrer le modèle au serveur déployé.
+Docker n’était pas démarré sur cette machine : l’image complète n’a pas été construite ici. Le téléchargement du modèle, son empreinte, l’inférence locale, le déploiement Vercel et les parcours serveur/navigateur ont été exécutés. Une reconstruction Docker reste nécessaire avant une livraison Docker distincte.
